@@ -64,6 +64,7 @@ class ProcessTextActivity : ComponentActivity() {
                 var busy by remember { mutableStateOf(true) }
                 var detected by remember { mutableStateOf(false) }
                 var copied by remember { mutableStateOf(false) }
+                var slang by remember { mutableStateOf<List<Slang.Found>>(emptyList()) }
 
                 LaunchedEffect(source, target) {
                     busy = true
@@ -84,6 +85,7 @@ class ProcessTextActivity : ComponentActivity() {
                         }
                         status = "Перевожу…"
                         result = TranslationEngine.translate(source, target, text, settings.wifiOnly)
+                        slang = if (Slang.enabled) Slang.normalize(text, source).found else emptyList()
                         status = ""
                         settings.lastTarget = target
                         HistoryStore.get(applicationContext).add(source, target, text, result)
@@ -159,6 +161,7 @@ class ProcessTextActivity : ComponentActivity() {
                                         .verticalScroll(rememberScrollState())
                                 )
                             }
+                            SlangFoundList(slang)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LinkText(if (copied) "Скопировано ✓" else "Копировать", p.gold, 14.sp) {
                                     clipboard.setText(AnnotatedString(result))

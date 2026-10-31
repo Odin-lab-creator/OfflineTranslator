@@ -70,6 +70,12 @@ fun SettingsScreen(
                 settings::updateAutoTranslate
             )
             SwitchRow(
+                "Распознавать сленг и сокращения",
+                "lol, no cap, gonna, кринж, хз… — заменяются обычными словами, под переводом пояснение",
+                settings.slang,
+                settings::updateSlang
+            )
+            SwitchRow(
                 "Скачивать модели только по Wi-Fi",
                 "Экономит мобильный интернет",
                 settings.wifiOnly,

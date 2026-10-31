@@ -325,6 +325,7 @@ fun TranslatorScreen(
                         modifier = Modifier.padding(horizontal = 6.dp)
                     )
                 }
+                SlangFoundList(vm.slangFound, Modifier.padding(start = 6.dp, end = 6.dp, top = 8.dp))
             }
         }
         Spacer(Modifier.height(16.dp))

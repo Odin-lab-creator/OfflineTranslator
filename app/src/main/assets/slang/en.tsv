@@ -1,0 +1,248 @@
+# term	pattern	replacement	meaning
+lol	lol+|lolz|lul	haha	смеюсь, «ха-ха»
+lmao	lmf?ao+|lmfao+	haha	очень смешно, «ржу»
+rofl	-	haha	«катаюсь по полу от смеха»
+omg	omg|omfg	oh my god	«о боже»
+idk	idk|i dunno|dunno	I don't know	«не знаю»
+idc	-	I don't care	«мне всё равно»
+tbh	tbh|tbf	to be honest	«честно говоря»
+imo	imo|imho	in my opinion	«по-моему»
+btw	-	by the way	«кстати»
+ngl	-	to be honest	«не буду врать», честно
+fr	fr ?fr|for real for real|fr(?!\.)	seriously	«реально, серьёзно»
+rn	-	right now	«прямо сейчас»
+brb	-	I will be right back	«сейчас вернусь»
+bc / cuz	(?<!\d )bc|b/c|cuz|coz|bcuz|bcoz|['’]cause	because	«потому что»
+thx	thx|thnx|tnx|thanx	thanks	«спасибо»
+tysm	tysm|tyvm	thank you so much	«огромное спасибо»
+ty	-	thank you	«спасибо»
+np	-	no problem	«без проблем»
+yw	-	you're welcome	«пожалуйста» (в ответ на спасибо)
+pls	pls|plz|plez|pleez|pleaseee+	please	«пожалуйста»
+u	u(?![./&]\p{L})	you	«ты, вы» (you)
+ur	-	your	«твой» или «ты» (your / you're)
+r	r(?![./&]\p{L}|/)	are	are — «есть, являешься»
+k	k(?![./&]\p{L})|kk|okie|oki|okey	okay	«окей»
+gg	-	good game	«хорошая игра»
+afk	-	away from keyboard	«отошёл от компьютера»
+irl	-	in real life	«в реальной жизни»
+dm me	dm me	send me a private message	«напиши мне в личку»
+dm	dms?	private messages	личные сообщения
+tl;dr	tl;? ?dr	in short	«если коротко»
+fyi	-	for your information	«к твоему сведению»
+asap	-	as soon as possible	«как можно скорее»
+icymi	-	in case you missed it	«если вдруг пропустил»
+iykyk	-	if you know, you know	«кто знает — тот поймёт»
+smh	-	that is so disappointing	«качаю головой» — разочарование
+wtf	wtf|wth	what the hell	«какого чёрта»
+stfu	-	shut up	«заткнись»
+ffs	-	for heaven's sake	«да сколько можно»
+jk	jk|j/k|jkjk	just kidding	«шучу»
+nvm	nvm|nevermind	never mind	«неважно, забей»
+hbu	hbu|wbu	how about you	«а ты?»
+wyd	-	what are you doing	«что делаешь?»
+hmu	-	text me	«напиши мне»
+ttyl	-	talk to you later	«поговорим позже»
+gtg	gtg|g2g|gotta go	I have to go	«мне пора»
+ily	ilysm|ily	I love you	«люблю тебя»
+bff	bffs?	best friend	лучший друг / подруга
+ofc	-	of course	«конечно»
+obv	obvs?|obvi	obviously	«очевидно»
+prolly	prolly|probs	probably	«наверное»
+tho	-	though	«хотя»
+thru	-	through	«через»
+b4	-	before	«до, перед»
+2day	2day	today	«сегодня»
+tmrw	tmrw|tmr|2moro|2morrow|tmw	tomorrow	«завтра»
+gr8	-	great	«отлично»
+l8r	l8r|l8ter|laterz	later	«позже»
+cya	cya|see ya|cu	see you	«увидимся»
+w/o	-	without	«без»
+w/e	-	whatever	«неважно»
+w/	-	with	«с»
+bday	b-?day	birthday	«день рождения»
+convo	convos?	conversation	«разговор»
+sry	sry|srry|soz	sorry	«извини»
+whatevs	whatevs|watevs	whatever	«неважно, как скажешь»
+yup	yup|yep|yass+|yas	yes	«да»
+nah	nah|nope	no	«нет»
+sup	wassup|whassup|wazzup|what['’]?s up|whats up|sup	hi, how are you	«привет, как дела?»
+what's good	what['’]?s good	how are you	«как дела?»
+y'all	y['’]?all	you all	«вы все»
+ain't	ain['’]?t	not	«не», «нет» (разговорное)
+innit	-	isn't it	«не так ли?» (британское)
+ya	-	you	«ты»
+gonna	-	going to	«собираюсь»
+wanna	-	want to	«хочу»
+gotta	-	have to	«надо, должен»
+tryna	-	trying to	«пытаюсь»
+finna	-	going to	«собираюсь» (сленг)
+kinda	-	kind of	«типа, немного»
+sorta	-	sort of	«вроде как»
+gimme	-	give me	«дай мне»
+lemme	-	let me	«дай я, позволь»
+outta	-	out of	«из»
+lotta	-	lot of	«много»
+im	-	I'm	I'm — «я»
+ive	-	I've	I've
+dont	-	don't	don't — «не»
+cant	-	can't	can't — «не могу»
+didnt	-	didn't	didn't
+doesnt	-	doesn't	doesn't
+isnt	-	isn't	isn't
+wasnt	-	wasn't	wasn't
+arent	-	aren't	aren't
+couldnt	-	couldn't	couldn't
+wouldnt	-	wouldn't	wouldn't
+shouldnt	-	shouldn't	shouldn't
+havent	-	haven't	haven't
+thats	-	that's	that's
+whats	-	what's	what's
+youre	-	you're	you're
+theyre	-	they're	they're
+no cap	no cap(?:ping)?|no 🧢	honestly	«без шуток», честно
+cap	that['’]?s cap|thats cap|that is cap|big cap	that is a lie	cap — враньё («это враньё»)
+capping	(?:stop|quit) capping	stop lying	capping — врать
+capping	(?:you['’]?re|youre|ur|you are) capping	you are lying	capping — врать
+bet	^\s*bet\s*[.!]*\s*$	Okay, deal	bet — «договорились, ок»
+bet	okay bet|ok bet|aight bet	okay, deal	bet — «договорились»
+slay	(?:you|u) slay(?:ed)?	you are amazing	slay — «ты великолепен»
+slay	slay(?:ed|yy+)	nailed it	slayed — «справился блестяще»
+slay	slay+	amazing	slay — «блеск, огонь»
+lit	(that['’]s|thats|it['’]s|its|it was|that was|was|so|super|hella) lit	$1 awesome	lit — «огонь, круто»
+fire	(that['’]s|thats|it['’]s|its|so|straight|pure|is|was) fire(?! (?:alarm|safety|truck|department|station|exit|escape|drill|hazard|risk|damage|extinguisher|fighter|place))	$1 amazing	fire — «огонь, супер»
+sus	sus|suss|sussy	suspicious	«подозрительно»
+lowkey	low-?key	kind of	lowkey — «немного, втайне»
+highkey	high-?key	really	highkey — «очень, открыто»
+vibe check	-	mood check	«проверка настроения»
+vibing	vibing|vibin['’]?	having a good time	vibing — «кайфовать, отдыхать»
+vibes	good vibes(?: only)?	good atmosphere	vibes — атмосфера, настроение
+vibe	vibe with	get along with	«быть на одной волне»
+vibe	the vibes?|vibes	the atmosphere	vibe — атмосфера, настроение
+salty	(so|still|kinda|very) salty	$1 upset	salty — «обиженный, раздражённый»
+salty	salty about	upset about	salty — «обиженный»
+salty	don['’]?t be salty	don't be offended	salty — «обиженный»
+shook	i['’]?m (?:so )?shook|im (?:so )?shook	I'm shocked	shook — «в шоке»
+shook	was (?:so )?shook	was shocked	shook — «в шоке»
+ghosted	ghosted	suddenly stopped replying to	ghost — «пропасть без объяснений»
+ghosting	-	suddenly ignoring	ghost — «пропасть без объяснений»
+ghost	ghost (me|him|her|them|you|us)	suddenly stop replying to $1	ghost — «пропасть без объяснений»
+flex	weird flex but ok(?:ay)?	strange thing to brag about, but okay	«странный повод хвастаться»
+flexing	flexing|flexin['’]?	showing off	flex — «хвастаться»
+flexed	-	showed off	flex — «хвастаться»
+simp	simping|simpin['’]?	being overly devoted	simp — «бегать за кем-то, угождать»
+simp	simps?	overly devoted admirer	simp — «тот, кто слишком угождает»
+stan	i stan|we stan	I am a huge fan of	stan — «быть ярым фанатом»
+tea	spill the tea|spill tea	tell me the gossip	tea — сплетни
+tea	what['’]?s the tea|whats the tea	what's the gossip	tea — сплетни
+goat	the goat|the g\.o\.a\.t\.?	the greatest of all time	GOAT — «величайший»
+goated	-	the best	goated — «лучший»
+bussin	bussin['’]?(?: bussin['’]?)?|bussin	really delicious	bussin — «очень вкусно, огонь»
+drip	drip check	outfit check	drip — стильный прикид
+drip	(?:nice|sick|fire|clean|crazy) drip|the drip	great outfit	drip — стильный прикид
+rizz	rizzler	charmer	rizz — обаяние, умение флиртовать
+rizz	rizz(?:ed)? (?:her|him|them) up	flirted with them	rizz — флиртовать
+rizz	rizz	charm	rizz — обаяние, умение флиртовать
+mid	(it['’]s|its|is|was|so|kinda|pretty|lowkey) mid	$1 mediocre	mid — «так себе, средненько»
+based	based(?! (?:on|in|off|upon|around|out|at|near))	bold and honest	based — «смело и честно, по делу»
+cringe	cringy|cringey|cringeworthy	embarrassing	cringe — «кринж, испанский стыд»
+cringe	(so|that['’]s|thats|is|kinda) cringe	$1 embarrassing	cringe — «кринж, испанский стыд»
+bruh	bruh+|breh	dude	«чувак, ну ты чего»
+fam	-	friend	fam — «друг, свой»
+bro	bruv|brah|broski|brotha	bro	«бро, друг»
+yeet	yeeted	threw	yeet — «швырнуть»
+yeet	yeet	throw	yeet — «швырнуть»
+extra	(so|too|being) extra	$1 over the top	extra — «перебор, слишком»
+basic	so basic	so unoriginal	basic — «банальный»
+savage	that['’]?s savage|thats savage|so savage	that is brutally bold	savage — «жёстко, дерзко»
+hits different	hits diff(?:erent|rent)?	feels special	«ощущается по-особенному»
+it's giving	it['’]?s giving|its giving	it looks like	«выглядит как, напоминает»
+periodt	periodt	and that's final	«и точка»
+slaps	(this|that|it|song|track|beat) slaps	$1 is excellent	slaps — «качает, огонь»
+sending me	sending me	making me laugh so hard	«я умираю со смеху»
+I'm dead	i['’]?m (?:literally )?(?:dead|deceased|dying)(?! tired| serious| set)|im (?:dead|deceased|dying)(?! tired| serious| set)|ded+	I'm laughing so hard	«умираю со смеху»
+ate	(she|he|they|you|u|y['’]all) ate(?: that| it)?(?: up)?(?=\s*(?:[.!?…]|$))	$1 nailed it	ate — «справился блестяще»
+ate	ate and left no crumbs|left no crumbs	nailed it perfectly	«сделал идеально»
+main character	main character (?:energy|vibes|syndrome)	acting like the center of attention	«главный герой» — в центре внимания
+npc	npcs?	=	NPC — персонаж игры или «массовка», безликий человек
+touch grass	touch (?:some )?grass	go outside and take a break from the internet	«выйди на улицу, отдохни от интернета»
+W	(?:big|huge|massive) w|take the w|that['’]?s a w|thats a w	a big win	W — победа
+L	(?:big|huge|massive) l|take the l|took the l|that['’]?s an l|thats an l	a big loss	L — поражение, провал
+cooked	(we['’]?re|we are|i['’]?m|im|i am|you['’]?re|youre|ur|he['’]?s|she['’]?s|they['’]?re|y['’]all) (?:so |totally |fully |actually |absolutely )?cooked	$1 doomed	cooked — «нам конец»
+delulu	delulu is the solulu	believing in fantasies is the solution	«вера в мечты — это решение»
+delulu	-	delusional	delulu — «живёт в фантазиях»
+situationship	situationships?	undefined romantic relationship	«отношения без статуса»
+gaslighting	gaslighting	manipulating	gaslighting — газлайтинг, манипуляция
+gaslit	gaslit|gaslighted	manipulated	gaslighting — газлайтинг, манипуляция
+red flag	red flags?	warning sign	«тревожный звоночек»
+green flag	green flags?	good sign	«хороший знак»
+the ick	the ick	a sudden feeling of disgust	«внезапное отвращение»
+glow up	glow-? ?ups?	transformation for the better	«преображение к лучшему»
+glowed up	glowed up	became much more attractive	«похорошел»
+fomo	-	fear of missing out	«страх что-то упустить»
+yolo	-	you only live once	«живём один раз»
+ootd	-	outfit of the day	«образ дня»
+deadass	-	seriously	«на полном серьёзе»
+on god	on god|ong|on my mama|on my mom	I swear	«клянусь»
+hella	-	very	«очень»
+legit	(?:is|it['’]?s|its) legit	is genuine	legit — «настоящий, по-честному»
+af	(\p{L}+) (?:af|asf|as fuck)	extremely $1	af — «капец как, очень»
+I'm down	i['’]?m down(?: for it)?|im down(?: for it)?	I'm in	«я за, я в деле»
+are you down	are (?:you|u) down|(?:you|u) down\?	are you in?	«ты в деле?»
+chill	netflix and chill	a romantic evening at home	«романтический вечер дома»
+chill	(?:so|pretty|super|very) chill	so relaxed	chill — «спокойный, расслабленный»
+chill	it['’]?s chill|its chill|all chill	it's fine	chill — «всё норм»
+my bad	-	my fault, sorry	«моя вина, извини»
+no worries	no worries	no problem	«не переживай, всё ок»
+hit me up	hit me up	contact me	«напиши/позвони мне»
+catch you later	catch (?:you|ya) later	see you later	«увидимся»
+it's on me	it['’]?s on me|my treat	I'm paying	«я угощаю»
+rain check	(?:take|taking) a rain check|rain check	postpone it	«перенесём на потом»
+all-nighter	pull(?:ed|ing)? an all-? ?nighter	stay up all night	«не спать всю ночь»
+break a leg	-	good luck	«ни пуха ни пера»
+piece of cake	a piece of cake|piece of cake	very easy	«проще простого»
+hit the sack	hit the (?:sack|hay)	go to sleep	«пойти спать»
+under the weather	-	unwell	«неважно себя чувствую»
+spill the beans	spill(?:ed)? the beans	reveal the secret	«проболтаться»
+an arm and a leg	(cost|costs|costed) (?:me )?an arm and a leg	$1 a fortune	«стоит целое состояние»
+call it a day	call(?:ed)? it a day	stop working for today	«на сегодня хватит»
+beat around the bush	beat(?:ing)? around the bush	avoid the main topic	«ходить вокруг да около»
+once in a blue moon	-	very rarely	«очень редко»
+hang in there	-	don't give up	«держись»
+no-brainer	a no-? ?brainer|no-? ?brainer	an obvious decision	«и думать нечего»
+get the hang of	(?:get|got|getting) the hang of	learn how to do	«наловчиться»
+bite the bullet	bit(?:e)? the bullet	do the unpleasant thing anyway	«стиснуть зубы и сделать»
+kill two birds with one stone	kill(?:ed)? two birds with one stone	solve two problems at once	«убить двух зайцев»
+the last straw	the (?:last|final) straw	the final problem that made it unbearable	«последняя капля»
+on cloud nine	on cloud (?:nine|9)	very happy	«на седьмом небе»
+over the moon	-	very happy	«вне себя от радости»
+cut corners	cut(?:ting)? corners	do it carelessly to save time	«халтурить»
+miss the boat	miss(?:ed)? the boat	miss the opportunity	«упустить шанс»
+hit the road	-	leave	«отправляться в путь»
+cold feet	cold feet	nervousness before a decision	«струсить в последний момент»
+blessing in disguise	a blessing in disguise	something that turned out well in the end	«не было бы счастья, да несчастье помогло»
+not rocket science	it['’]?s not rocket science|its not rocket science|not rocket science	it's not complicated	«не бином Ньютона»
+elephant in the room	the elephant in the room	the obvious problem everyone ignores	«слон в комнате» — очевидная проблема
+when pigs fly	-	never	«когда рак на горе свистнет»
+my two cents	my two cents|my 2 cents	my opinion	«моё скромное мнение»
+speak of the devil	-	here they are, we were just talking about them	«лёгок на помине»
+out of the blue	-	suddenly	«как гром среди ясного неба»
+in a nutshell	-	in short	«в двух словах»
+up in the air	-	undecided	«под вопросом»
+sit tight	-	wait patiently	«подожди спокойно»
+on the fence	-	undecided	«в раздумьях»
+go the extra mile	go(?:ing)? the extra mile|went the extra mile	make an extra effort	«сделать больше, чем нужно»
+pulling my leg	pulling (?:my|your) leg	joking	«разыгрывать»
+cheers mate	cheers (?:mate|bro|bruv)	thanks, friend	«спасибо, дружище»
+bloody hell	-	damn	«чёрт побери»
+gutted	-	very disappointed	«очень расстроен»
+knackered	-	exhausted	«вымотан»
+chuffed	-	very pleased	«очень доволен»
+skint	-	out of money	«на мели»
+dodgy	-	suspicious	«сомнительный»
+quid	-	pounds	«фунты (деньги)»
+bloke	blokes?	guy	«парень, мужик»
+taking the piss	taking the piss	mocking	«издеваться, подкалывать»
+can't be arsed	can['’]?t be arsed|cba	can't be bothered	«лень»
+wagwan	-	what's up	«как дела?»
+peng	-	attractive	«красивый, классный»

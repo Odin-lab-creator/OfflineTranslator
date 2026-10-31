@@ -48,6 +48,10 @@ class AppSettings private constructor(context: Context) {
     var wifiOnly by mutableStateOf(prefs.getBoolean("wifi_only", false))
         private set
 
+    /** Распознавать сленг и сокращения перед переводом. */
+    var slang by mutableStateOf(prefs.getBoolean("slang", true))
+        private set
+
     var ocrScript by mutableStateOf(
         OcrScript.entries.getOrElse(prefs.getInt("ocr_script", 0)) { OcrScript.AUTO }
     )
@@ -86,6 +90,17 @@ class AppSettings private constructor(context: Context) {
             field = value
             prefs.edit().putString("last_target", value).apply()
         }
+
+    init {
+        Slang.load(context)
+        Slang.enabled = slang
+    }
+
+    fun updateSlang(value: Boolean) {
+        slang = value
+        Slang.enabled = value
+        prefs.edit().putBoolean("slang", value).apply()
+    }
 
     fun updateFontSize(value: FontSize) {
         fontSize = value

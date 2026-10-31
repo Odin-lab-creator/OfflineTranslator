@@ -68,7 +68,9 @@ object TranslationEngine {
         if (src == dst) return text
         val t = translatorFor(src, dst)
         t.downloadModelIfNeeded(conditions(wifiOnly)).await()
-        return t.translate(text).await()
+        // Сленг и сокращения заменяем обычными словами, чтобы перевод передал смысл.
+        val prepared = if (Slang.enabled) Slang.normalize(text, src).text else text
+        return t.translate(prepared).await()
     }
 
     suspend fun download(lang: String, wifiOnly: Boolean) {

@@ -35,6 +35,9 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var backTranslation by mutableStateOf("")
         private set
+    /** Сленг, найденный в последнем переведённом тексте. */
+    var slangFound by mutableStateOf<List<Slang.Found>>(emptyList())
+        private set
 
     // Обновления
     var update by mutableStateOf<UpdateInfo?>(null)
@@ -82,6 +85,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         input = ""
         output = ""
         backTranslation = ""
+        slangFound = emptyList()
         status = ""
         busy = false
     }
@@ -174,6 +178,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         input = entry.text
         output = entry.result
         backTranslation = ""
+        slangFound = if (Slang.enabled) Slang.normalize(entry.text, entry.source).found else emptyList()
         status = ""
         busy = false
     }
@@ -204,6 +209,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
             val result = TranslationEngine.translate(src, dst, text, settings.wifiOnly)
             output = result
             backTranslation = ""
+            slangFound = if (Slang.enabled && src != dst) Slang.normalize(text, src).found else emptyList()
             status = ""
             settings.rememberPair(src, dst)
             if (!pairReady()) refreshDownloaded()
