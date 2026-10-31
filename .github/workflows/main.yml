@@ -58,7 +58,20 @@ jobs:
       - name: Build release APK
         env:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        run: gradle assembleRelease -PciVersionCode=${{ github.run_number }}
+        run: |
+          set -o pipefail
+          gradle assembleRelease -PciVersionCode=${{ github.run_number }} 2>&1 | tee build.log
+
+      - name: Report build errors
+        if: failure()
+        run: |
+          grep -E "^e: |error:|What went wrong|Could not resolve|Could not find" -A2 build.log \
+            | grep -v "^--$" | head -40 > errors.txt || true
+          split -l 8 errors.txt part_
+          for f in part_*; do
+            msg=$(sed 's/%/%25/g' "$f" | awk '{printf "%s%%0A", $0}')
+            echo "::error::$msg"
+          done
 
       - name: Name the APK
         run: cp app/build/outputs/apk/release/app-release.apk ValhallaTranslate.apk
