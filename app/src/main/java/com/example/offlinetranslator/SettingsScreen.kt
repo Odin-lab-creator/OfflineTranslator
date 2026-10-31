@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SettingsScreen(
     settings: AppSettings,
+    vm: TranslatorViewModel,
     onBack: () -> Unit,
     onOpenModels: () -> Unit
 ) {
@@ -50,6 +51,14 @@ fun SettingsScreen(
             selected = settings.themeMode,
             label = { it.label },
             onSelect = settings::updateTheme
+        )
+
+        SectionLabel("Размер шрифта перевода")
+        ChoiceCard(
+            options = FontSize.entries,
+            selected = settings.fontSize,
+            label = { it.label },
+            onSelect = settings::updateFontSize
         )
 
         SectionLabel("Перевод")
@@ -88,6 +97,33 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = onOpenModels
         )
+
+        SectionLabel("Обновления")
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .valhallaCard(p)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text("Установлена версия ${BuildConfig.VERSION_NAME}", color = p.text, fontSize = 15.sp)
+            val info = vm.update
+            if (info != null) {
+                Text("Доступна версия ${info.versionName}", color = p.gold, fontSize = 15.sp)
+                GoldButton(
+                    vm.updateProgress?.let { "Скачиваю ${(it * 100).toInt()}%" } ?: "Обновить",
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = vm.updateProgress == null
+                ) { vm.installUpdate() }
+            } else {
+                OutlineGoldButton(
+                    "Проверить обновления",
+                    modifier = Modifier.fillMaxWidth(),
+                    height = 46
+                ) { vm.checkForUpdates(manual = true) }
+            }
+            if (vm.updateMessage.isNotEmpty()) Text(vm.updateMessage, color = p.muted, fontSize = 13.sp)
+        }
 
         SectionLabel("О приложении")
         Text(

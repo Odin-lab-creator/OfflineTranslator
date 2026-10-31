@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,8 +68,11 @@ fun TranslatorScreen(
     onIncomingHandled: () -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenCamera: () -> Unit
+    onOpenCamera: () -> Unit,
+    onOpenTools: () -> Unit,
+    onShow: (String) -> Unit
 ) {
+    val settings = AppSettings.current()
     val p = LocalPalette.current
     val clipboard = LocalClipboardManager.current
     val focus = LocalFocusManager.current
@@ -145,11 +149,14 @@ fun TranslatorScreen(
                 Text("TRANSLATE", color = p.muted, fontSize = 12.sp, letterSpacing = 5.sp)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                LinkText("☰", p.gold, 22.sp, onClick = onOpenTools)
                 LinkText("История", p.gold, 15.sp, onClick = onOpenHistory)
                 LinkText("⚙", p.gold, 24.sp, onClick = onOpenSettings)
             }
         }
         GoldDivider()
+
+        UpdateBanner(vm)
 
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             LanguageButton(
@@ -175,6 +182,23 @@ fun TranslatorScreen(
                 modifier = Modifier.weight(1f),
                 onSelect = vm::changeTarget
             )
+        }
+
+        val pairs = settings.recentPairs.filter { it != (vm.source to vm.target) }
+        if (pairs.isNotEmpty()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                pairs.forEach { (src, dst) ->
+                    OutlineGoldButton(
+                        "${src.uppercase()} → ${dst.uppercase()}",
+                        height = 34
+                    ) { vm.setPair(src, dst) }
+                }
+            }
         }
 
         Column(
@@ -263,8 +287,8 @@ fun TranslatorScreen(
                         vm.output,
                         color = p.result,
                         fontFamily = FontFamily.Serif,
-                        fontSize = 24.sp,
-                        lineHeight = 32.sp,
+                        fontSize = settings.fontSize.sp.sp,
+                        lineHeight = (settings.fontSize.sp * 4 / 3).sp,
                         modifier = Modifier.animateContentSize(tween(200))
                     )
                 }
@@ -289,8 +313,68 @@ fun TranslatorScreen(
                         context.startActivity(Intent.createChooser(send, null))
                     }
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LinkText("Показать собеседнику", p.gold, 14.sp) { onShow(vm.output) }
+                    LinkText("Обратный перевод", p.muted, 14.sp) { vm.checkBackTranslation() }
+                }
+                if (vm.backTranslation.isNotEmpty()) {
+                    Text(
+                        "Обратно: ${vm.backTranslation}",
+                        color = p.muted,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 6.dp)
+                    )
+                }
             }
         }
         Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** Плашка «Доступна новая версия» с кнопкой установки. */
+@Composable
+fun UpdateBanner(vm: TranslatorViewModel) {
+    val p = LocalPalette.current
+    val info = vm.update
+    AnimatedVisibility(
+        visible = info != null || vm.updateProgress != null,
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .valhallaCard(p, border = p.gold)
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                "Доступна версия ${info?.versionName.orEmpty()}",
+                color = p.gold,
+                fontFamily = FontFamily.Serif,
+                fontSize = 18.sp
+            )
+            if (!info?.notes.isNullOrBlank()) {
+                Text(info?.notes.orEmpty(), color = p.muted, fontSize = 13.sp)
+            }
+            val progress = vm.updateProgress
+            if (progress != null) {
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = p.gold,
+                    trackColor = p.bg
+                )
+            }
+            if (vm.updateMessage.isNotEmpty()) Text(vm.updateMessage, color = p.muted, fontSize = 12.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                GoldButton(
+                    if (progress != null) "Скачиваю ${(progress * 100).toInt()}%" else "Обновить",
+                    modifier = Modifier.weight(1f),
+                    enabled = progress == null
+                ) { vm.installUpdate() }
+                LinkText("Позже", p.muted, 14.sp) { vm.dismissUpdate() }
+            }
+        }
     }
 }

@@ -33,12 +33,25 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var downloaded by mutableStateOf<Set<String>>(emptySet())
         private set
+    var backTranslation by mutableStateOf("")
+        private set
+
+    // Обновления
+    var update by mutableStateOf<UpdateInfo?>(null)
+        private set
+    var updateProgress by mutableStateOf<Float?>(null)
+        private set
+    var updateMessage by mutableStateOf("")
+        private set
 
     private var job: Job? = null
     private var historyJob: Job? = null
 
     init {
         refreshDownloaded()
+        if (System.currentTimeMillis() - settings.lastUpdateCheck > 6 * 60 * 60 * 1000L) {
+            checkForUpdates(manual = false)
+        }
     }
 
     fun refreshDownloaded() {
@@ -68,8 +81,18 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         historyJob?.cancel()
         input = ""
         output = ""
+        backTranslation = ""
         status = ""
         busy = false
+    }
+
+    /** Выбор пары языков из недавних. */
+    fun setPair(src: String, dst: String) {
+        source = src
+        target = dst
+        settings.lastSource = src
+        settings.lastTarget = dst
+        retranslateIfAuto()
     }
 
     fun changeSource(code: String) {
@@ -150,6 +173,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         settings.lastTarget = target
         input = entry.text
         output = entry.result
+        backTranslation = ""
         status = ""
         busy = false
     }
@@ -179,7 +203,9 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
             val dst = target
             val result = TranslationEngine.translate(src, dst, text, settings.wifiOnly)
             output = result
+            backTranslation = ""
             status = ""
+            settings.rememberPair(src, dst)
             if (!pairReady()) refreshDownloaded()
             rememberInHistory(src, dst, text, result, saveNow)
         } catch (e: CancellationException) {
@@ -292,18 +318,19 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
     private var tts: TextToSpeech? = null
     private var ttsReady = false
 
-    fun speak(text: String, lang: String) {
+    /** Озвучивает текст. toggle = true: повторное нажатие останавливает речь. */
+    fun speak(text: String, lang: String, toggle: Boolean = true) {
         if (text.isBlank()) return
         val engine = tts
         if (engine == null) {
             tts = TextToSpeech(getApplication<Application>()) { state ->
                 ttsReady = state == TextToSpeech.SUCCESS
-                if (ttsReady) speak(text, lang) else status = "Синтез речи недоступен на этом устройстве"
+                if (ttsReady) speak(text, lang, toggle = false) else status = "Синтез речи недоступен на этом устройстве"
             }
             return
         }
         if (!ttsReady) return
-        if (engine.isSpeaking) {
+        if (toggle && engine.isSpeaking) {
             engine.stop()
             return
         }
@@ -320,5 +347,73 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         tts?.stop()
         tts?.shutdown()
         super.onCleared()
+    }
+
+    /** Обратный перевод: проверяем, что смысл не потерялся. */
+    fun checkBackTranslation() {
+        val text = output.trim()
+        if (text.isEmpty() || source == target) return
+        viewModelScope.launch {
+            backTranslation = "…"
+            backTranslation = try {
+                TranslationEngine.translate(target, source, text, settings.wifiOnly)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                "не удалось: ${e.localizedMessage ?: "ошибка"}"
+            }
+        }
+    }
+
+    // ---- Обновления приложения ----
+
+    fun checkForUpdates(manual: Boolean) {
+        viewModelScope.launch {
+            if (manual) updateMessage = "Проверяю…"
+            try {
+                val info = Updater.check()
+                settings.lastUpdateCheck = System.currentTimeMillis()
+                update = info
+                updateMessage = when {
+                    info != null -> ""
+                    manual -> "Установлена последняя версия ${BuildConfig.VERSION_NAME}"
+                    else -> ""
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (manual) updateMessage = "Не удалось проверить: ${e.localizedMessage ?: "нет интернета"}"
+            }
+        }
+    }
+
+    fun dismissUpdate() {
+        update = null
+    }
+
+    fun installUpdate() {
+        val info = update ?: return
+        val app = getApplication<Application>()
+        if (!Updater.canInstall(app)) {
+            updateMessage = "Разрешите установку из этого источника и нажмите «Обновить» ещё раз"
+            Updater.openInstallPermission(app)
+            return
+        }
+        if (updateProgress != null) return
+        viewModelScope.launch {
+            updateProgress = 0f
+            updateMessage = "Скачиваю версию ${info.versionName}…"
+            try {
+                val file = Updater.download(app, info) { progress -> updateProgress = progress }
+                updateMessage = ""
+                Updater.install(app, file)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                updateMessage = "Не удалось скачать обновление: ${e.localizedMessage ?: "ошибка"}"
+            } finally {
+                updateProgress = null
+            }
+        }
     }
 }

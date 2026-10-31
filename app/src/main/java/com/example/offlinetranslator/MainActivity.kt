@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -45,9 +45,18 @@ class MainActivity : ComponentActivity() {
                 Surface(Modifier.fillMaxSize(), color = LocalPalette.current.bg) {
                     val vm: TranslatorViewModel = viewModel()
                     var screenName by rememberSaveable { mutableStateOf(Screen.TRANSLATE.name) }
+                    var showText by rememberSaveable { mutableStateOf("") }
+                    var showLang by rememberSaveable { mutableStateOf("") }
+                    var showFrom by rememberSaveable { mutableStateOf(Screen.TRANSLATE.name) }
                     val screen = Screen.valueOf(screenName)
                     fun go(target: Screen) {
                         screenName = target.name
+                    }
+                    fun show(text: String, lang: String) {
+                        showText = text
+                        showLang = lang
+                        showFrom = screenName
+                        go(Screen.SHOW)
                     }
 
                     LaunchedEffect(incoming) {
@@ -61,8 +70,53 @@ class MainActivity : ComponentActivity() {
                             onIncomingHandled = { incoming = null },
                             onOpenHistory = { go(Screen.HISTORY) },
                             onOpenSettings = { go(Screen.SETTINGS) },
-                            onOpenCamera = { go(Screen.CAMERA) }
+                            onOpenCamera = { go(Screen.CAMERA) },
+                            onOpenTools = { go(Screen.TOOLS) },
+                            onShow = { show(it, vm.target) }
                         )
+                        Screen.SHOW -> {
+                            val back = { go(Screen.valueOf(showFrom)) }
+                            BackHandler(onBack = back)
+                            ShowScreen(
+                                text = showText,
+                                language = showLang,
+                                onBack = back,
+                                onSpeak = { vm.speak(showText, showLang) }
+                            )
+                        }
+                        Screen.TOOLS -> {
+                            BackHandler { go(Screen.TRANSLATE) }
+                            ToolsScreen(
+                                tools = listOf(
+                                    Tool("Разговор", "Экран на двоих: каждый говорит на своём языке, перевод звучит вслух") {
+                                        go(Screen.CONVERSATION)
+                                    },
+                                    Tool("Разговорник", "Готовые фразы для поездок: такси, отель, кафе, магазин, экстренные случаи") {
+                                        go(Screen.PHRASEBOOK)
+                                    },
+                                    Tool("Камера", "Снимок или живой перевод в видоискателе") {
+                                        go(Screen.CAMERA)
+                                    },
+                                    Tool("Языковые модели", "Скачать языки заранее, чтобы переводить без интернета") {
+                                        go(Screen.MODELS)
+                                    }
+                                ),
+                                onBack = { go(Screen.TRANSLATE) }
+                            )
+                        }
+                        Screen.CONVERSATION -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            ConversationScreen(vm, settings) { go(Screen.TOOLS) }
+                        }
+                        Screen.PHRASEBOOK -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            PhrasebookScreen(
+                                vm = vm,
+                                settings = settings,
+                                onBack = { go(Screen.TOOLS) },
+                                onShow = { text, lang -> show(text, lang) }
+                            )
+                        }
                         Screen.CAMERA -> {
                             BackHandler { go(Screen.TRANSLATE) }
                             CameraScreen(
@@ -90,6 +144,7 @@ class MainActivity : ComponentActivity() {
                             BackHandler { go(Screen.TRANSLATE) }
                             SettingsScreen(
                                 settings = settings,
+                                vm = vm,
                                 onBack = { go(Screen.TRANSLATE) },
                                 onOpenModels = { go(Screen.MODELS) }
                             )

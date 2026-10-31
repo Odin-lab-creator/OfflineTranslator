@@ -14,6 +14,13 @@ enum class ThemeMode(val label: String) {
     SYSTEM("Как в системе")
 }
 
+enum class FontSize(val label: String, val sp: Int) {
+    SMALL("Маленький", 18),
+    MEDIUM("Средний", 24),
+    LARGE("Крупный", 30),
+    HUGE("Очень крупный", 36)
+}
+
 enum class OcrScript(val label: String) {
     AUTO("Авто: по исходному языку"),
     LATIN("Латиница"),
@@ -46,6 +53,28 @@ class AppSettings private constructor(context: Context) {
     )
         private set
 
+    var fontSize by mutableStateOf(
+        FontSize.entries.getOrElse(prefs.getInt("font_size", 1)) { FontSize.MEDIUM }
+    )
+        private set
+
+    /** Недавние пары языков, например en→ru. Новые сверху, не больше четырёх. */
+    var recentPairs by mutableStateOf(
+        prefs.getString("recent_pairs", null).orEmpty()
+            .split(",")
+            .mapNotNull { pair ->
+                val parts = pair.split(">")
+                if (parts.size == 2 && parts[0].isNotBlank() && parts[1].isNotBlank()) parts[0] to parts[1] else null
+            }
+    )
+        private set
+
+    var lastUpdateCheck: Long
+        get() = prefs.getLong("last_update_check", 0L)
+        set(value) {
+            prefs.edit().putLong("last_update_check", value).apply()
+        }
+
     var lastSource: String = prefs.getString("last_source", null) ?: TranslateLanguage.ENGLISH
         set(value) {
             field = value
@@ -57,6 +86,21 @@ class AppSettings private constructor(context: Context) {
             field = value
             prefs.edit().putString("last_target", value).apply()
         }
+
+    fun updateFontSize(value: FontSize) {
+        fontSize = value
+        prefs.edit().putInt("font_size", value.ordinal).apply()
+    }
+
+    fun rememberPair(source: String, target: String) {
+        if (source == target) return
+        val pair = source to target
+        if (recentPairs.firstOrNull() == pair) return
+        recentPairs = (listOf(pair) + recentPairs.filter { it != pair }).take(4)
+        prefs.edit()
+            .putString("recent_pairs", recentPairs.joinToString(",") { "${it.first}>${it.second}" })
+            .apply()
+    }
 
     fun updateTheme(mode: ThemeMode) {
         themeMode = mode
