@@ -15,6 +15,26 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Prepare launcher icon
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick > /dev/null
+          shopt -s nocaseglob nullglob
+          files=(*.png *.jpg *.jpeg *.webp)
+          SRC="${files[0]}"
+          for pair in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            d="${pair%%:*}"
+            s="${pair##*:}"
+            out="app/src/main/res/mipmap-$d"
+            mkdir -p "$out"
+            if [ -n "$SRC" ]; then
+              convert "$SRC" -auto-orient -resize "${s}x${s}^" -gravity center -extent "${s}x${s}" "$out/ic_launcher.png"
+            else
+              convert -size "${s}x${s}" "xc:#2F5FD0" "$out/ic_launcher.png"
+            fi
+            cp "$out/ic_launcher.png" "$out/ic_launcher_round.png"
+          done
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
