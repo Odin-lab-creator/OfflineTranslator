@@ -6,29 +6,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 enum class ThemeMode(val label: String) {
-    SYSTEM("Как в системе"),
-    LIGHT("Светлая"),
-    DARK("Тёмная")
+    DARK("Тёмная: Вальхалла"),
+    LIGHT("Светлая: пергамент"),
+    SYSTEM("Как в системе")
 }
 
 class AppSettings(context: Context) {
     private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     var themeMode by mutableStateOf(
-        ThemeMode.entries.getOrElse(prefs.getInt("theme", 0)) { ThemeMode.SYSTEM }
+        ThemeMode.entries.getOrElse(prefs.getInt("theme_v2", 0)) { ThemeMode.DARK }
     )
-        private set
-
-    var dynamicColor by mutableStateOf(prefs.getBoolean("dynamic", true))
         private set
 
     fun updateTheme(mode: ThemeMode) {
         themeMode = mode
-        prefs.edit().putInt("theme", mode.ordinal).apply()
-    }
-
-    fun updateDynamic(value: Boolean) {
-        dynamicColor = value
-        prefs.edit().putBoolean("dynamic", value).apply()
+        prefs.edit().putInt("theme_v2", mode.ordinal).apply()
     }
 }
