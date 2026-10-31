@@ -74,6 +74,14 @@ fun SettingsScreen(
             )
         }
 
+        SectionLabel("Текст на картинках и камере")
+        ChoiceCard(
+            options = OcrScript.entries,
+            selected = settings.ocrScript,
+            label = { it.label },
+            onSelect = settings::updateOcrScript
+        )
+
         SectionLabel("Языковые модели")
         OutlineGoldButton(
             "Управлять моделями",
@@ -87,7 +95,10 @@ fun SettingsScreen(
                 "Переводит прямо на устройстве (Google ML Kit). Интернет нужен только для первой " +
                 "загрузки языковых моделей.\n\n" +
                 "Перевод из любого приложения: выделите текст и выберите «Valhalla Translate» в меню.\n\n" +
-                "Перевод по скриншоту: кнопка «Скриншот» или «Поделиться → Valhalla Translate» из галереи.",
+                "Перевод по скриншоту: кнопка «Скриншот» или «Поделиться → Valhalla Translate» из галереи.\n\n" +
+                "Алфавит «Авто» выбирается по исходному языку: для русского или украинского текста " +
+                "поставьте исходным «Русский» или «Украинский».\n\n" +
+                "Голосовой ввод использует службу распознавания речи телефона, озвучка — синтез речи Android.",
             color = p.text,
             fontSize = 14.sp,
             lineHeight = 21.sp

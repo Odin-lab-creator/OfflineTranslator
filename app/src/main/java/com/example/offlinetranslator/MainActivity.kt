@@ -20,9 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
+const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
 
 class MainActivity : ComponentActivity() {
 
@@ -59,8 +60,21 @@ class MainActivity : ComponentActivity() {
                             incoming = incoming,
                             onIncomingHandled = { incoming = null },
                             onOpenHistory = { go(Screen.HISTORY) },
-                            onOpenSettings = { go(Screen.SETTINGS) }
+                            onOpenSettings = { go(Screen.SETTINGS) },
+                            onOpenCamera = { go(Screen.CAMERA) }
                         )
+                        Screen.CAMERA -> {
+                            BackHandler { go(Screen.TRANSLATE) }
+                            CameraScreen(
+                                vm = vm,
+                                settings = settings,
+                                onBack = { go(Screen.TRANSLATE) },
+                                onCaptured = { uri ->
+                                    go(Screen.TRANSLATE)
+                                    vm.translateImage(uri)
+                                }
+                            )
+                        }
                         Screen.HISTORY -> {
                             BackHandler { go(Screen.TRANSLATE) }
                             HistoryScreen(
@@ -98,6 +112,7 @@ class MainActivity : ComponentActivity() {
     private fun incomingFrom(intent: Intent?): Incoming? {
         if (intent == null) return null
         if (intent.action == ACTION_PICK_SCREENSHOT) return Incoming.PickScreenshot
+        if (intent.action == ACTION_OPEN_CAMERA) return Incoming.OpenCamera
         if (intent.action != Intent.ACTION_SEND) return null
         val type = intent.type ?: return null
         return when {

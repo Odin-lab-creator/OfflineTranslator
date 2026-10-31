@@ -2,6 +2,7 @@ package com.example.offlinetranslator
 
 import android.app.Application
 import android.net.Uri
+import android.speech.tts.TextToSpeech
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -219,10 +220,12 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
             busy = true
             output = ""
             try {
-                status = "Распознаю текст на изображении…"
-                val text = TranslationEngine.recognize(getApplication<Application>(), uri)
+                val script = TranslationEngine.resolveScript(settings.ocrScript, source)
+                status = "Распознаю текст (${script.label.lowercase()})…"
+                val text = TranslationEngine.recognize(getApplication<Application>(), uri, script, source)
                 if (text.isEmpty()) {
-                    status = "Текст не найден. Распознаётся латиница: английский, немецкий, французский и др."
+                    status = "Текст не найден. Сейчас распознаётся: ${script.label.lowercase()}. " +
+                        "Для русского текста выберите исходный язык «Русский» или смените алфавит в настройках."
                     return@launch
                 }
                 input = text.take(MAX_INPUT)
@@ -270,5 +273,52 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
                 status = "Язык: ${Languages.name(code)}"
             }
         }
+    }
+
+    /** Текст, надиктованный голосом: сразу переводим (при необходимости скачав модели). */
+    fun voiceInput(text: String) {
+        val clean = text.trim()
+        if (clean.isEmpty()) return
+        input = clean.take(MAX_INPUT)
+        translate()
+    }
+
+    fun reportStatus(message: String) {
+        status = message
+    }
+
+    // ---- Озвучка перевода ----
+
+    private var tts: TextToSpeech? = null
+    private var ttsReady = false
+
+    fun speak(text: String, lang: String) {
+        if (text.isBlank()) return
+        val engine = tts
+        if (engine == null) {
+            tts = TextToSpeech(getApplication<Application>()) { state ->
+                ttsReady = state == TextToSpeech.SUCCESS
+                if (ttsReady) speak(text, lang) else status = "Синтез речи недоступен на этом устройстве"
+            }
+            return
+        }
+        if (!ttsReady) return
+        if (engine.isSpeaking) {
+            engine.stop()
+            return
+        }
+        val result = engine.setLanguage(Languages.locale(lang))
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            status = "Нет голоса для языка «${Languages.name(lang)}». Его можно установить в настройках Android: " +
+                "Общие настройки → Язык и ввод → Синтез речи."
+            return
+        }
+        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "valhalla")
+    }
+
+    override fun onCleared() {
+        tts?.stop()
+        tts?.shutdown()
+        super.onCleared()
     }
 }

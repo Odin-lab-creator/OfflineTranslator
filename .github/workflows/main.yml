@@ -42,6 +42,15 @@ jobs:
             cp "$out/ic_launcher.png" "$out/ic_launcher_round.png"
           done
 
+      - name: Download Cyrillic OCR models
+        run: |
+          mkdir -p app/src/main/assets/tessdata
+          for lang in rus ukr eng; do
+            curl -sSfL --retry 3 -o "app/src/main/assets/tessdata/$lang.traineddata" \
+              "https://github.com/tesseract-ocr/tessdata_fast/raw/HEAD/$lang.traineddata"
+          done
+          ls -la app/src/main/assets/tessdata
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9

@@ -1,7 +1,9 @@
 package com.example.offlinetranslator
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,6 +50,7 @@ sealed class Incoming {
     data class Image(val uri: Uri) : Incoming()
     data class Shared(val text: String) : Incoming()
     data object PickScreenshot : Incoming()
+    data object OpenCamera : Incoming()
 }
 
 @Composable
@@ -56,7 +59,8 @@ fun TranslatorScreen(
     incoming: Incoming?,
     onIncomingHandled: () -> Unit,
     onOpenHistory: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenCamera: () -> Unit
 ) {
     val p = LocalPalette.current
     val clipboard = LocalClipboardManager.current
@@ -75,11 +79,34 @@ fun TranslatorScreen(
         pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
+    val speech = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val heard = result.data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+        if (heard != null) vm.voiceInput(heard)
+    }
+    val startVoice = {
+        focus.clearFocus()
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, Languages.locale(vm.source).toLanguageTag())
+            .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            .putExtra(RecognizerIntent.EXTRA_PROMPT, "Говорите: ${Languages.name(vm.source)}")
+        try {
+            speech.launch(intent)
+        } catch (e: ActivityNotFoundException) {
+            vm.reportStatus("На телефоне нет службы распознавания речи (обычно это приложение Google).")
+        }
+    }
+
     LaunchedEffect(incoming) {
         when (incoming) {
             is Incoming.Image -> vm.translateImage(incoming.uri)
             is Incoming.Shared -> vm.translateIncoming(incoming.text)
             Incoming.PickScreenshot -> openPicker()
+            Incoming.OpenCamera -> onOpenCamera()
             null -> return@LaunchedEffect
         }
         onIncomingHandled()
@@ -185,19 +212,21 @@ fun TranslatorScreen(
             }
         }
 
+        GoldButton(
+            if (vm.busy) "Перевожу…" else "Перевести",
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !vm.busy
+        ) {
+            focus.clearFocus()
+            vm.translate()
+        }
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            GoldButton(
-                if (vm.busy) "Перевожу…" else "Перевести",
-                modifier = Modifier.weight(1f),
-                enabled = !vm.busy
-            ) {
-                focus.clearFocus()
-                vm.translate()
-            }
-            OutlineGoldButton("Скриншот", enabled = !vm.busy, onClick = openPicker)
+            IconLabelButton(ValhallaIcons.Mic, "Голос", Modifier.weight(1f), !vm.busy, startVoice)
+            IconLabelButton(ValhallaIcons.Image, "Скриншот", Modifier.weight(1.25f), !vm.busy, openPicker)
+            IconLabelButton(ValhallaIcons.Camera, "Камера", Modifier.weight(1f), !vm.busy, onOpenCamera)
         }
 
         if (vm.busy) {
@@ -229,6 +258,9 @@ fun TranslatorScreen(
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconTap(ValhallaIcons.Speaker, "Озвучить", p.gold) {
+                        vm.speak(vm.output, vm.target)
+                    }
                     LinkText(if (vm.isCurrentFavorite()) "★" else "☆", p.gold, 18.sp) {
                         vm.toggleFavoriteCurrent()
                     }
