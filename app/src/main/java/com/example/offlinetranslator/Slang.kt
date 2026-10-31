@@ -7,7 +7,7 @@ import java.util.regex.Pattern
  * Распознавание сленга, сокращений и идиом (английский и русский), полностью офлайн.
  * Перед переводом сленг заменяется обычными словами, чтобы переводчик понял смысл,
  * а пользователю показывается, что означает каждое найденное выражение.
- * Словари лежат в assets/slang/*.tsv: term, pattern, replacement, meaning.
+ * Словари лежат в assets/slang/<язык>.tsv: term, pattern, replacement, meaning.
  */
 object Slang {
     class Entry(
