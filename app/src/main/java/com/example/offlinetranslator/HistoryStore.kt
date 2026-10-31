@@ -81,6 +81,44 @@ class HistoryStore private constructor(context: Context) {
         save()
     }
 
+    /** Вся история и избранное в виде JSON для сохранения в файл. */
+    fun exportJson(): String = toJson().toString(2)
+
+    /** Добавляет записи из файла, не создавая дубликатов. Возвращает число новых записей. */
+    fun importJson(raw: String): Int {
+        val array = JSONArray(raw)
+        var added = 0
+        for (i in 0 until array.length()) {
+            val o = array.getJSONObject(i)
+            val entry = HistoryEntry(
+                id = o.optLong("id", System.currentTimeMillis() + i),
+                source = o.getString("s"),
+                target = o.getString("t"),
+                text = o.getString("x"),
+                result = o.getString("r"),
+                time = o.optLong("time", System.currentTimeMillis()),
+                favorite = o.optBoolean("f", false)
+            )
+            val existing = entries.indexOfFirst {
+                it.text == entry.text && it.source == entry.source && it.target == entry.target
+            }
+            if (existing >= 0) {
+                if (entry.favorite && !entries[existing].favorite) {
+                    entries[existing] = entries[existing].copy(favorite = true)
+                }
+            } else {
+                val uniqueId = if (entries.any { it.id == entry.id }) entry.id + 1_000_000L + i else entry.id
+                entries.add(entry.copy(id = uniqueId))
+                added++
+            }
+        }
+        val sorted = entries.sortedByDescending { it.time }
+        entries.clear()
+        entries.addAll(sorted)
+        save()
+        return added
+    }
+
     private fun trim() {
         var regular = 0
         val keep = entries.filter { it.favorite || ++regular <= MAX_ENTRIES }
@@ -114,6 +152,10 @@ class HistoryStore private constructor(context: Context) {
     }
 
     private fun save() {
+        prefs.edit().putString("entries", toJson().toString()).apply()
+    }
+
+    private fun toJson(): JSONArray {
         val array = JSONArray()
         entries.forEach {
             array.put(
@@ -127,7 +169,7 @@ class HistoryStore private constructor(context: Context) {
                     .put("f", it.favorite)
             )
         }
-        prefs.edit().putString("entries", array.toString()).apply()
+        return array
     }
 
     companion object {

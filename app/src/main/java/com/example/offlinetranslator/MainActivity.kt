@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -100,6 +100,12 @@ class MainActivity : ComponentActivity() {
                                     Tool("Документы", "Перевод PDF и TXT целиком, с сохранением в файл") {
                                         go(Screen.DOCUMENTS)
                                     },
+                                    Tool("Рукописный ввод", "Пишите пальцем — удобно для иероглифов и незнакомых алфавитов") {
+                                        go(Screen.HANDWRITING)
+                                    },
+                                    Tool("Карточки", "Учите слова из избранного: сложные повторяются чаще") {
+                                        go(Screen.FLASHCARDS)
+                                    },
                                     Tool("Языковые модели", "Скачать языки заранее, чтобы переводить без интернета") {
                                         go(Screen.MODELS)
                                     }
@@ -110,6 +116,19 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.HANDWRITING -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            HandwritingScreen(
+                                vm = vm,
+                                settings = settings,
+                                onBack = { go(Screen.TOOLS) },
+                                onDone = { go(Screen.TRANSLATE) }
+                            )
+                        }
+                        Screen.FLASHCARDS -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            FlashcardsScreen(vm, onBack = { go(Screen.TOOLS) })
                         }
                         Screen.CONVERSATION -> {
                             BackHandler { go(Screen.TOOLS) }

@@ -1,6 +1,12 @@
 package com.example.offlinetranslator
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,6 +53,32 @@ fun HistoryScreen(
     var favoritesOnly by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     var confirmClear by remember { mutableStateOf(false) }
+    var menu by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val exportFile = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            message = try {
+                context.contentResolver.openOutputStream(uri)?.use { it.write(history.exportJson().toByteArray()) }
+                "Сохранено записей: ${history.entries.size}"
+            } catch (e: Exception) {
+                "Не удалось сохранить: ${e.localizedMessage ?: "ошибка"}"
+            }
+        }
+    }
+    val importFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            message = try {
+                val raw = context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                    .orEmpty()
+                "Добавлено записей: ${history.importJson(raw)}"
+            } catch (e: Exception) {
+                "Не удалось прочитать файл: ${e.localizedMessage ?: "это не файл истории"}"
+            }
+        }
+    }
     val dateFormat = remember { SimpleDateFormat("d MMM, HH:mm", Locale("ru")) }
 
     val shown = history.entries.filter { entry ->
@@ -70,10 +102,36 @@ fun HistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ScreenHeader("История", onBack) {
-                    if (history.entries.any { !it.favorite }) {
-                        LinkText("Очистить", p.muted) { confirmClear = true }
+                    Box {
+                        LinkText("⋮", p.gold, 22.sp) { menu = true }
+                        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Экспорт в файл", color = p.text) },
+                                onClick = {
+                                    menu = false
+                                    exportFile.launch("valhalla_history.json")
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Импорт из файла", color = p.text) },
+                                onClick = {
+                                    menu = false
+                                    importFile.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                                }
+                            )
+                            if (history.entries.any { !it.favorite }) {
+                                DropdownMenuItem(
+                                    text = { Text("Очистить историю", color = p.text) },
+                                    onClick = {
+                                        menu = false
+                                        confirmClear = true
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
+                if (message.isNotEmpty()) Text(message, color = p.gold, fontSize = 13.sp)
                 GoldDivider()
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     TabChip("Все", !favoritesOnly) { favoritesOnly = false }
