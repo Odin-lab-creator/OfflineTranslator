@@ -1,100 +1,211 @@
 package com.example.offlinetranslator
 
-import android.content.Context
+import android.app.Application
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.common.model.RemoteModelManager
-import com.google.mlkit.nl.languageid.LanguageIdentification
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.TranslateRemoteModel
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.Translator
-import com.google.mlkit.nl.translate.TranslatorOptions
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
-class TranslatorViewModel : ViewModel() {
+const val MAX_INPUT = 5000
 
-    val languages: List<String> = listOf(
-        TranslateLanguage.ENGLISH, TranslateLanguage.RUSSIAN,
-        TranslateLanguage.UKRAINIAN, TranslateLanguage.GERMAN,
-        TranslateLanguage.FRENCH, TranslateLanguage.SPANISH,
-        TranslateLanguage.ITALIAN, TranslateLanguage.PORTUGUESE,
-        TranslateLanguage.POLISH, TranslateLanguage.TURKISH,
-        TranslateLanguage.CHINESE, TranslateLanguage.JAPANESE,
-        TranslateLanguage.KOREAN, TranslateLanguage.ARABIC
-    )
+class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
+    private val settings = AppSettings.get(app)
+    val history = HistoryStore.get(app)
 
     var input by mutableStateOf("")
+        private set
     var output by mutableStateOf("")
-    var source by mutableStateOf(TranslateLanguage.ENGLISH)
-    var target by mutableStateOf(TranslateLanguage.RUSSIAN)
+        private set
+    var source by mutableStateOf(settings.lastSource)
+        private set
+    var target by mutableStateOf(settings.lastTarget)
+        private set
     var status by mutableStateOf("")
+        private set
     var busy by mutableStateOf(false)
+        private set
+    var downloaded by mutableStateOf<Set<String>>(emptySet())
+        private set
 
-    private var translator: Translator? = null
-    private var translatorKey: String? = null
+    private var job: Job? = null
+    private var historyJob: Job? = null
 
-    private fun translatorFor(src: String, dst: String): Translator {
-        val key = "$src-$dst"
-        if (key != translatorKey) {
-            translator?.close()
-            translator = Translation.getClient(
-                TranslatorOptions.Builder()
-                    .setSourceLanguage(src)
-                    .setTargetLanguage(dst)
-                    .build()
-            )
-            translatorKey = key
+    init {
+        refreshDownloaded()
+    }
+
+    fun refreshDownloaded() {
+        viewModelScope.launch {
+            downloaded = try {
+                TranslationEngine.downloadedLanguages()
+            } catch (e: Exception) {
+                downloaded
+            }
         }
-        return translator!!
+    }
+
+    private fun pairReady(): Boolean =
+        source == target || (source in downloaded && target in downloaded)
+
+    fun updateInput(text: String) {
+        input = text.take(MAX_INPUT)
+        if (input.isBlank()) {
+            clear()
+            return
+        }
+        if (settings.autoTranslate) scheduleAuto()
+    }
+
+    fun clear() {
+        job?.cancel()
+        historyJob?.cancel()
+        input = ""
+        output = ""
+        status = ""
+        busy = false
+    }
+
+    fun changeSource(code: String) {
+        source = code
+        settings.lastSource = code
+        retranslateIfAuto()
+    }
+
+    fun changeTarget(code: String) {
+        target = code
+        settings.lastTarget = code
+        retranslateIfAuto()
     }
 
     fun swapLanguages() {
         val s = source
         source = target
         target = s
-        val i = input
-        input = output
-        output = i
+        settings.lastSource = source
+        settings.lastTarget = target
+        if (output.isNotBlank()) {
+            input = output
+            output = ""
+        }
+        retranslateIfAuto()
     }
 
-    private suspend fun runTranslation(text: String) {
-        if (source == target) {
-            output = text
+    private fun retranslateIfAuto() {
+        if (input.isNotBlank() && settings.autoTranslate) scheduleAuto(immediate = true)
+    }
+
+    private fun scheduleAuto(immediate: Boolean = false) {
+        job?.cancel()
+        job = viewModelScope.launch {
+            if (!immediate) delay(600)
+            val text = input.trim()
+            if (text.isEmpty()) return@launch
+            if (!pairReady()) {
+                status = "Для автоперевода нужна модель «${Languages.name(source)} → ${Languages.name(target)}». " +
+                    "Нажмите «Перевести», чтобы скачать её."
+                return@launch
+            }
+            runTranslation(text, saveNow = false)
+        }
+    }
+
+    /** Автоперевод попадает в историю, только когда пользователь перестал печатать. */
+    private fun rememberInHistory(src: String, dst: String, text: String, result: String, now: Boolean) {
+        historyJob?.cancel()
+        if (now) {
+            history.add(src, dst, text, result)
             return
         }
-        val t = translatorFor(source, target)
-        status = "Проверяю языковую модель (при первом запуске скачивается)…"
-        t.downloadModelIfNeeded(DownloadConditions.Builder().build()).await()
-        status = ""
-        output = t.translate(text).await()
+        historyJob = viewModelScope.launch {
+            delay(2500)
+            history.add(src, dst, text, result)
+        }
     }
 
-    private fun errorText(e: Exception): String =
-        "Ошибка: ${e.localizedMessage ?: "не удалось перевести"}. " +
-            "Если модель ещё не скачана — нужен интернет."
+    /** Звёздочка у текущего перевода. */
+    fun isCurrentFavorite(): Boolean =
+        output.isNotBlank() && history.find(source, target, input)?.favorite == true
 
+    fun toggleFavoriteCurrent() {
+        if (output.isBlank() || input.isBlank()) return
+        historyJob?.cancel()
+        val entry = history.find(source, target, input) ?: history.add(source, target, input, output) ?: return
+        history.toggleFavorite(entry.id)
+    }
+
+    /** Открывает запись из истории на главном экране. */
+    fun restore(entry: HistoryEntry) {
+        job?.cancel()
+        historyJob?.cancel()
+        source = entry.source
+        target = entry.target
+        settings.lastSource = source
+        settings.lastTarget = target
+        input = entry.text
+        output = entry.result
+        status = ""
+        busy = false
+    }
+
+    /** Ручной перевод по кнопке: при необходимости скачивает модели. */
     fun translate() {
         val text = input.trim()
         if (text.isEmpty()) {
             output = ""
             return
         }
-        viewModelScope.launch {
+        job?.cancel()
+        job = viewModelScope.launch {
             busy = true
             try {
                 runTranslation(text)
-            } catch (e: Exception) {
-                status = errorText(e)
+            } finally {
+                busy = false
+            }
+        }
+    }
+
+    private suspend fun runTranslation(text: String, saveNow: Boolean = true) {
+        try {
+            if (!pairReady()) status = "Скачиваю языковую модель (один раз, около 30 МБ)…"
+            val src = source
+            val dst = target
+            val result = TranslationEngine.translate(src, dst, text, settings.wifiOnly)
+            output = result
+            status = ""
+            if (!pairReady()) refreshDownloaded()
+            rememberInHistory(src, dst, text, result, saveNow)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            status = errorText(e)
+        }
+    }
+
+    private fun errorText(e: Exception): String {
+        val wifiHint = if (settings.wifiOnly) " Включена загрузка только по Wi-Fi." else ""
+        return "Ошибка: ${e.localizedMessage ?: "не удалось перевести"}. " +
+            "Если модель ещё не скачана, нужен интернет.$wifiHint"
+    }
+
+    /** Текст, пришедший из другого приложения: определяем язык и сразу переводим. */
+    fun translateIncoming(text: String) {
+        val clean = text.trim().take(MAX_INPUT)
+        if (clean.isEmpty()) return
+        job?.cancel()
+        job = viewModelScope.launch {
+            busy = true
+            output = ""
+            input = clean
+            try {
+                detectAndApply(clean)
+                runTranslation(clean)
             } finally {
                 busy = false
             }
@@ -102,47 +213,44 @@ class TranslatorViewModel : ViewModel() {
     }
 
     /** Распознаёт текст на картинке, определяет язык и сразу переводит. */
-    fun translateImage(context: Context, uri: Uri) {
-        viewModelScope.launch {
+    fun translateImage(uri: Uri) {
+        job?.cancel()
+        job = viewModelScope.launch {
             busy = true
             output = ""
             try {
                 status = "Распознаю текст на изображении…"
-                val image = InputImage.fromFilePath(context, uri)
-                val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-                val result = try {
-                    recognizer.process(image).await()
-                } finally {
-                    recognizer.close()
-                }
-                val text = result.textBlocks
-                    .joinToString("\n") { block -> block.lines.joinToString(" ") { it.text } }
-                    .trim()
+                val text = TranslationEngine.recognize(getApplication<Application>(), uri)
                 if (text.isEmpty()) {
                     status = "Текст не найден. Распознаётся латиница: английский, немецкий, французский и др."
                     return@launch
                 }
-                input = text.take(5000)
+                input = text.take(MAX_INPUT)
                 status = "Определяю язык…"
-                val code = try {
-                    LanguageIdentification.getClient().identifyLanguage(input).await()
-                } catch (e: Exception) {
-                    "und"
-                }
-                if (code != "und" && code in languages) {
-                    source = code
-                    if (source == target) {
-                        target = if (code == TranslateLanguage.RUSSIAN) TranslateLanguage.ENGLISH
-                        else TranslateLanguage.RUSSIAN
-                    }
-                }
+                detectAndApply(input)
                 status = ""
                 runTranslation(input)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                status = errorText(e)
+                status = "Не удалось прочитать изображение: ${e.localizedMessage ?: "ошибка"}"
             } finally {
                 busy = false
             }
+        }
+    }
+
+    private suspend fun detectAndApply(text: String) {
+        val code = try {
+            TranslationEngine.detect(text)
+        } catch (e: Exception) {
+            null
+        } ?: return
+        source = code
+        settings.lastSource = code
+        if (source == target) {
+            target = Languages.otherTarget(source, target)
+            settings.lastTarget = target
         }
     }
 
@@ -150,31 +258,17 @@ class TranslatorViewModel : ViewModel() {
         val text = input.trim()
         if (text.isEmpty()) return
         viewModelScope.launch {
-            try {
-                val code = LanguageIdentification.getClient().identifyLanguage(text).await()
-                if (code != "und" && code in languages) source = code
-                else status = "Не удалось определить язык"
+            val code = try {
+                TranslationEngine.detect(text)
             } catch (e: Exception) {
-                status = "Ошибка определения языка"
+                null
+            }
+            if (code == null) {
+                status = "Не удалось определить язык"
+            } else {
+                changeSource(code)
+                status = "Язык: ${Languages.name(code)}"
             }
         }
-    }
-
-    fun deleteModel(lang: String) {
-        viewModelScope.launch {
-            try {
-                RemoteModelManager.getInstance()
-                    .deleteDownloadedModel(TranslateRemoteModel.Builder(lang).build())
-                    .await()
-                status = "Модель удалена"
-            } catch (e: Exception) {
-                status = "Не удалось удалить модель"
-            }
-        }
-    }
-
-    override fun onCleared() {
-        translator?.close()
-        super.onCleared()
     }
 }

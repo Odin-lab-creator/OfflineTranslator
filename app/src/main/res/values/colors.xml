@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="valhalla_bg">#12141A</color>
+    <color name="valhalla_card">#1B1E27</color>
+    <color name="valhalla_gold">#D4AF5A</color>
+    <color name="valhalla_gold_dim">#5A4A22</color>
+    <color name="valhalla_text">#E8E4D8</color>
+    <color name="valhalla_muted">#8D90A0</color>
+</resources>

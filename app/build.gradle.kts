@@ -22,6 +22,14 @@ android {
         targetSdk = 35
         versionCode = ciVersionCode
         versionName = "1.$ciVersionCode"
+
+        // Только ARM-процессоры (все современные телефоны) — APK становится в несколько раз меньше.
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+    }
+
+    packaging {
+        // Сжимаем нативные библиотеки ML Kit внутри APK, чтобы файл быстрее скачивался.
+        jniLibs { useLegacyPackaging = true }
     }
 
     signingConfigs {
