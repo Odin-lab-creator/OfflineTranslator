@@ -1,11 +1,16 @@
 package com.example.offlinetranslator
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,9 +81,13 @@ val LightPalette = Palette(
 val LocalPalette = staticCompositionLocalOf { DarkPalette }
 
 class MainActivity : ComponentActivity() {
+
+    private var sharedImage by mutableStateOf<Uri?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (savedInstanceState == null) sharedImage = imageFrom(intent)
         val settings = AppSettings(applicationContext)
         setContent {
             val dark = when (settings.themeMode) {
@@ -107,15 +116,38 @@ class MainActivity : ComponentActivity() {
                 MaterialTheme(colorScheme = scheme) {
                     Surface(Modifier.fillMaxSize(), color = p.bg) {
                         var showSettings by rememberSaveable { mutableStateOf(false) }
+                        LaunchedEffect(sharedImage) {
+                            if (sharedImage != null) showSettings = false
+                        }
                         if (showSettings) {
                             BackHandler { showSettings = false }
                             SettingsScreen(settings) { showSettings = false }
                         } else {
-                            TranslatorScreen(onOpenSettings = { showSettings = true })
+                            TranslatorScreen(
+                                onOpenSettings = { showSettings = true },
+                                sharedImage = sharedImage,
+                                onSharedImageHandled = { sharedImage = null }
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        imageFrom(intent)?.let { sharedImage = it }
+    }
+
+    private fun imageFrom(intent: Intent?): Uri? {
+        if (intent == null || intent.action != Intent.ACTION_SEND) return null
+        val type = intent.type ?: return null
+        if (!type.startsWith("image/")) return null
+        return if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        } else {
+            intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
         }
     }
 }
@@ -144,6 +176,8 @@ private fun LinkText(
 @Composable
 fun TranslatorScreen(
     onOpenSettings: () -> Unit,
+    sharedImage: Uri?,
+    onSharedImageHandled: () -> Unit,
     vm: TranslatorViewModel = viewModel()
 ) {
     val p = LocalPalette.current
@@ -152,6 +186,19 @@ fun TranslatorScreen(
     val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
     LaunchedEffect(vm.output) { copied = false }
+
+    val pickImage = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) vm.translateImage(context.applicationContext, uri)
+    }
+
+    LaunchedEffect(sharedImage) {
+        if (sharedImage != null) {
+            vm.translateImage(context.applicationContext, sharedImage)
+            onSharedImageHandled()
+        }
+    }
 
     Column(
         Modifier
@@ -254,24 +301,51 @@ fun TranslatorScreen(
             }
         }
 
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .background(p.gold)
-                .clickable(enabled = !vm.busy) {
-                    focus.clearFocus()
-                    vm.translate()
-                },
-            contentAlignment = Alignment.Center
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                if (vm.busy) "Перевожу…" else "Перевести",
-                color = p.onGold,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+            Box(
+                Modifier
+                    .weight(1f)
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(p.gold)
+                    .clickable(enabled = !vm.busy) {
+                        focus.clearFocus()
+                        vm.translate()
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (vm.busy) "Перевожу…" else "Перевести",
+                    color = p.onGold,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            val outline = RoundedCornerShape(6.dp)
+            Box(
+                Modifier
+                    .height(52.dp)
+                    .clip(outline)
+                    .border(1.dp, p.gold, outline)
+                    .clickable(enabled = !vm.busy) {
+                        focus.clearFocus()
+                        pickImage.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                    .padding(horizontal = 18.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Скриншот",
+                    color = p.gold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
         if (vm.busy) {
@@ -427,7 +501,9 @@ fun SettingsScreen(settings: AppSettings, onBack: () -> Unit) {
         Text("О приложении", color = p.muted, fontSize = 13.sp, letterSpacing = 2.sp)
         Text(
             "Valhalla Translate переводит прямо на устройстве (Google ML Kit). " +
-                "Интернет нужен только для первой загрузки языковых моделей.",
+                "Интернет нужен только для первой загрузки языковых моделей.\n\n" +
+                "Перевод по скриншоту: кнопка «Скриншот» или «Поделиться → Valhalla Translate» " +
+                "из галереи. Распознаётся текст на латинице: английский, немецкий, французский и др.",
             color = p.text,
             fontSize = 14.sp,
             lineHeight = 21.sp
