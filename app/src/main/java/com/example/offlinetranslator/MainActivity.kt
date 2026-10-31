@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                         }
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
-                            DocumentScreen(vm) { go(Screen.TOOLS) }
+                            DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
                         }
                         Screen.CONVERSATION -> {
                             BackHandler { go(Screen.TOOLS) }
