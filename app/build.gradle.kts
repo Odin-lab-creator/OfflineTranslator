@@ -4,6 +4,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Номер сборки GitHub Actions становится versionCode, чтобы новые версии ставились поверх старых.
+val ciVersionCode = (project.findProperty("ciVersionCode") as String?)?.toIntOrNull() ?: 1
+
+// Постоянный ключ лежит в репозитории в зашифрованном виде; пароль хранится в секрете GitHub.
+val signingPassword: String = System.getenv("SIGNING_KEY_PASSWORD").orEmpty()
+val releaseKeystore = rootProject.file("keystore/release.p12")
+val hasReleaseKey = signingPassword.isNotEmpty() && releaseKeystore.exists()
+
 android {
     namespace = "com.example.offlinetranslator"
     compileSdk = 35
@@ -12,11 +20,42 @@ android {
         applicationId = "com.example.offlinetranslator"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = ciVersionCode
+        versionName = "1.$ciVersionCode"
     }
 
-    buildFeatures { compose = true }
+    signingConfigs {
+        create("release") {
+            if (hasReleaseKey) {
+                storeFile = releaseKeystore
+                storeType = "PKCS12"
+                storePassword = signingPassword
+                keyAlias = "valhalla"
+                keyPassword = signingPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+        }
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
