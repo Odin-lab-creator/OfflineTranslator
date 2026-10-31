@@ -22,6 +22,11 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -125,7 +130,16 @@ class ProcessTextActivity : ComponentActivity() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("VALHALLA", color = p.gold, fontFamily = FontFamily.Serif, fontSize = 16.sp, letterSpacing = 3.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painterResource(R.drawable.ic_rune),
+                                    contentDescription = null,
+                                    tint = p.gold,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text("VALHALLA", color = p.gold, fontFamily = FontFamily.Serif, fontSize = 16.sp, letterSpacing = 3.sp)
+                            }
                             LinkText("Закрыть", p.muted) { finish() }
                         }
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

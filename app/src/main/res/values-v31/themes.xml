@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: системная заставка с золотой руной на тёмном фоне -->
+    <style name="Theme.Valhalla" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/valhalla_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/valhalla_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_rune_gold</item>
+    </style>
+
+    <style name="Theme.Valhalla.Overlay" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+</resources>

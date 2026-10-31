@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Заставка для Android 6–11: тёмный фон и золотая руна по центру -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/valhalla_bg" />
+    <item
+        android:width="144dp"
+        android:height="144dp"
+        android:drawable="@drawable/ic_rune_gold"
+        android:gravity="center" />
+</layer-list>

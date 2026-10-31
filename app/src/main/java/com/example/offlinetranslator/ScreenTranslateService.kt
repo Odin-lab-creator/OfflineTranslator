@@ -31,6 +31,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -151,7 +152,7 @@ class ScreenTranslateService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_tile)
+            .setSmallIcon(R.drawable.ic_rune)
             .setContentTitle("Перевод экрана включён")
             .setContentText("Нажмите на золотую кнопку, чтобы перевести экран")
             .setOngoing(true)
@@ -177,12 +178,12 @@ class ScreenTranslateService : Service() {
     @SuppressLint("ClickableViewAccessibility")
     private fun showBubble() {
         val size = dp(56f)
-        val view = TextView(this).apply {
-            text = "ᛉ"
-            textSize = 26f
-            gravity = Gravity.CENTER
-            setTextColor(GOLD)
-            typeface = Typeface.SERIF
+        val view = ImageView(this).apply {
+            setImageResource(R.drawable.ic_rune)
+            setColorFilter(GOLD)
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            setPadding(dp(13f), dp(13f), dp(13f), dp(13f))
+            contentDescription = "Перевести экран"
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(BG)

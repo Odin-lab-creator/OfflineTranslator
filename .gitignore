@@ -2,5 +2,4 @@ app/build/
 build/
 .gradle/
 app/src/main/assets/tessdata/
-app/src/main/res/mipmap-*/
 local.properties

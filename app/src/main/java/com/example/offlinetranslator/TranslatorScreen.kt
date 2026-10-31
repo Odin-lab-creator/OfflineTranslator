@@ -33,6 +33,10 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.Icon
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -138,15 +142,24 @@ fun TranslatorScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column {
-                Text(
-                    "VALHALLA",
-                    color = p.gold,
-                    fontFamily = FontFamily.Serif,
-                    fontSize = 24.sp,
-                    letterSpacing = 3.sp
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painterResource(R.drawable.ic_rune),
+                    contentDescription = null,
+                    tint = p.gold,
+                    modifier = Modifier.size(30.dp)
                 )
-                Text("TRANSLATE", color = p.muted, fontSize = 12.sp, letterSpacing = 5.sp)
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Text(
+                        "VALHALLA",
+                        color = p.gold,
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 24.sp,
+                        letterSpacing = 3.sp
+                    )
+                    Text("TRANSLATE", color = p.muted, fontSize = 12.sp, letterSpacing = 5.sp)
+                }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LinkText("☰", p.gold, 22.sp, onClick = onOpenTools)

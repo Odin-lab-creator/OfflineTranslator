@@ -88,7 +88,7 @@
         <service
             android:name=".TranslateTileService"
             android:exported="true"
-            android:icon="@drawable/ic_tile"
+            android:icon="@drawable/ic_rune"
             android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
