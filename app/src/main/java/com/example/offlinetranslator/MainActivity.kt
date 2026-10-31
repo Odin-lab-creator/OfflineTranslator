@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -94,8 +94,11 @@ class MainActivity : ComponentActivity() {
                                     Tool("Разговорник", "Готовые фразы для поездок: такси, отель, кафе, магазин, экстренные случаи") {
                                         go(Screen.PHRASEBOOK)
                                     },
-                                    Tool("Камера", "Снимок или живой перевод в видоискателе") {
+                                    Tool("Камера", "Снимок или живой перевод прямо в видоискателе") {
                                         go(Screen.CAMERA)
+                                    },
+                                    Tool("Документы", "Перевод PDF и TXT целиком, с сохранением в файл") {
+                                        go(Screen.DOCUMENTS)
                                     },
                                     Tool("Языковые модели", "Скачать языки заранее, чтобы переводить без интернета") {
                                         go(Screen.MODELS)
@@ -103,6 +106,10 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 onBack = { go(Screen.TRANSLATE) }
                             )
+                        }
+                        Screen.DOCUMENTS -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            DocumentScreen(vm) { go(Screen.TOOLS) }
                         }
                         Screen.CONVERSATION -> {
                             BackHandler { go(Screen.TOOLS) }

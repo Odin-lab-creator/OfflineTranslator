@@ -103,34 +103,50 @@ object TranslationEngine {
     /** Распознаёт текст на картинке и склеивает строки абзацев, чтобы перевод был связным. */
     suspend fun recognize(context: Context, uri: Uri, script: OcrScript, sourceLang: String): String =
         if (script == OcrScript.CYRILLIC) {
-            recognizeWithTesseract(context, uri, sourceLang)
+            val bitmap = loadBitmap(context, uri)
+            try {
+                recognizeCyrillic(context, bitmap, sourceLang)
+            } finally {
+                bitmap.recycle()
+            }
         } else {
-            recognizeWithMlKit(context, uri, script)
+            recognizeWithMlKit(InputImage.fromFilePath(context, uri), script)
         }
 
-    private suspend fun recognizeWithMlKit(context: Context, uri: Uri, script: OcrScript): String {
-        val image = InputImage.fromFilePath(context, uri)
-        val recognizer: TextRecognizer = when (script) {
-            OcrScript.CHINESE -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
-            OcrScript.JAPANESE -> TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
-            OcrScript.KOREAN -> TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
-            else -> TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    /** То же для готового изображения (страницы документа). Bitmap не освобождается. */
+    suspend fun recognizeBitmap(context: Context, bitmap: Bitmap, script: OcrScript, sourceLang: String): String =
+        if (script == OcrScript.CYRILLIC) {
+            recognizeCyrillic(context, bitmap, sourceLang)
+        } else {
+            recognizeWithMlKit(InputImage.fromBitmap(bitmap, 0), script)
         }
+
+    /** Распознаватель ML Kit для алфавита (кроме кириллицы). Закрывать после использования. */
+    fun mlKitRecognizer(script: OcrScript): TextRecognizer = when (script) {
+        OcrScript.CHINESE -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+        OcrScript.JAPANESE -> TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+        OcrScript.KOREAN -> TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+        else -> TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    }
+
+    fun lineSeparator(script: OcrScript): String =
+        if (script == OcrScript.CHINESE || script == OcrScript.JAPANESE) "" else " "
+
+    private suspend fun recognizeWithMlKit(image: InputImage, script: OcrScript): String {
+        val recognizer = mlKitRecognizer(script)
         val result = try {
             recognizer.process(image).await()
         } finally {
             recognizer.close()
         }
-        val cjk = script == OcrScript.CHINESE || script == OcrScript.JAPANESE
-        return joinBlocks(result, separator = if (cjk) "" else " ")
+        return joinBlocks(result, separator = lineSeparator(script))
     }
 
     // ---- Кириллица: Tesseract, модели tessdata_fast кладутся в APK при сборке ----
 
-    private suspend fun recognizeWithTesseract(context: Context, uri: Uri, sourceLang: String): String =
+    private suspend fun recognizeCyrillic(context: Context, bitmap: Bitmap, sourceLang: String): String =
         withContext(Dispatchers.Default) {
             val dataPath = ensureTessData(context)
-            val bitmap = loadBitmap(context, uri)
             val api = TessBaseAPI()
             try {
                 val langs = if (sourceLang == "uk") "ukr+rus+eng" else "rus+ukr+eng"
@@ -144,7 +160,6 @@ object TranslationEngine {
                     .trim()
             } finally {
                 api.recycle()
-                bitmap.recycle()
             }
         }
 

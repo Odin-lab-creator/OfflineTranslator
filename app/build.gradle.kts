@@ -87,6 +87,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:$cameraX")
     implementation("androidx.camera:camera-lifecycle:$cameraX")
     implementation("androidx.camera:camera-view:$cameraX")
+    implementation("androidx.camera:camera-mlkit-vision:$cameraX")
 
     // Перевод, определение языка и распознавание текста на устройстве
     implementation("com.google.mlkit:translate:17.0.3")
