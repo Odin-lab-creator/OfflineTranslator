@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Valhalla Translate</string>
+    <string name="widget_description">Быстрый перевод текста, скриншота или через камеру</string>
+    <string name="tile_label">Перевод скриншота</string>
+</resources>

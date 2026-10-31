@@ -7,6 +7,13 @@ import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -240,7 +247,11 @@ fun TranslatorScreen(
             Text(vm.status, color = p.muted, fontSize = 12.sp)
         }
 
-        if (vm.output.isNotEmpty()) {
+        AnimatedVisibility(
+            visible = vm.output.isNotEmpty(),
+            enter = fadeIn(tween(250)) + expandVertically(tween(250)),
+            exit = fadeOut(tween(150)) + shrinkVertically(tween(150))
+        ) {
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -253,7 +264,8 @@ fun TranslatorScreen(
                         color = p.result,
                         fontFamily = FontFamily.Serif,
                         fontSize = 24.sp,
-                        lineHeight = 32.sp
+                        lineHeight = 32.sp,
+                        modifier = Modifier.animateContentSize(tween(200))
                     )
                 }
                 Spacer(Modifier.height(8.dp))
