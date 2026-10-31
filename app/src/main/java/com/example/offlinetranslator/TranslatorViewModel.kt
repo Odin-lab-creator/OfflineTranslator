@@ -1,5 +1,7 @@
 package com.example.offlinetranslator
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +15,9 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -62,27 +67,79 @@ class TranslatorViewModel : ViewModel() {
         output = i
     }
 
+    private suspend fun runTranslation(text: String) {
+        if (source == target) {
+            output = text
+            return
+        }
+        val t = translatorFor(source, target)
+        status = "Проверяю языковую модель (при первом запуске скачивается)…"
+        t.downloadModelIfNeeded(DownloadConditions.Builder().build()).await()
+        status = ""
+        output = t.translate(text).await()
+    }
+
+    private fun errorText(e: Exception): String =
+        "Ошибка: ${e.localizedMessage ?: "не удалось перевести"}. " +
+            "Если модель ещё не скачана — нужен интернет."
+
     fun translate() {
         val text = input.trim()
         if (text.isEmpty()) {
             output = ""
             return
         }
-        if (source == target) {
-            output = text
-            return
-        }
         viewModelScope.launch {
             busy = true
             try {
-                val t = translatorFor(source, target)
-                status = "Проверяю языковую модель (при первом запуске скачивается)…"
-                t.downloadModelIfNeeded(DownloadConditions.Builder().build()).await()
-                status = ""
-                output = t.translate(text).await()
+                runTranslation(text)
             } catch (e: Exception) {
-                status = "Ошибка: ${e.localizedMessage ?: "не удалось перевести"}. " +
-                    "Если модель ещё не скачана — нужен интернет."
+                status = errorText(e)
+            } finally {
+                busy = false
+            }
+        }
+    }
+
+    /** Распознаёт текст на картинке, определяет язык и сразу переводит. */
+    fun translateImage(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            busy = true
+            output = ""
+            try {
+                status = "Распознаю текст на изображении…"
+                val image = InputImage.fromFilePath(context, uri)
+                val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+                val result = try {
+                    recognizer.process(image).await()
+                } finally {
+                    recognizer.close()
+                }
+                val text = result.textBlocks
+                    .joinToString("\n") { block -> block.lines.joinToString(" ") { it.text } }
+                    .trim()
+                if (text.isEmpty()) {
+                    status = "Текст не найден. Распознаётся латиница: английский, немецкий, французский и др."
+                    return@launch
+                }
+                input = text.take(5000)
+                status = "Определяю язык…"
+                val code = try {
+                    LanguageIdentification.getClient().identifyLanguage(input).await()
+                } catch (e: Exception) {
+                    "und"
+                }
+                if (code != "und" && code in languages) {
+                    source = code
+                    if (source == target) {
+                        target = if (code == TranslateLanguage.RUSSIAN) TranslateLanguage.ENGLISH
+                        else TranslateLanguage.RUSSIAN
+                    }
+                }
+                status = ""
+                runTranslation(input)
+            } catch (e: Exception) {
+                status = errorText(e)
             } finally {
                 busy = false
             }
