@@ -264,7 +264,13 @@ fun TranslatorScreen(
         ) {
             TextField(
                 value = vm.input,
-                onValueChange = { if (it.length <= 5000) vm.input = it },
+                onValueChange = {
+                    if (it.length <= 5000) vm.input = it
+                    if (it.isBlank()) {
+                        vm.output = ""
+                        vm.status = ""
+                    }
+                },
                 placeholder = { Text("Введите текст") },
                 modifier = Modifier
                     .fillMaxWidth()
