@@ -41,6 +41,9 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
     /** Последний перевод сделан через DeepL (онлайн). */
     var viaDeepl by mutableStateOf(false)
         private set
+    /** Последний перевод сделан нейросетью (улучшенный офлайн-движок). */
+    var viaNeural by mutableStateOf(false)
+        private set
     /** Переводы на дополнительные языки: язык → текст. */
     var extraOutputs by mutableStateOf<List<Pair<String, String>>>(emptyList())
         private set
@@ -81,7 +84,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun pairReady(): Boolean =
-        source == target || (source in downloaded && target in downloaded)
+        source == target || (source in downloaded && target in downloaded) || Neural.ready(source, target)
 
     fun updateInput(text: String) {
         input = text.take(MAX_INPUT)
@@ -101,6 +104,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         slangFound = emptyList()
         extraOutputs = emptyList()
         viaDeepl = false
+        viaNeural = false
         status = ""
         busy = false
     }
@@ -227,6 +231,7 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
             val result = translated.text
             output = result
             viaDeepl = translated.online
+            viaNeural = translated.neural
             backTranslation = ""
             slangFound = if (Slang.enabled && src != dst) Slang.normalize(text, src).found else emptyList()
             status = ""

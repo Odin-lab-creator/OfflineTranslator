@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD, READER, DICTIONARIES, VOICE }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD, READER, DICTIONARIES, VOICE, NEURAL }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -140,6 +140,9 @@ class MainActivity : ComponentActivity() {
                                     Tool("Карточки", "Учите слова из избранного: сложные повторяются чаще") {
                                         go(Screen.FLASHCARDS)
                                     },
+                                    Tool("Улучшенный движок (бета)", "Нейросети для более точного перевода без интернета") {
+                                        go(Screen.NEURAL)
+                                    },
                                     Tool("Языковые модели", "Скачать языки заранее, чтобы переводить без интернета") {
                                         go(Screen.MODELS)
                                     }
@@ -150,6 +153,10 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.NEURAL -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            NeuralScreen(onBack = { go(Screen.TOOLS) })
                         }
                         Screen.VOICE -> {
                             BackHandler { go(Screen.TOOLS) }

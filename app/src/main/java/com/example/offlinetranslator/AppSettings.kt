@@ -134,6 +134,16 @@ class AppSettings private constructor(context: Context) {
         prefs.edit().putString("home_currency", value).apply()
     }
 
+    /** Улучшенный офлайн-движок (нейросети Opus-MT), если модели скачаны. */
+    var neural by mutableStateOf(prefs.getBoolean("neural", true))
+        private set
+
+    fun updateNeural(value: Boolean) {
+        neural = value
+        Neural.enabled = value
+        prefs.edit().putBoolean("neural", value).apply()
+    }
+
     // ---- DeepL ----
     var deeplEnabled by mutableStateOf(prefs.getBoolean("deepl_enabled", false))
         private set
@@ -157,6 +167,8 @@ class AppSettings private constructor(context: Context) {
         Dictionary.init(context)
         Voice.init(context)
         Converter.init(context)
+        Neural.init(context)
+        Neural.enabled = neural
         Deepl.init(context)
         Deepl.enabled = deeplEnabled
         Deepl.key = deeplKey

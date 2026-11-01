@@ -323,8 +323,13 @@ fun TranslatorScreen(
                     .valhallaCard(p, border = p.gold)
                     .padding(16.dp)
             ) {
-                if (vm.viaDeepl) {
-                    Text("DeepL · онлайн", color = p.muted, fontSize = 11.sp, letterSpacing = 1.sp)
+                if (vm.viaDeepl || vm.viaNeural) {
+                    Text(
+                        if (vm.viaDeepl) "DeepL · онлайн" else "Нейросеть · офлайн",
+                        color = p.muted,
+                        fontSize = 11.sp,
+                        letterSpacing = 1.sp
+                    )
                     Spacer(Modifier.height(4.dp))
                 }
                 SelectionContainer {

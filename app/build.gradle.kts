@@ -76,6 +76,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.18.1")
     implementation("com.alphacephei:vosk-android:0.3.47@aar")
     implementation("net.java.dev.jna:jna:5.13.0@aar")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.2")
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
     implementation(composeBom)
     implementation("androidx.compose.material3:material3")

@@ -68,15 +68,20 @@ object TranslationEngine {
             .toSet() + TranslateLanguage.ENGLISH
 
     /** Результат перевода и каким движком он сделан. */
-    class Translated(val text: String, val online: Boolean)
+    class Translated(val text: String, val online: Boolean, val neural: Boolean = false)
 
+    /**
+     * allowOnline = false — не отправлять текст в DeepL;
+     * fast = true — без нейросети (для живой камеры, где важна скорость).
+     */
     suspend fun translate(
         src: String,
         dst: String,
         text: String,
         wifiOnly: Boolean = false,
-        allowOnline: Boolean = true
-    ): String = translateDetailed(src, dst, text, wifiOnly, allowOnline).text
+        allowOnline: Boolean = true,
+        fast: Boolean = false
+    ): String = translateDetailed(src, dst, text, wifiOnly, allowOnline, fast).text
 
     /**
      * Перевод: через DeepL, если он включён и есть интернет, иначе офлайн (ML Kit).
@@ -87,7 +92,8 @@ object TranslationEngine {
         dst: String,
         text: String,
         wifiOnly: Boolean = false,
-        allowOnline: Boolean = true
+        allowOnline: Boolean = true,
+        fast: Boolean = false
     ): Translated {
         if (src == dst) return Translated(text, online = false)
         if (allowOnline && Deepl.usable(src, dst)) {
@@ -97,6 +103,17 @@ object TranslationEngine {
                 throw e
             } catch (e: Exception) {
                 // DeepL недоступен: переводим офлайн
+            }
+        }
+        if (!fast && Neural.ready(src, dst)) {
+            try {
+                val prepared = if (Slang.enabled) Slang.normalize(text, src).text else text
+                val result = Glossary.translateWith(prepared, src, dst) { part -> Neural.translate(src, dst, part) }
+                if (result.isNotBlank()) return Translated(result, online = false, neural = true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                // нейросеть не справилась — переводим обычным движком
             }
         }
         val t = translatorFor(src, dst)
