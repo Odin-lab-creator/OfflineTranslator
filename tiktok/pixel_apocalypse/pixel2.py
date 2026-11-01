@@ -57,6 +57,42 @@ def value_noise(seed, cell, amp=1.0):
     return (np.asarray(im, np.float32)[:H, :W] / 255 - 0.5) * 2 * amp
 
 
+WTS = np.array([0.35, 0.45, 0.2], np.float32)
+_LUT = None
+
+
+def _lut():
+    """Таблица 64x64x64 → ближайший цвет палитры (для быстрого рендера видео)."""
+    global _LUT
+    if _LUT is None:
+        g = (np.arange(64, dtype=np.float32) * 4 + 2)
+        cube = np.stack(np.meshgrid(g, g, g, indexing="ij"), -1).reshape(-1, 3)
+        idx = np.empty(len(cube), np.int16)
+        for i in range(0, len(cube), 32768):
+            ch = cube[i:i + 32768]
+            idx[i:i + 32768] = ((((ch[:, None, :] - PAL[None]) ** 2) * WTS).sum(-1)).argmin(1)
+        _LUT = idx.reshape(64, 64, 64)
+    return _LUT
+
+
+def finalize(out, vignette=0.55, brightness=1.0, fast=False):
+    """Виньетка → яркость → дизеринг Bayer → квантование в палитру. Возвращает uint8 RGB."""
+    h, w = out.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    d = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2)
+    out = out * np.clip(1 - vignette * np.clip(d - 0.45, 0, None) ** 1.5, 0.15, 1)[..., None] * brightness
+    out = out + np.tile(BAYER, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * 14
+    if fast:
+        q = np.clip(out, 0, 255).astype(np.int32) >> 2
+        return PAL[_lut()[q[..., 0], q[..., 1], q[..., 2]]].astype(np.uint8)
+    flat = out.reshape(-1, 3)
+    idx = np.empty(len(flat), np.int32)
+    for i in range(0, len(flat), 40000):
+        ch = flat[i:i + 40000]
+        idx[i:i + 40000] = (((ch[:, None, :] - PAL[None]) ** 2) * WTS).sum(-1).argmin(1)
+    return PAL[idx].reshape(h, w, 3).astype(np.uint8)
+
+
 class Scene:
     def __init__(self, base="G1"):
         self.rgb = np.zeros((H, W, 3), np.float32) + col(base)
@@ -118,7 +154,8 @@ class Scene:
     def add_light(self, x, y, r, intensity=1.0, color=(1.0, 0.72, 0.42), halo=True, ry=None):
         self.lights.append((x, y, r, ry or r, intensity, np.array(color, np.float32), halo))
 
-    def render(self, vignette=0.55, crop=None):
+    def lit(self):
+        """Освещённая сцена целиком (float RGB, до виньетки и палитры)."""
         lum = np.zeros((H, W, 3), np.float32) + self.ambient
         glow = np.zeros((H, W, 3), np.float32)
         for x, y, r, ry, inten, c, halo in self.lights:
@@ -131,22 +168,14 @@ class Scene:
         lum[self.actor] = np.maximum(lum[self.actor], self.actor_min)
         out = self.rgb * lum + glow
         out[self.emis] = self.rgb[self.emis] + glow[self.emis] * 0.3
+        return out
+
+    def render(self, vignette=0.55, crop=None):
+        out = self.lit()
         if crop:  # «камера»: окно CW x CH
             cx0, cy0 = crop
             out = out[cy0:cy0 + CH, cx0:cx0 + CW]
-        h, w = out.shape[:2]
-        yy, xx = np.mgrid[0:h, 0:w]
-        d = np.sqrt(((xx - w / 2) / (w / 2)) ** 2 + ((yy - h / 2) / (h / 2)) ** 2)
-        out = out * np.clip(1 - vignette * np.clip(d - 0.45, 0, None) ** 1.5, 0.15, 1)[..., None]
-        out += np.tile(BAYER, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * 14
-        flat = out.reshape(-1, 3)
-        wts = np.array([0.35, 0.45, 0.2], np.float32)
-        idx = np.empty(len(flat), np.int32)
-        for i in range(0, len(flat), 40000):
-            ch = flat[i:i + 40000]
-            dist = (((ch[:, None, :] - PAL[None]) ** 2) * wts).sum(-1)
-            idx[i:i + 40000] = dist.argmin(1)
-        return PAL[idx].reshape(h, w, 3).astype(np.uint8)
+        return finalize(out, vignette)
 
     def save(self, path, crop=None):
         img = Image.fromarray(self.render(crop=crop), "RGB")

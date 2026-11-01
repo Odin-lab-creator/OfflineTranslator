@@ -410,7 +410,7 @@ def frame_radio():
 
 
 # ================================================================== КАДР 5
-def frame_window():
+def frame_window(with_zombie=True):
     """«НЕ СМОТРИ В ОКНО» … «за твоей спиной раздаётся скрип пола»."""
     s = Scene()
     nz = value_noise(41, 2)
@@ -447,7 +447,8 @@ def frame_window():
     s.rect(52, 240, 114, 395, "G0")
     s.rect(46, 234, 52, 395, "B1"); s.rect(114, 234, 120, 395, "B1"); s.rect(46, 230, 120, 235, "B1")
     s.rect(47, 234, 47, 395, "B2")
-    s.paste(zombie(), 84, 395, dark=0.15)
+    if with_zombie:
+        s.paste(zombie(), 84, 395, dark=0.15)
     s.add_light(110, 330, 50, 0.25, color=(0.55, 0.75, 0.8), halo=False)
     floor(s, 396, 8, deck=("B2", "B1", "B0"))
     s.rect(122, 395, 146, 395, "E0")  # скрипнувшая доска
