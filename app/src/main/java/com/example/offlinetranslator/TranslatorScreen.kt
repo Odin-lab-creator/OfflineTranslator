@@ -83,6 +83,8 @@ fun TranslatorScreen(
     val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
     LaunchedEffect(vm.output) { copied = false }
+    var wordQuery by remember { mutableStateOf<WordQuery?>(null) }
+    wordQuery?.let { WordSheet(it, vm) { wordQuery = null } }
 
     val pickImage = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -335,6 +337,11 @@ fun TranslatorScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LinkText("Показать собеседнику", p.gold, 14.sp) { onShow(vm.output) }
                     LinkText("Обратный перевод", p.muted, 14.sp) { vm.checkBackTranslation() }
+                    if (vm.input.trim().split(Regex("\\s+")).size <= 3) {
+                        LinkText("Словарь", p.gold, 14.sp) {
+                            wordQuery = WordQuery(vm.input.trim(), vm.source, vm.target)
+                        }
+                    }
                 }
                 if (vm.backTranslation.isNotEmpty()) {
                     Text(
@@ -345,6 +352,10 @@ fun TranslatorScreen(
                     )
                 }
                 SlangFoundList(vm.slangFound, Modifier.padding(start = 6.dp, end = 6.dp, top = 8.dp))
+                if (vm.source != vm.target) {
+                    Spacer(Modifier.height(10.dp))
+                    WordChips(vm.input) { word -> wordQuery = WordQuery(word, vm.source, vm.target) }
+                }
             }
         }
         ExtraTargetsSection(vm)

@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD, READER, DICTIONARIES }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -119,6 +119,12 @@ class MainActivity : ComponentActivity() {
                                     Tool("Рукописный ввод", "Пишите пальцем — удобно для иероглифов и незнакомых алфавитов") {
                                         go(Screen.HANDWRITING)
                                     },
+                                    Tool("Читалка", "Книги и статьи: нажмите на слово — словарь, удерживайте абзац — перевод") {
+                                        go(Screen.READER)
+                                    },
+                                    Tool("Словари", "Все значения слов, часть речи и произношение — без интернета") {
+                                        go(Screen.DICTIONARIES)
+                                    },
                                     Tool("Перевод уведомлений", "Сообщения на иностранном языке из мессенджеров сразу приходят с переводом") {
                                         go(Screen.NOTIFY)
                                     },
@@ -141,6 +147,14 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.READER -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            ReaderScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.DICTIONARIES -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            DictionariesScreen(onBack = { go(Screen.TOOLS) })
                         }
                         Screen.KEYBOARD -> {
                             BackHandler { go(Screen.TOOLS) }

@@ -136,6 +136,7 @@ class AppSettings private constructor(context: Context) {
         Slang.load(context)
         Slang.enabled = slang
         Glossary.load(context)
+        Dictionary.init(context)
         Deepl.init(context)
         Deepl.enabled = deeplEnabled
         Deepl.key = deeplKey
