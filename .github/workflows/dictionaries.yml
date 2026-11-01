@@ -1,0 +1,55 @@
+name: Build dictionaries
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert WikDict dictionaries
+        run: |
+          mkdir -p out work
+          pairs=""
+          for l in en de fr es it pl pt tr ja nl sv fi el bg no lt id la; do pairs="$pairs $l-ru ru-$l"; done
+          for l in de fr es it pt pl tr ja nl sv; do pairs="$pairs $l-en en-$l"; done
+          echo '{"version":1,"pairs":[' > out/index.json
+          first=1
+          for pair in $pairs; do
+            if ! curl -sSfL --retry 3 --retry-delay 5 -o work/src.sqlite3 "https://download.wikdict.com/dictionaries/wdweb/$pair.sqlite3"; then
+              echo "::warning::download failed for $pair"
+              continue
+            fi
+            if python3 tools/build_dicts.py work/src.sqlite3 "out/$pair.db" > work/log.txt 2>&1; then
+              entries=$(python3 -c "import sqlite3;print(sqlite3.connect('out/$pair.db').execute('select value from meta where key=\'entries\'').fetchone()[0])")
+              size=$(stat -c %s "out/$pair.db")
+              gzip -9 -n "out/$pair.db"
+              gz=$(stat -c %s "out/$pair.db.gz")
+              [ $first -eq 1 ] || echo ',' >> out/index.json
+              first=0
+              echo "{\"pair\":\"$pair\",\"entries\":$entries,\"size\":$size,\"gz\":$gz}" >> out/index.json
+              echo "$pair: $entries entries, $gz bytes"
+            else
+              echo "::warning::convert failed for $pair: $(tail -3 work/log.txt | tr '\n' ' ')"
+            fi
+            rm -f work/src.sqlite3
+          done
+          echo ']}' >> out/index.json
+          python3 -c "import json;d=json.load(open('out/index.json'));print(len(d['pairs']),'pairs')"
+          echo "::notice::$(python3 -c "import json;d=json.load(open('out/index.json'));print(len(d['pairs']),'pairs built')")"
+      - name: Publish dictionaries
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dictionaries
+          name: Словари (для приложения)
+          body: Офлайн-словари для Valhalla Translate. Данные — WikDict / Wiktionary (CC BY-SA). Скачиваются из приложения автоматически.
+          prerelease: true
+          make_latest: false
+          files: |
+            out/*.db.gz
+            out/index.json
