@@ -22,11 +22,16 @@ sys.argv = sys.argv[:1]
 import build_edit as be  # noqa: E402
 sys.argv = _argv
 be.SLOTS[0]["src"] = 116.5
+import glitch as dg  # noqa: E402  цифровой глитч поверх VHS
+for _j, _s in enumerate(be.SLOTS[1:5]):
+    _s["intro_beat"] = True
+    _s["intro_idx"] = _j
+_gprev = None
 for _k, _s in enumerate(be.SLOTS[5:]):
     _s["drop_idx"] = _k        # город сверху без текста исходника («PRESENTS» в начале ролика)
 
 PREVIEW = len(sys.argv) > 1 and sys.argv[1] == "preview"
-OUT = os.path.join(HERE, "phonk_check_yourself_vhs2.mp4")
+OUT = os.path.join(HERE, "phonk_check_yourself_vhs3.mp4")
 VW, VH = 480, 360                 # разрешение «кассеты»
 FPS = be.FPS
 GOTHIC = os.path.join(HERE, "fonts", "PirataOne-Regular.ttf")
@@ -164,6 +169,8 @@ def heavy(x, h, te, i):
 
 def heavy_level(slot, k, lt, dur):
     fx = slot["fx"]
+    if "drop_idx" not in slot:                                         # вступление: чисто, затем нарастающий сбой
+        return 0.3 + 0.2 * slot["intro_idx"] if slot.get("intro_beat") else 0.0
     if fx == "drop":
         return 1.0 if lt < 0.25 else max(0.0, 1 - (lt - 0.25) / 0.25)
     if fx == "strong":
@@ -188,7 +195,8 @@ def render_slot(slot, prev_frames=None):
     for i in range(n0, n1):
         te = i / FPS
         lt = te - slot["t0"]
-        src = frames[min(len(frames) - 1, int(lt * be.SFPS))]
+        g = dg.plan(slot, lt, dur, be.BEAT, FPS)
+        src = frames[0 if g["stutter"] else min(len(frames) - 1, int(lt * be.SFPS))]
         impact = fx in ("drop", "strong")
         z = slot.get("zoom0", 1.0)
         if te >= be.DROP:
@@ -206,6 +214,10 @@ def render_slot(slot, prev_frames=None):
         glitch = 1.0 if impact and lt < 0.12 else (0.5 if fx in ("double", "whip") and lt < 0.08 else 0.0)
         img = vhs(img, te, i, glitch)
         img = heavy(img, heavy_level(slot, i, lt, dur), te, i)
+        global _gprev
+        if g["kinds"]:
+            img = dg.apply(img, _gprev, g, 9000 + i)
+        _gprev = img.copy()
         if fx == "drop" and lt < 2 / FPS:
             img = 255 - img
         if fx == "drop" and 2 / FPS <= lt < 4 / FPS:
