@@ -246,6 +246,50 @@ def hero_sit():
     return b.build()
 
 
+def hero_walk():
+    """Герой идёт вправо: шаг, рука в замахе."""
+    b = SpriteBuilder(54, 106)
+    b.poly([(17, 63), (25, 63), (21, 82), (15, 97), (9, 97), (14, 80)], "pants")
+    b.poly([(6, 96), (16, 96), (16, 104), (4, 104)], "boots")
+    b.poly([(24, 63), (34, 63), (37, 80), (41, 97), (34, 98), (29, 80)], "pants")
+    b.rect(31, 75, 36, 82, "strap")
+    b.fold([(30, 86), (35, 86)], 1); b.fold([(15, 84), (19, 86)], 1)
+    b.poly([(34, 96), (42, 96), (47, 101), (47, 104), (34, 104)], "boots")
+    b.rect(3, 104, 48, 105, "sole")
+    for x, y in ((37, 98), (39, 99), (41, 100)):
+        b.px(x, y, "E1")
+    _hero_torso(b)
+    _hero_head(b)
+    b.poly([(24, 28), (31, 27), (34, 43), (27, 44)], "sleeve")
+    b.poly([(27, 43), (34, 42), (39, 53), (33, 56)], "sleeve")
+    b.fold([(28, 44), (33, 43)], 0)
+    b.rect(33, 52, 39, 56, "cuff")
+    b.ell(37, 59, 3, 3, "glove")
+    return b.build()
+
+
+def hero_crouch():
+    """Герой присел на одно колено, прячется (лицом вправо)."""
+    b = SpriteBuilder(56, 82)
+    dy = -24
+    b.poly([(4, 72), (21, 72), (21, 79), (4, 79)], "pants")
+    b.poly([(0, 70), (6, 70), (6, 80), (0, 80)], "boots")
+    b.poly([(17, 60 + dy + 24), (25, 60 + dy + 24), (23, 74), (17, 76)], "pants")
+    b.poly([(24, 60), (34, 59), (45, 61), (45, 68), (26, 68)], "pants")
+    b.poly([(38, 63), (45, 63), (45, 76), (39, 76)], "pants")
+    b.rect(40, 62, 46, 67, "strap")
+    b.poly([(37, 74), (46, 74), (51, 78), (51, 80), (37, 80)], "boots")
+    b.rect(0, 80, 52, 81, "sole")
+    P = lambda pts: [(x + 2, y - 4) for x, y in pts]
+    _hero_torso(b, dx=2, dy=-4)
+    _hero_head(b, dx=4, dy=-2)
+    b.poly(P([(24, 28), (31, 27), (32, 43), (25, 44)]), "sleeve")
+    b.poly([(27, 40), (33, 38), (44, 52), (40, 55)], "sleeve")
+    b.rect(40, 50, 45, 55, "cuff")
+    b.ell(45, 57, 3, 3, "glove")
+    return b.build()
+
+
 # ================================================================ ЗАРАЖЁННЫЙ
 def zombie():
     b = SpriteBuilder(58, 106)
@@ -293,7 +337,7 @@ def zombie():
 if __name__ == "__main__":
     import os
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frames_v2", "characters_sheet.png")
-    sprites = [hero_stand(), hero_stand(pipe=True), hero_sit(), zombie()]
+    sprites = [hero_stand(), hero_walk(), hero_stand(pipe=True), hero_crouch(), hero_sit(), zombie()]
     Wd = sum(s[1].shape[1] for s in sprites) + 10 * (len(sprites) + 1)
     Hd = max(s[1].shape[0] for s in sprites) + 20
     sheet = np.zeros((Hd, Wd, 3), np.uint8) + np.array([46, 60, 50], np.uint8)
