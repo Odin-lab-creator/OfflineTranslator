@@ -1,0 +1,34 @@
+ПРОМТ «Jxned VHS» — одобренная версия эдита
+
+=== Для нового эдита (вставить в чат) ===
+
+Сделай фонк-эдит для TikTok под мой трек в стиле «Jxned VHS» (как phonk_check_yourself_vhs.mp4,
+скрипт tiktok/phonk_edit/build_vhs.py, описание tiktok/phonk_edit/VHS_LOOK_PROMPT.md).
+
+Картинка: запись со старой видеокамеры на кассету VHS. Кадр 4:3 по центру вертикального видео
+1080×1920 на чёрном фоне, без размытой подложки. Мягкая картинка с низким разрешением, ореолы вокруг фар и огней,
+двойные светлые контуры, цвет растекается и съезжает вправо, приподнятый чёрный, холодноватый оттенок,
+мелкий шум, лёгкая дрожь строк, полоса шума от головок внизу кадра, редкие розово-фиолетовые
+строки-помехи, чересстрочность. На сильных долях «рыбий глаз» с виньеткой.
+
+Надпись: только «Jxned» готическим шрифтом (Pirata One), белая, полупрозрачная (~26 %),
+по центру кадра, с лёгким мерцанием. Она проходит через ту же «кассету», что и видео.
+Название трека и другие надписи не писать.
+
+Монтаж: склейки строго в бит. Вступление 2 такта: общий план с проявлением из чёрного, затем
+4 плана на каждую долю с нарастающим зумом и белая вспышка перед дропом. Дроп: инверсия и белая
+вспышка, дальше смена плана каждые 2 доли. На сильных долях удар зумом, тряска, «рыбий глаз»
+и короткий срыв трекинга. Ещё в монтаже есть резкие переходы с размытием, повторы плана и
+затемнение в конце. Длина около 30 с.
+
+НЕ добавлять: жёсткий VHS на каждом акценте, цифровой глитч, датамош, пиксель-сортинг
+(пробовали в vhs2/vhs3, владелец оставил эту версию).
+
+=== Для нейросетей (Runway / Kling и др.) ===
+
+Vintage 1990s camcorder VHS footage, 4:3 frame, soft low-resolution image, blooming halos around
+headlights and city lights, edge-enhancement double outlines, chroma bleeding shifted to the right,
+lifted blacks, slightly cool tint, fine analog noise, subtle horizontal line wobble, head-switching
+noise at the bottom edge, occasional pink-magenta dropout lines, interlaced ghosting, night supercars,
+phonk edit mood. Semi-transparent white gothic blackletter word "Jxned" in the center.
+No other text, no digital glitch, no datamosh.
