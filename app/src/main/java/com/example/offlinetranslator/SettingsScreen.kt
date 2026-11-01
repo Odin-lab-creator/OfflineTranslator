@@ -1,6 +1,8 @@
 package com.example.offlinetranslator
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -104,6 +106,28 @@ fun SettingsScreen(
 
         SectionLabel("Онлайн-перевод DeepL")
         DeeplSettings(settings)
+
+        SectionLabel("Моя валюта — для пересчёта цен")
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Converter.homeCurrencies.forEach { code ->
+                if (code == settings.homeCurrency) {
+                    GoldButton(code, Modifier.height(36.dp)) { }
+                } else {
+                    OutlineGoldButton(code, height = 36) { settings.updateHomeCurrency(code) }
+                }
+            }
+        }
+        Text(
+            "Цены на камере («Цены») и в тексте пересчитываются в эту валюту. " +
+                if (Converter.ratesDate.isNotEmpty()) "Курсы от ${Converter.ratesDate}." else "Курсы загрузятся при первом подключении к интернету.",
+            color = p.muted,
+            fontSize = 12.sp
+        )
 
         SectionLabel("Текст на картинках и камере")
         ChoiceCard(

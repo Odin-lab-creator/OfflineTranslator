@@ -102,6 +102,15 @@ fun CameraScreen(
     var error by remember { mutableStateOf("") }
     var scriptMenu by remember { mutableStateOf(false) }
     var live by rememberSaveable { mutableStateOf(false) }
+    var prices by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        Converter.init(context)
+        try {
+            Converter.refreshRates()
+        } catch (e: Exception) {
+            // без интернета — сохранённые курсы
+        }
+    }
     var blocks by remember { mutableStateOf<List<LiveBlock>>(emptyList()) }
     var liveSource by remember { mutableStateOf(vm.source) }
     var liveStatus by remember { mutableStateOf("") }
@@ -130,10 +139,12 @@ fun CameraScreen(
         onDispose { controller.unbind() }
     }
 
-    val script = TranslationEngine.resolveScript(settings.ocrScript, vm.source)
+    val baseScript = TranslationEngine.resolveScript(settings.ocrScript, vm.source)
+    // Для цен и единиц хватает латиницы и цифр — работает и для кириллических вывесок.
+    val script = if (prices && baseScript == OcrScript.CYRILLIC) OcrScript.LATIN else baseScript
 
     // Живой режим: распознаём кадры и переводим каждый блок текста.
-    DisposableEffect(live, script, hasPermission) {
+    DisposableEffect(live, prices, script, hasPermission) {
         if (!live || !hasPermission || script == OcrScript.CYRILLIC) {
             controller.clearImageAnalysisAnalyzer()
             blocks = emptyList()
@@ -175,6 +186,7 @@ fun CameraScreen(
                         if (code != null && code != vm.target) liveSource = code
                     }
                 }
+                if (prices) return@MlKitAnalyzer
                 blocks.forEach { block ->
                     val key = "$liveSource>${vm.target}|${block.text}"
                     if (translations[key] == null && inFlight.add(key)) {
@@ -236,8 +248,28 @@ fun CameraScreen(
         if (hasPermission) {
             AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
+            // Цены и единицы поверх текста
+            if (prices) {
+                blocks.forEach { block ->
+                    val found = Converter.convertAll(block.text, settings.homeCurrency, liveSource)
+                    if (found.isEmpty()) return@forEach
+                    Text(
+                        found.joinToString("\n") { "${it.original}  ${it.converted}" },
+                        color = p.gold,
+                        fontSize = 15.sp,
+                        lineHeight = 19.sp,
+                        modifier = Modifier
+                            .offset { IntOffset(block.box.left, block.box.bottom) }
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color(0xEE121418))
+                            .border(1.dp, p.gold, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
             // Переводы поверх текста
-            blocks.forEach { block ->
+            if (!prices) blocks.forEach { block ->
                 val translated = translations["$liveSource>${vm.target}|${block.text}"] ?: return@forEach
                 val lineHeightPx = block.box.height().toFloat() / block.lines
                 val fontSp = with(density) { (lineHeightPx * 0.62f).toSp() }.value.coerceIn(10f, 26f)
@@ -356,8 +388,18 @@ fun CameraScreen(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    TabChip("Снимок", !live) { live = false }
-                    TabChip("Живой перевод", live) { live = true }
+                    TabChip("Снимок", !live) {
+                        live = false
+                        prices = false
+                    }
+                    TabChip("Живой перевод", live && !prices) {
+                        live = true
+                        prices = false
+                    }
+                    TabChip("Цены", prices) {
+                        live = true
+                        prices = true
+                    }
                 }
                 if (!live) {
                     Text(
@@ -385,7 +427,10 @@ fun CameraScreen(
                     )
                 } else {
                     Text(
-                        "Перевод появляется поверх текста",
+                        if (prices) {
+                            if (Converter.hasRates()) "Цены → ${settings.homeCurrency}, мили → км, °F → °C"
+                            else "Единицы → метрические. Для цен нужен интернет один раз — загрузить курсы"
+                        } else "Перевод появляется поверх текста",
                         color = Color.White,
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Serif,

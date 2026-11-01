@@ -58,6 +58,13 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         refreshDownloaded()
+        viewModelScope.launch {
+            try {
+                Converter.refreshRates()
+            } catch (e: Exception) {
+                // без интернета — сохранённые курсы
+            }
+        }
         if (System.currentTimeMillis() - settings.lastUpdateCheck > 6 * 60 * 60 * 1000L) {
             checkForUpdates(manual = false)
         }

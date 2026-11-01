@@ -33,6 +33,9 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.res.painterResource
@@ -377,6 +380,22 @@ fun TranslatorScreen(
                 if (vm.source != vm.target) {
                     Spacer(Modifier.height(10.dp))
                     WordChips(vm.input) { word -> wordQuery = WordQuery(word, vm.source, vm.target) }
+                }
+                val conversions = remember(vm.input, settings.homeCurrency) {
+                    Converter.convertAll(vm.input, settings.homeCurrency, vm.source)
+                }
+                if (conversions.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    Text("ЦЕНЫ И ЕДИНИЦЫ", color = p.muted, fontSize = 11.sp, letterSpacing = 2.sp)
+                    conversions.forEach {
+                        Text(
+                            buildAnnotatedString {
+                                withStyle(SpanStyle(color = p.text)) { append(it.original) }
+                                withStyle(SpanStyle(color = p.gold)) { append("  " + it.converted) }
+                            },
+                            fontSize = 15.sp
+                        )
+                    }
                 }
             }
         }

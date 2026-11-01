@@ -125,6 +125,15 @@ class AppSettings private constructor(context: Context) {
         prefs.edit().putBoolean("offline_voice", value).apply()
     }
 
+    /** Своя валюта для пересчёта цен. */
+    var homeCurrency by mutableStateOf(prefs.getString("home_currency", null) ?: "RUB")
+        private set
+
+    fun updateHomeCurrency(value: String) {
+        homeCurrency = value
+        prefs.edit().putString("home_currency", value).apply()
+    }
+
     // ---- DeepL ----
     var deeplEnabled by mutableStateOf(prefs.getBoolean("deepl_enabled", false))
         private set
@@ -147,6 +156,7 @@ class AppSettings private constructor(context: Context) {
         Glossary.load(context)
         Dictionary.init(context)
         Voice.init(context)
+        Converter.init(context)
         Deepl.init(context)
         Deepl.enabled = deeplEnabled
         Deepl.key = deeplKey
