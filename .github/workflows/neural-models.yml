@@ -1,0 +1,74 @@
+name: Build neural models
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install tools
+        run: |
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet "transformers==4.44.2" "optimum[onnxruntime]==1.22.0" sentencepiece sacremoses onnx
+          mkdir -p jars
+          curl -sSfL -o jars/onnxruntime.jar https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime/1.19.2/onnxruntime-1.19.2.jar
+          curl -sSfL -o jars/json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
+          mkdir -p classes
+          javac -d classes -cp "jars/*" app/src/main/java/com/example/offlinetranslator/NeuralMt.java tools/NeuralTest.java
+      - name: Export models
+        run: |
+          mkdir -p out
+          echo '{"version":1,"models":[' > out/index.json
+          first=1
+          : > report.txt
+          for pair in en-ru ru-en en-de de-en en-fr fr-en en-es es-en en-it it-en en-uk uk-en; do
+            name="Helsinki-NLP/opus-mt-$pair"
+            if python3 tools/export_marian.py "$name" "models/$pair" > work.log 2>&1; then
+              case $pair in
+                en-*) tests=("Hello, how are you?" "I'm gonna grab a coffee before the meeting." "The weather is nice today, let's go for a walk in the park.");;
+                ru-*) tests=("Привет, как дела?" "Сегодня хорошая погода, пойдём гулять в парк." "Я опоздал на поезд, потому что проспал.");;
+                *) tests=("Hallo" "Bonjour" "Hola");;
+              esac
+              python3 tools/check_marian.py "$name" "models/$pair" "${tests[@]}" >> report.txt 2>&1 || echo "check failed $pair" >> report.txt
+              java -cp "classes:jars/*" NeuralTest "models/$pair" "${tests[@]}" >> report.txt 2>&1 || echo "java failed $pair" >> report.txt
+              (cd models/$pair && zip -q -r "../../out/$pair.zip" .)
+              size=$(stat -c %s "out/$pair.zip")
+              [ $first -eq 1 ] || echo ',' >> out/index.json
+              first=0
+              echo "{\"pair\":\"$pair\",\"size\":$size}" >> out/index.json
+              echo "$pair ok $size"
+              rm -rf "models/$pair"
+            else
+              echo "::warning::export failed for $pair: $(tail -5 work.log | tr '\n' ' ')"
+              echo "EXPORT FAILED $pair" >> report.txt
+              tail -30 work.log >> report.txt
+            fi
+          done
+          echo ']}' >> out/index.json
+          cp report.txt out/report.txt
+          cat out/index.json
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: neural-models
+          name: Нейросетевые модели (для приложения)
+          body: Модели Opus-MT (Helsinki-NLP, CC BY 4.0) в формате ONNX для улучшенного офлайн-перевода в Valhalla Translate.
+          prerelease: true
+          make_latest: false
+          files: |
+            out/*.zip
+            out/index.json
+            out/report.txt
