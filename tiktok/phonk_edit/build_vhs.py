@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Фонк-эдит «Jxned J — Check Yourself», винтажная версия: VHS / старая видеокамера.
 
-cd tiktok/phonk_edit && python3 build_vhs.py [preview]
+cd tiktok/phonk_edit && python3 build_vhs.py [preview] [--heavy] [--glitch]
+
+ИТОГОВАЯ версия (одобрена владельцем) — без флагов → phonk_check_yourself_vhs.mp4.
+Пробы, которые не пошли: --heavy → _vhs2 (жёсткий VHS на акцентах), --glitch → _vhs3 (жёсткий VHS + цифровой глитч).
 
 Склейки и раскладка планов — из build_edit.py (сетка 140 BPM). Кадр 4:3 по центру вертикали на чёрном.
 Картинка проходит «кассету»: ореолы, растекание цвета, двойные контуры, шум, строки-помехи, дрожь строк,
@@ -17,21 +20,23 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-_argv = sys.argv[:]
+_argv = [a for a in sys.argv if a not in ("--heavy", "--glitch")]
+HEAVY = "--heavy" in sys.argv or "--glitch" in sys.argv
+GLITCH = "--glitch" in sys.argv
 sys.argv = sys.argv[:1]
 import build_edit as be  # noqa: E402
 sys.argv = _argv
-be.SLOTS[0]["src"] = 116.5
-import glitch as dg  # noqa: E402  цифровой глитч поверх VHS
+be.SLOTS[0]["src"] = 116.5        # город сверху без текста исходника («PRESENTS» в начале ролика)
+import glitch as dg  # noqa: E402  цифровой глитч поверх VHS (только --glitch)
 for _j, _s in enumerate(be.SLOTS[1:5]):
     _s["intro_beat"] = True
     _s["intro_idx"] = _j
 _gprev = None
 for _k, _s in enumerate(be.SLOTS[5:]):
-    _s["drop_idx"] = _k        # город сверху без текста исходника («PRESENTS» в начале ролика)
+    _s["drop_idx"] = _k
 
 PREVIEW = len(sys.argv) > 1 and sys.argv[1] == "preview"
-OUT = os.path.join(HERE, "phonk_check_yourself_vhs3.mp4")
+OUT = os.path.join(HERE, "phonk_check_yourself_vhs%s.mp4" % ("3" if GLITCH else "2" if HEAVY else ""))
 VW, VH = 480, 360                 # разрешение «кассеты»
 FPS = be.FPS
 GOTHIC = os.path.join(HERE, "fonts", "PirataOne-Regular.ttf")
@@ -195,7 +200,7 @@ def render_slot(slot, prev_frames=None):
     for i in range(n0, n1):
         te = i / FPS
         lt = te - slot["t0"]
-        g = dg.plan(slot, lt, dur, be.BEAT, FPS)
+        g = dg.plan(slot, lt, dur, be.BEAT, FPS) if GLITCH else dict(kinds=(), amt=0.0, stutter=False)
         src = frames[0 if g["stutter"] else min(len(frames) - 1, int(lt * be.SFPS))]
         impact = fx in ("drop", "strong")
         z = slot.get("zoom0", 1.0)
@@ -213,7 +218,8 @@ def render_slot(slot, prev_frames=None):
             img = be.shake(img, 9 * math.exp(-lt * 9), i)
         glitch = 1.0 if impact and lt < 0.12 else (0.5 if fx in ("double", "whip") and lt < 0.08 else 0.0)
         img = vhs(img, te, i, glitch)
-        img = heavy(img, heavy_level(slot, i, lt, dur), te, i)
+        if HEAVY:
+            img = heavy(img, heavy_level(slot, i, lt, dur), te, i)
         global _gprev
         if g["kinds"]:
             img = dg.apply(img, _gprev, g, 9000 + i)
