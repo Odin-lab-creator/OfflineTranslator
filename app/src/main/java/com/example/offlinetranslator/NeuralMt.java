@@ -51,7 +51,7 @@ public final class NeuralMt implements AutoCloseable {
     private final String decHidden;
     private final String decMask;
 
-    public NeuralMt(File dir, int threads) throws IOException, OrtException {
+    public NeuralMt(File dir, int threads) throws Exception {
         JSONObject config = new JSONObject(read(new File(dir, "config.json")));
         pad = config.getLong("pad");
         eos = config.getLong("eos");
