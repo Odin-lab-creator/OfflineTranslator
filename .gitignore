@@ -3,3 +3,5 @@ build/
 .gradle/
 app/src/main/assets/tessdata/
 local.properties
+__pycache__/
+*.pyc
