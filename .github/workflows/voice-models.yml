@@ -1,0 +1,75 @@
+name: Mirror voice models
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Download Vosk models
+        run: |
+          mkdir -p out
+          candidates="
+          en vosk-model-small-en-us-0.15
+          ru vosk-model-small-ru-0.22
+          uk vosk-model-small-uk-v3-nano vosk-model-small-uk-v3-small
+          de vosk-model-small-de-0.15
+          fr vosk-model-small-fr-0.22
+          es vosk-model-small-es-0.42
+          it vosk-model-small-it-0.22
+          pt vosk-model-small-pt-0.3
+          zh vosk-model-small-cn-0.22
+          ja vosk-model-small-ja-0.22
+          ko vosk-model-small-ko-0.22
+          tr vosk-model-small-tr-0.3
+          pl vosk-model-small-pl-0.22
+          nl vosk-model-small-nl-0.22
+          hi vosk-model-small-hi-0.22
+          fa vosk-model-small-fa-0.42 vosk-model-small-fa-0.5
+          vi vosk-model-small-vn-0.4
+          cs vosk-model-small-cs-0.4-rhasspy
+          sv vosk-model-small-sv-rhasspy-0.15
+          ca vosk-model-small-ca-0.4
+          uz vosk-model-small-uz-0.22
+          te vosk-model-small-te-0.42
+          gu vosk-model-small-gu-0.42
+          eo vosk-model-small-eo-0.42
+          "
+          echo '{"version":1,"models":[' > out/index.json
+          first=1
+          echo "$candidates" | while read lang names; do
+            [ -z "$lang" ] && continue
+            for name in $names; do
+              if curl -sSfL --retry 3 --retry-delay 5 -o "out/$lang.zip" "https://alphacephei.com/vosk/models/$name.zip"; then
+                if unzip -tq "out/$lang.zip" > /dev/null; then
+                  size=$(stat -c %s "out/$lang.zip")
+                  [ $first -eq 1 ] || echo ',' >> out/index.json
+                  first=0
+                  echo "{\"lang\":\"$lang\",\"name\":\"$name\",\"size\":$size}" >> out/index.json
+                  echo "$lang: $name $size"
+                  break
+                fi
+              fi
+              rm -f "out/$lang.zip"
+              echo "::warning::not available: $name"
+            done
+          done
+          echo ']}' >> out/index.json
+          cat out/index.json
+          echo "::notice::$(python3 -c "import json;print(len(json.load(open('out/index.json'))['models']),'voice models')")"
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: voice-models
+          name: Голосовые модели (для приложения)
+          body: Офлайн-распознавание речи (Vosk, Apache 2.0) для Valhalla Translate. Скачиваются из приложения.
+          prerelease: true
+          make_latest: false
+          files: |
+            out/*.zip
+            out/index.json
