@@ -21,10 +21,12 @@ _argv = sys.argv[:]
 sys.argv = sys.argv[:1]
 import build_edit as be  # noqa: E402
 sys.argv = _argv
-be.SLOTS[0]["src"] = 116.5        # город сверху без текста исходника («PRESENTS» в начале ролика)
+be.SLOTS[0]["src"] = 116.5
+for _k, _s in enumerate(be.SLOTS[5:]):
+    _s["drop_idx"] = _k        # город сверху без текста исходника («PRESENTS» в начале ролика)
 
 PREVIEW = len(sys.argv) > 1 and sys.argv[1] == "preview"
-OUT = os.path.join(HERE, "phonk_check_yourself_vhs.mp4")
+OUT = os.path.join(HERE, "phonk_check_yourself_vhs2.mp4")
 VW, VH = 480, 360                 # разрешение «кассеты»
 FPS = be.FPS
 GOTHIC = os.path.join(HERE, "fonts", "PirataOne-Regular.ttf")
@@ -138,6 +140,41 @@ def vhs(img, t, i, glitch=0.0):
     return np.clip(x, 0, 255)
 
 
+# ---------------------------------------------------------------- жёсткий VHS (акценты)
+def heavy(x, h, te, i):
+    """Сильный сбой кассеты поверх обработанного кадра; h — сила 0…1."""
+    if h <= 0.01:
+        return x
+    r = np.random.default_rng(5000 + i)
+    amp = 7 * h
+    sh = np.round(amp * np.sin(np.arange(VH) * 0.09 + te * 23) + r.normal(0, 1.5 * h, VH)).astype(int)
+    for _ in range(int(1 + 3 * h)):                         # полосы трекинга
+        y0 = int(r.integers(0, VH - 30)); hh = int(r.integers(8, 34))
+        sh[y0:y0 + hh] += int(r.integers(15, 45) * h) * (1 if r.random() < 0.5 else -1)
+    idx = (XX - sh[:, None]) % VW
+    x = x[np.arange(VH)[:, None], idx]
+    off = int(round(8 * h))                                 # разъезд цветов
+    x[..., 0] = np.roll(x[..., 0], off, axis=1)
+    x[..., 2] = np.roll(x[..., 2], -off, axis=1)
+    x = x * (1 - 0.12 * h) + r.normal(0, 18 * h, (VH, VW, 1))
+    if h > 0.6 and r.random() < 0.35:                       # на миг «выпадает» строка картинки
+        y0 = int(r.integers(0, VH - 12)); x[y0:y0 + int(r.integers(3, 12))] = r.uniform(120, 230)
+    return np.clip(x, 0, 255)
+
+
+def heavy_level(slot, k, lt, dur):
+    fx = slot["fx"]
+    if fx == "drop":
+        return 1.0 if lt < 0.25 else max(0.0, 1 - (lt - 0.25) / 0.25)
+    if fx == "strong":
+        return 1.0 if lt < 0.12 else max(0.0, 1 - (lt - 0.12) / 0.2)
+    if fx in ("whip", "double"):
+        return max(0.0, 0.55 - lt / 0.25)
+    if slot.get("drop_idx", -1) % 8 == 7 and lt > dur - be.BEAT:      # срыв перед новой фразой (каждые 4 такта)
+        return 0.85
+    return 0.0
+
+
 # ---------------------------------------------------------------- кадры
 FISH = {"strong", "mirror"}
 
@@ -168,6 +205,7 @@ def render_slot(slot, prev_frames=None):
             img = be.shake(img, 9 * math.exp(-lt * 9), i)
         glitch = 1.0 if impact and lt < 0.12 else (0.5 if fx in ("double", "whip") and lt < 0.08 else 0.0)
         img = vhs(img, te, i, glitch)
+        img = heavy(img, heavy_level(slot, i, lt, dur), te, i)
         if fx == "drop" and lt < 2 / FPS:
             img = 255 - img
         if fx == "drop" and 2 / FPS <= lt < 4 / FPS:
