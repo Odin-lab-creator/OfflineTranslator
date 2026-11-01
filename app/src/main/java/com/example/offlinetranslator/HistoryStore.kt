@@ -18,6 +18,7 @@ data class HistoryEntry(
 /** История переводов и избранное. Хранится на устройстве, новые записи сверху. */
 class HistoryStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("history", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
 
     val entries = mutableStateListOf<HistoryEntry>()
 
@@ -68,6 +69,11 @@ class HistoryStore private constructor(context: Context) {
         if (index < 0) return
         entries[index] = entries[index].copy(favorite = !entries[index].favorite)
         save()
+        try {
+            WordWidget.refresh(appContext)
+        } catch (e: Exception) {
+            // виджета может не быть
+        }
     }
 
     fun delete(id: Long) {

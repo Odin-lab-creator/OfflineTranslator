@@ -38,6 +38,12 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
     /** Сленг, найденный в последнем переведённом тексте. */
     var slangFound by mutableStateOf<List<Slang.Found>>(emptyList())
         private set
+    /** Последний перевод сделан через DeepL (онлайн). */
+    var viaDeepl by mutableStateOf(false)
+        private set
+    /** Переводы на дополнительные языки: язык → текст. */
+    var extraOutputs by mutableStateOf<List<Pair<String, String>>>(emptyList())
+        private set
 
     // Обновления
     var update by mutableStateOf<UpdateInfo?>(null)
@@ -86,6 +92,8 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         output = ""
         backTranslation = ""
         slangFound = emptyList()
+        extraOutputs = emptyList()
+        viaDeepl = false
         status = ""
         busy = false
     }
@@ -178,6 +186,8 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
         input = entry.text
         output = entry.result
         backTranslation = ""
+        extraOutputs = emptyList()
+        viaDeepl = false
         slangFound = if (Slang.enabled) Slang.normalize(entry.text, entry.source).found else emptyList()
         status = ""
         busy = false
@@ -206,19 +216,60 @@ class TranslatorViewModel(app: Application) : AndroidViewModel(app) {
             if (!pairReady()) status = "Скачиваю языковую модель (один раз, около 30 МБ)…"
             val src = source
             val dst = target
-            val result = TranslationEngine.translate(src, dst, text, settings.wifiOnly)
+            val translated = TranslationEngine.translateDetailed(src, dst, text, settings.wifiOnly)
+            val result = translated.text
             output = result
+            viaDeepl = translated.online
             backTranslation = ""
             slangFound = if (Slang.enabled && src != dst) Slang.normalize(text, src).found else emptyList()
             status = ""
             settings.rememberPair(src, dst)
             if (!pairReady()) refreshDownloaded()
             rememberInHistory(src, dst, text, result, saveNow)
+            translateExtras(src, dst, text, manual = saveNow)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             status = errorText(e)
         }
+    }
+
+    /** Перевод сразу на дополнительные языки. */
+    private suspend fun translateExtras(src: String, dst: String, text: String, manual: Boolean) {
+        val languages = settings.extraTargets.filter { it != dst }
+        if (languages.isEmpty()) {
+            extraOutputs = emptyList()
+            return
+        }
+        extraOutputs = languages.map { it to "…" }
+        val results = mutableListOf<Pair<String, String>>()
+        for (lang in languages) {
+            val value = try {
+                when {
+                    lang == src -> text
+                    !manual && (src !in downloaded || lang !in downloaded) && !Deepl.usable(src, lang) ->
+                        "Нужна языковая модель — нажмите «Перевести»"
+                    else -> TranslationEngine.translate(src, lang, text, settings.wifiOnly)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                "Не удалось: ${e.localizedMessage ?: "ошибка"}"
+            }
+            results += lang to value
+            extraOutputs = results + languages.drop(results.size).map { it to "…" }
+        }
+        if (manual) refreshDownloaded()
+    }
+
+    fun addExtraTarget(lang: String) {
+        settings.updateExtraTargets(settings.extraTargets + lang)
+        if (output.isNotBlank()) translate()
+    }
+
+    fun removeExtraTarget(lang: String) {
+        settings.updateExtraTargets(settings.extraTargets - lang)
+        extraOutputs = extraOutputs.filter { it.first != lang }
     }
 
     private fun errorText(e: Exception): String {

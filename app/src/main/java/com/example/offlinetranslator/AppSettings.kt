@@ -91,9 +91,87 @@ class AppSettings private constructor(context: Context) {
             prefs.edit().putString("last_target", value).apply()
         }
 
+    /** Показывать транскрипцию латиницей (пиньинь и т. п.). */
+    var transcription by mutableStateOf(prefs.getBoolean("transcription", true))
+        private set
+
+    /** Дополнительные языки: перевод сразу на несколько языков. */
+    var extraTargets by mutableStateOf(
+        prefs.getString("extra_targets", null).orEmpty().split(",").filter { it.isNotBlank() }
+    )
+        private set
+
+    /** Родной язык: на него переводятся уведомления, с него — клавиатура. */
+    var myLanguage by mutableStateOf(prefs.getString("my_language", null) ?: TranslateLanguage.RUSSIAN)
+        private set
+
+    // ---- DeepL ----
+    var deeplEnabled by mutableStateOf(prefs.getBoolean("deepl_enabled", false))
+        private set
+    var deeplKey by mutableStateOf(prefs.getString("deepl_key", null).orEmpty())
+        private set
+    var deeplFormality by mutableStateOf(
+        Formality.entries.getOrElse(prefs.getInt("deepl_formality", 0)) { Formality.DEFAULT }
+    )
+        private set
+
+    // ---- Перевод уведомлений ----
+    var notifyTranslate by mutableStateOf(prefs.getBoolean("notify_translate", false))
+        private set
+    var notifyAllApps by mutableStateOf(prefs.getBoolean("notify_all_apps", false))
+        private set
+
     init {
         Slang.load(context)
         Slang.enabled = slang
+        Glossary.load(context)
+        Deepl.init(context)
+        Deepl.enabled = deeplEnabled
+        Deepl.key = deeplKey
+        Deepl.formality = deeplFormality
+    }
+
+    fun updateTranscription(value: Boolean) {
+        transcription = value
+        prefs.edit().putBoolean("transcription", value).apply()
+    }
+
+    fun updateExtraTargets(value: List<String>) {
+        extraTargets = value.distinct().take(5)
+        prefs.edit().putString("extra_targets", extraTargets.joinToString(",")).apply()
+    }
+
+    fun updateMyLanguage(value: String) {
+        myLanguage = value
+        prefs.edit().putString("my_language", value).apply()
+    }
+
+    fun updateDeeplEnabled(value: Boolean) {
+        deeplEnabled = value
+        Deepl.enabled = value
+        prefs.edit().putBoolean("deepl_enabled", value).apply()
+    }
+
+    fun updateDeeplKey(value: String) {
+        deeplKey = value.trim()
+        Deepl.key = deeplKey
+        prefs.edit().putString("deepl_key", deeplKey).apply()
+    }
+
+    fun updateDeeplFormality(value: Formality) {
+        deeplFormality = value
+        Deepl.formality = value
+        prefs.edit().putInt("deepl_formality", value.ordinal).apply()
+    }
+
+    fun updateNotifyTranslate(value: Boolean) {
+        notifyTranslate = value
+        prefs.edit().putBoolean("notify_translate", value).apply()
+    }
+
+    fun updateNotifyAllApps(value: Boolean) {
+        notifyAllApps = value
+        prefs.edit().putBoolean("notify_all_apps", value).apply()
     }
 
     fun updateSlang(value: Boolean) {

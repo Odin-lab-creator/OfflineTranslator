@@ -24,6 +24,7 @@ import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -33,25 +34,27 @@ import kotlinx.coroutines.withContext
  * Вызывается из главного потока (корутины на Main).
  */
 object TranslationEngine {
-    private var translator: Translator? = null
-    private var translatorKey: String? = null
+    /** Несколько открытых переводчиков: для нескольких языков сразу и перевода уведомлений. */
+    private val translators = LinkedHashMap<String, Translator>(8, 0.75f, true)
 
     private val modelManager by lazy { RemoteModelManager.getInstance() }
     private val languageId by lazy { LanguageIdentification.getClient() }
 
     private fun translatorFor(src: String, dst: String): Translator {
         val key = "$src-$dst"
-        val current = translator
-        if (current != null && key == translatorKey) return current
-        current?.close()
+        translators[key]?.let { return it }
         val created = Translation.getClient(
             TranslatorOptions.Builder()
                 .setSourceLanguage(src)
                 .setTargetLanguage(dst)
                 .build()
         )
-        translator = created
-        translatorKey = key
+        translators[key] = created
+        while (translators.size > 5) {
+            val eldest = translators.entries.first()
+            translators.remove(eldest.key)
+            eldest.value.close()
+        }
         return created
     }
 
@@ -64,13 +67,44 @@ object TranslationEngine {
             .map { it.language }
             .toSet() + TranslateLanguage.ENGLISH
 
-    suspend fun translate(src: String, dst: String, text: String, wifiOnly: Boolean = false): String {
-        if (src == dst) return text
+    /** Результат перевода и каким движком он сделан. */
+    class Translated(val text: String, val online: Boolean)
+
+    suspend fun translate(
+        src: String,
+        dst: String,
+        text: String,
+        wifiOnly: Boolean = false,
+        allowOnline: Boolean = true
+    ): String = translateDetailed(src, dst, text, wifiOnly, allowOnline).text
+
+    /**
+     * Перевод: через DeepL, если он включён и есть интернет, иначе офлайн (ML Kit).
+     * Учитывает сленг и свой глоссарий.
+     */
+    suspend fun translateDetailed(
+        src: String,
+        dst: String,
+        text: String,
+        wifiOnly: Boolean = false,
+        allowOnline: Boolean = true
+    ): Translated {
+        if (src == dst) return Translated(text, online = false)
+        if (allowOnline && Deepl.usable(src, dst)) {
+            try {
+                return Translated(Deepl.translate(src, dst, text), online = true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // DeepL недоступен: переводим офлайн
+            }
+        }
         val t = translatorFor(src, dst)
         t.downloadModelIfNeeded(conditions(wifiOnly)).await()
         // Сленг и сокращения заменяем обычными словами, чтобы перевод передал смысл.
         val prepared = if (Slang.enabled) Slang.normalize(text, src).text else text
-        return t.translate(prepared).await()
+        val result = Glossary.translateWith(prepared, src, dst) { part -> t.translate(part).await() }
+        return Translated(result, online = false)
     }
 
     suspend fun download(lang: String, wifiOnly: Boolean) {
@@ -78,10 +112,8 @@ object TranslationEngine {
     }
 
     suspend fun delete(lang: String) {
-        if (translatorKey?.split("-")?.contains(lang) == true) {
-            translator?.close()
-            translator = null
-            translatorKey = null
+        translators.keys.filter { it.split("-").contains(lang) }.forEach { key ->
+            translators.remove(key)?.close()
         }
         modelManager.deleteDownloadedModel(TranslateRemoteModel.Builder(lang).build()).await()
     }

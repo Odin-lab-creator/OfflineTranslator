@@ -2,5 +2,7 @@
 <resources>
     <string name="app_name">Valhalla Translate</string>
     <string name="widget_description">Быстрый перевод текста, скриншота или через камеру</string>
+    <string name="word_widget_name">Слово дня</string>
+    <string name="word_widget_description">Слово из избранного: каждый день новое</string>
     <string name="tile_label">Перевод скриншота</string>
 </resources>

@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -28,11 +28,15 @@ const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
 class MainActivity : ComponentActivity() {
 
     private var incoming by mutableStateOf<Incoming?>(null)
+    private var pendingScreen by mutableStateOf<Screen?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (savedInstanceState == null) incoming = incomingFrom(intent)
+        if (savedInstanceState == null) {
+            incoming = incomingFrom(intent)
+            pendingScreen = screenFrom(intent)
+        }
         val settings = AppSettings.get(applicationContext)
         setContent {
             val dark = isDarkTheme(settings)
@@ -61,6 +65,12 @@ class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(incoming) {
                         if (incoming != null) go(Screen.TRANSLATE)
+                    }
+                    LaunchedEffect(pendingScreen) {
+                        pendingScreen?.let {
+                            go(it)
+                            pendingScreen = null
+                        }
                     }
 
                     when (screen) {
@@ -106,6 +116,12 @@ class MainActivity : ComponentActivity() {
                                     Tool("Рукописный ввод", "Пишите пальцем — удобно для иероглифов и незнакомых алфавитов") {
                                         go(Screen.HANDWRITING)
                                     },
+                                    Tool("Перевод уведомлений", "Сообщения на иностранном языке из мессенджеров сразу приходят с переводом") {
+                                        go(Screen.NOTIFY)
+                                    },
+                                    Tool("Глоссарий", "Свои переводы имён и терминов — переводчик всегда использует их") {
+                                        go(Screen.GLOSSARY)
+                                    },
                                     Tool("Словарь сленга", "Сленг, сокращения и идиомы, которые понимает переводчик") {
                                         go(Screen.SLANG)
                                     },
@@ -122,6 +138,14 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.GLOSSARY -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            GlossaryScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.NOTIFY -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            NotificationTranslateScreen(vm, onBack = { go(Screen.TOOLS) })
                         }
                         Screen.SLANG -> {
                             BackHandler { go(Screen.TOOLS) }
@@ -202,6 +226,12 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         incomingFrom(intent)?.let { incoming = it }
+        screenFrom(intent)?.let { pendingScreen = it }
+    }
+
+    private fun screenFrom(intent: Intent?): Screen? = when (intent?.action) {
+        ACTION_OPEN_FLASHCARDS -> Screen.FLASHCARDS
+        else -> null
     }
 
     private fun incomingFrom(intent: Intent?): Incoming? {

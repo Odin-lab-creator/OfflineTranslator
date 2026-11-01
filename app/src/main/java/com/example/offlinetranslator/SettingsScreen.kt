@@ -19,6 +19,13 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -76,6 +83,12 @@ fun SettingsScreen(
                 settings::updateSlang
             )
             SwitchRow(
+                "Транскрипция латиницей",
+                "Пиньинь для китайского, чтение корейского, арабского, хинди и других письменностей",
+                settings.transcription,
+                settings::updateTranscription
+            )
+            SwitchRow(
                 "Скачивать модели только по Wi-Fi",
                 "Экономит мобильный интернет",
                 settings.wifiOnly,
@@ -88,6 +101,9 @@ fun SettingsScreen(
                 settings::updateHaptics
             )
         }
+
+        SectionLabel("Онлайн-перевод DeepL")
+        DeeplSettings(settings)
 
         SectionLabel("Текст на картинках и камере")
         ChoiceCard(
@@ -213,5 +229,80 @@ fun SwitchRow(title: String, subtitle: String, checked: Boolean, onChange: (Bool
                 uncheckedBorderColor = p.goldDim
             )
         )
+    }
+}
+
+/** Настройки DeepL: ключ, обращение на «ты»/«вы», остаток символов. */
+@Composable
+fun DeeplSettings(settings: AppSettings) {
+    val p = LocalPalette.current
+    val scope = rememberCoroutineScope()
+    var keyDraft by rememberSaveable { mutableStateOf(settings.deeplKey) }
+    var info by remember { mutableStateOf("") }
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .valhallaCard(p)
+            .padding(bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        SwitchRow(
+            "Переводить через DeepL, когда есть интернет",
+            "Качество выше, особенно для сленга и длинных фраз. Без интернета — офлайн, как обычно. " +
+                "Текст отправляется на серверы DeepL; уведомления и живая камера всегда переводятся офлайн.",
+            settings.deeplEnabled,
+            settings::updateDeeplEnabled
+        )
+        Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                "Нужен свой ключ DeepL API (бесплатный план — 500 000 символов в месяц): " +
+                    "зарегистрируйтесь на deepl.com → «API» → план Free, затем скопируйте ключ из раздела «API Keys».",
+                color = p.muted,
+                fontSize = 12.sp,
+                lineHeight = 17.sp
+            )
+            ValhallaTextField(keyDraft, { keyDraft = it }, "Ключ DeepL API", Modifier.fillMaxWidth(), password = true)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlineGoldButton("Сохранить и проверить", Modifier.weight(1f), height = 44) {
+                    settings.updateDeeplKey(keyDraft)
+                    if (keyDraft.isNotBlank() && !settings.deeplEnabled) settings.updateDeeplEnabled(true)
+                    info = "Проверяю…"
+                    scope.launch {
+                        info = try {
+                            val (used, limit) = Deepl.usage()
+                            "Ключ работает. Использовано ${"%,d".format(used).replace(',', ' ')} из " +
+                                "${"%,d".format(limit).replace(',', ' ')} символов в этом месяце."
+                        } catch (e: Exception) {
+                            Deepl.lastError.ifEmpty { "Не удалось проверить: ${e.localizedMessage ?: "ошибка"}" }
+                        }
+                    }
+                }
+            }
+            if (info.isNotEmpty()) Text(info, color = p.gold, fontSize = 13.sp)
+        }
+        Text("Обращение", color = p.text, fontSize = 15.sp, modifier = Modifier.padding(horizontal = 16.dp))
+        Column(Modifier.padding(horizontal = 4.dp)) {
+            Formality.entries.forEach { option ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = settings.deeplFormality == option,
+                            onClick = { settings.updateDeeplFormality(option) },
+                            role = Role.RadioButton
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = settings.deeplFormality == option,
+                        onClick = null,
+                        colors = RadioButtonDefaults.colors(selectedColor = p.gold, unselectedColor = p.muted)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(option.label, color = p.text, fontSize = 14.sp)
+                }
+            }
+        }
     }
 }

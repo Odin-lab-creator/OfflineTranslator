@@ -184,7 +184,7 @@ fun CameraScreen(
                                     liveStatus = "Скачиваю языковую модель…"
                                 }
                                 translations[key] = TranslationEngine.translate(
-                                    liveSource, vm.target, block.text, settings.wifiOnly
+                                    liveSource, vm.target, block.text, settings.wifiOnly, allowOnline = false
                                 )
                                 liveStatus = ""
                             } catch (e: Exception) {

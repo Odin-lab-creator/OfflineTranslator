@@ -239,6 +239,7 @@ fun TranslatorScreen(
                     unfocusedPlaceholderColor = p.muted
                 )
             )
+            ReadingText(vm.input, vm.source, Modifier.padding(horizontal = 16.dp))
             Text(
                 "${vm.input.length} / $MAX_INPUT",
                 color = p.muted,
@@ -295,6 +296,10 @@ fun TranslatorScreen(
                     .valhallaCard(p, border = p.gold)
                     .padding(16.dp)
             ) {
+                if (vm.viaDeepl) {
+                    Text("DeepL · онлайн", color = p.muted, fontSize = 11.sp, letterSpacing = 1.sp)
+                    Spacer(Modifier.height(4.dp))
+                }
                 SelectionContainer {
                     Text(
                         vm.output,
@@ -305,6 +310,7 @@ fun TranslatorScreen(
                         modifier = Modifier.animateContentSize(tween(200))
                     )
                 }
+                ReadingText(vm.output, vm.target, Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconTap(ValhallaIcons.Speaker, "Озвучить", p.gold) {
@@ -341,6 +347,7 @@ fun TranslatorScreen(
                 SlangFoundList(vm.slangFound, Modifier.padding(start = 6.dp, end = 6.dp, top = 8.dp))
             }
         }
+        ExtraTargetsSection(vm)
         Spacer(Modifier.height(16.dp))
     }
 }
