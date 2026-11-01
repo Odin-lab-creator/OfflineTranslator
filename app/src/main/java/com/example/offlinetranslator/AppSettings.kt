@@ -116,6 +116,15 @@ class AppSettings private constructor(context: Context) {
         prefs.edit().putString("keyboard_targets", keyboardTargets.joinToString(",")).apply()
     }
 
+    /** Голосовой ввод через Vosk без интернета, если модель скачана. */
+    var offlineVoice by mutableStateOf(prefs.getBoolean("offline_voice", true))
+        private set
+
+    fun updateOfflineVoice(value: Boolean) {
+        offlineVoice = value
+        prefs.edit().putBoolean("offline_voice", value).apply()
+    }
+
     // ---- DeepL ----
     var deeplEnabled by mutableStateOf(prefs.getBoolean("deepl_enabled", false))
         private set
@@ -137,6 +146,7 @@ class AppSettings private constructor(context: Context) {
         Slang.enabled = slang
         Glossary.load(context)
         Dictionary.init(context)
+        Voice.init(context)
         Deepl.init(context)
         Deepl.enabled = deeplEnabled
         Deepl.key = deeplKey

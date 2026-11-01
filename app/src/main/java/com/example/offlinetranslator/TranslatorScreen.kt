@@ -104,8 +104,30 @@ fun TranslatorScreen(
             ?.firstOrNull()
         if (heard != null) vm.voiceInput(heard)
     }
-    val startVoice = {
+    var offlineVoice by remember { mutableStateOf(false) }
+    if (offlineVoice) {
+        OfflineVoiceDialog(
+            lang = vm.source,
+            onResult = {
+                offlineVoice = false
+                vm.voiceInput(it)
+            },
+            onDismiss = { offlineVoice = false }
+        )
+    }
+    val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) offlineVoice = true else vm.reportStatus("Без доступа к микрофону голосовой ввод не работает")
+    }
+    val startVoice = startVoice@{
         focus.clearFocus()
+        if (settings.offlineVoice && Voice.isReady(vm.source)) {
+            if (hasPermission(context, android.Manifest.permission.RECORD_AUDIO)) {
+                offlineVoice = true
+            } else {
+                micPermission.launch(android.Manifest.permission.RECORD_AUDIO)
+            }
+            return@startVoice
+        }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE, Languages.locale(vm.source).toLanguageTag())

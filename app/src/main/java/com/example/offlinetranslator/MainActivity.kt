@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD, READER, DICTIONARIES }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD, READER, DICTIONARIES, VOICE }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -119,6 +119,9 @@ class MainActivity : ComponentActivity() {
                                     Tool("Рукописный ввод", "Пишите пальцем — удобно для иероглифов и незнакомых алфавитов") {
                                         go(Screen.HANDWRITING)
                                     },
+                                    Tool("Голос и субтитры", "Живые субтитры с переводом для видео и голосовой ввод без интернета") {
+                                        go(Screen.VOICE)
+                                    },
                                     Tool("Читалка", "Книги и статьи: нажмите на слово — словарь, удерживайте абзац — перевод") {
                                         go(Screen.READER)
                                     },
@@ -147,6 +150,10 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.VOICE -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            VoiceScreen(vm, onBack = { go(Screen.TOOLS) })
                         }
                         Screen.READER -> {
                             BackHandler { go(Screen.TOOLS) }

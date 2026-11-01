@@ -162,39 +162,127 @@ object Dictionary {
         return Normalizer.normalize(decomposed, Normalizer.Form.NFC).replace('ё', 'е')
     }
 
-    /** Статьи для слова: точные совпадения и словоформы, самые важные сверху. */
-    suspend fun lookup(word: String, source: String, target: String): List<Entry> = withContext(Dispatchers.IO) {
-        val db = database(pairOf(source, target)) ?: return@withContext emptyList()
-        val key = normalize(word)
-        if (key.isEmpty()) return@withContext emptyList()
-        val keys = listOf(key, key.trim('\'', '’', '-')).distinct()
+    private val slavicEndings = listOf(
+        "лась", "лось", "лись", "лся", "ла", "ло", "ли", "л",
+        "иться", "аться", "яться", "ешься", "ется", "ются", "утся", "ятся", "атся",
+        "ями", "ами", "ого", "его", "ому", "ему", "ыми", "ими", "ешь", "ишь", "ете", "ите", "ала", "ало", "али",
+        "ила", "ило", "или", "ела", "ело", "ели", "ов", "ев", "ей", "ой", "ом", "ем", "ам", "ям", "ах", "ях",
+        "ый", "ий", "ая", "яя", "ое", "ее", "ые", "ие", "ую", "юю", "ым", "им", "ых", "их", "ет", "ит", "ут",
+        "ют", "ат", "ят", "ал", "ил", "ел", "ся", "сь", "а", "я", "ы", "и", "у", "ю", "е", "о", "ь", "й"
+    )
+    private val slavicLemmaEndings = listOf(
+        "", "а", "я", "о", "е", "ь", "й", "ый", "ий", "ой", "ть", "ать", "ять", "ить", "еть", "ться",
+        "аться", "иться", "ость", "ка", "ок"
+    )
+
+    /** Возможные начальные формы для русского и родственных языков: «кошки» → «кошка», «домами» → «дом». */
+    private fun slavicCandidates(word: String): List<String> {
+        val result = LinkedHashSet<String>()
+        slavicEndings.filter { word.endsWith(it) && word.length - it.length >= 2 }.forEach { ending ->
+            val base = word.dropLast(ending.length)
+            slavicLemmaEndings.forEach { result += base + it }
+        }
+        result.remove(word)
+        return result.toList().take(400)
+    }
+
+    private fun queryForms(db: SQLiteDatabase, keys: List<String>, exact: String): List<Entry> {
+        if (keys.isEmpty()) return emptyList()
         val result = mutableListOf<Entry>()
         val placeholders = keys.joinToString(",") { "?" }
         db.rawQuery(
             "SELECT e.word, e.pos, e.gender, e.pronun, e.senses, max(f.w) AS w FROM form f " +
                 "JOIN entry e ON e.id = f.entry_id WHERE f.form IN ($placeholders) " +
                 "GROUP BY e.id ORDER BY (lower(e.word) = ?) DESC, w DESC, e.importance DESC LIMIT 8",
-            (keys + key).toTypedArray()
+            (keys + exact).toTypedArray()
         ).use { c ->
-            while (c.moveToNext()) {
-                val senses = try {
-                    val array = JSONArray(c.getString(4))
-                    (0 until array.length()).map { i ->
-                        val o = array.getJSONObject(i)
-                        val s = o.optJSONArray("s") ?: JSONArray()
-                        val t = o.optJSONArray("t") ?: JSONArray()
-                        Sense(
-                            (0 until s.length()).map { s.getString(it) },
-                            (0 until t.length()).map { t.getString(it) }
-                        )
-                    }
-                } catch (e: Exception) {
-                    emptyList()
+            while (c.moveToNext()) result += entryFrom(c)
+        }
+        return result
+    }
+
+    private fun entryFrom(c: android.database.Cursor): Entry {
+        val senses = try {
+            val array = JSONArray(c.getString(4))
+            (0 until array.length()).map { i ->
+                val o = array.getJSONObject(i)
+                val s = o.optJSONArray("s") ?: JSONArray()
+                val t = o.optJSONArray("t") ?: JSONArray()
+                Sense(
+                    (0 until s.length()).map { s.getString(it) },
+                    (0 until t.length()).map { t.getString(it) }
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+        return Entry(c.getString(0), c.getString(1).orEmpty(), c.getString(2).orEmpty(), c.getString(3).orEmpty(), senses)
+    }
+
+    /** Убирает повторы: «собака» и «соба́ка» — одно слово (оставляем вариант с ударением). */
+    private fun dedupe(items: List<String>): List<String> {
+        val byKey = LinkedHashMap<String, String>()
+        items.forEach { item ->
+            val key = normalize(item)
+            val prev = byKey[key]
+            if (prev == null || (!prev.contains('\u0301') && item.contains('\u0301'))) byKey[key] = item
+        }
+        return byKey.values.toList()
+    }
+
+    private fun merge(list: List<Entry>): List<Entry> {
+        val out = LinkedHashMap<String, Entry>()
+        list.forEach { e ->
+            val cleaned = Entry(e.word, e.pos, e.gender, e.pronunciation, e.senses.map { Sense(it.glosses, dedupe(it.translations)) })
+            val key = normalize(e.word) + "|" + e.pos
+            val prev = out[key]
+            if (prev == null) {
+                out[key] = cleaned
+            } else {
+                val known = prev.senses.flatMap { s -> s.translations.map { normalize(it) } }.toSet()
+                val extra = cleaned.senses.mapNotNull { s ->
+                    val fresh = s.translations.filter { normalize(it) !in known }
+                    if (fresh.isEmpty()) null else Sense(s.glosses, fresh)
                 }
-                result += Entry(c.getString(0), c.getString(1).orEmpty(), c.getString(2).orEmpty(), c.getString(3).orEmpty(), senses)
+                val word = if (e.word.contains('\u0301') && !prev.word.contains('\u0301')) e.word else prev.word
+                out[key] = Entry(
+                    word, prev.pos, prev.gender.ifEmpty { e.gender },
+                    prev.pronunciation.ifEmpty { e.pronunciation }, prev.senses + extra
+                )
             }
         }
-        result
+        return out.values.toList()
+    }
+
+    /** Похожие слова по началу: для языков, где в словаре нет словоформ. */
+    private fun prefixForms(db: SQLiteDatabase, key: String): List<Entry> {
+        for (cut in 1..minOf(3, key.length - 3)) {
+            val stem = key.dropLast(cut)
+            val keys = mutableListOf<String>()
+            db.rawQuery(
+                "SELECT DISTINCT form FROM form WHERE form >= ? AND form < ? AND length(form) <= ? LIMIT 50",
+                arrayOf(stem, stem + "\uFFFF", (key.length + 2).toString())
+            ).use { c -> while (c.moveToNext()) keys += c.getString(0) }
+            if (keys.isNotEmpty()) {
+                val best = keys.sortedBy { kotlin.math.abs(it.length - key.length) }.take(6)
+                val found = queryForms(db, best, key)
+                if (found.isNotEmpty()) return found.take(3)
+            }
+        }
+        return emptyList()
+    }
+
+    /** Статьи для слова: точные совпадения и словоформы, самые важные сверху. */
+    suspend fun lookup(word: String, source: String, target: String): List<Entry> = withContext(Dispatchers.IO) {
+        val db = database(pairOf(source, target)) ?: return@withContext emptyList()
+        val key = normalize(word).trim('\'', '’', '-')
+        if (key.isEmpty()) return@withContext emptyList()
+        var result = queryForms(db, listOf(key), key)
+        if (result.isEmpty() && source in setOf("ru", "uk", "be", "bg", "pl", "cs")) {
+            result = queryForms(db, slavicCandidates(key), key)
+        }
+        if (result.isEmpty() && key.length >= 5) result = prefixForms(db, key)
+        merge(result)
     }
 
     fun posLabel(pos: String): String = when (pos.lowercase()) {
