@@ -21,8 +21,8 @@ jobs:
           java-version: "17"
       - name: Install tools
         run: |
-          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
-          pip install --quiet "transformers==4.44.2" "optimum[onnxruntime]==1.22.0" sentencepiece sacremoses onnx
+          pip install --quiet "torch==2.4.1" --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet "transformers==4.44.2" "optimum[onnxruntime]==1.22.0" "numpy<2" sentencepiece sacremoses onnx
           mkdir -p jars
           curl -sSfL -o jars/onnxruntime.jar https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime/1.19.2/onnxruntime-1.19.2.jar
           curl -sSfL -o jars/json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
