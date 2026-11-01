@@ -38,6 +38,17 @@ SCENES = {
     "entrance": "ground floor entrance vestibule of a soviet apartment building, heavy metal entrance door on the right "
                 "with an intercom panel, row of metal mailboxes on the left wall with a paper list pinned above, "
                 "tiled floor, thin line of daylight under the door, dim",
+    "cu_watch": "extreme close-up of a man's wrist with an old mechanical wristwatch, cracked glass, hands stopped at 3:40, "
+                "dim grey light, dust",
+    "cu_pills": "extreme close-up of a wooden table top with empty pill blister packs, an old glass mercury thermometer, "
+                "a dead black smartphone, crumbs, grey daylight",
+    "cu_tap": "extreme close-up of an old kitchen faucet over a metal sink, a single water drop falling from the tap, "
+              "dim grey light, rust stains",
+    "cu_weld": "extreme close-up of thick vertical rusty iron bars outside a window, the bars are freshly welded to a metal "
+               "frame, bright shiny fresh weld seams where the bars meet the frame, a man's hand gripping one bar, "
+               "grey daylight behind",
+    "cu_crack": "extreme close-up of a narrow gap between a heavy metal door and its frame near the hinges, bright daylight "
+                "through the gap, outside a rusty iron strip is welded across the gap, rough weld seam, dark metal door",
     "entrance_wide": "wide shot of a small ground floor entrance hall of a soviet apartment building seen from far away, "
                      "low ceiling, the heavy metal entrance door is small on the right side of the back wall, "
                      "intercom panel next to the door, row of small metal mailboxes on the left wall with a paper list, "
@@ -45,7 +56,19 @@ SCENES = {
 }
 
 
+CLOSE = ("16-bit pixel art, dark post-apocalyptic survival game cutscene, muted gloomy palette: dark olive green, "
+         "muted grey, dirty brown, charcoal black, rust red, faded orange, no text, ")
+
+
 def gen_bg(name, seed):
+    if name.startswith("cu_"):
+        body = {"description": CLOSE + SCENES[name], "image_size": {"width": 108, "height": 168},
+                "detail": "highly detailed", "shading": "detailed shading", "outline": "selective outline",
+                "text_guidance_scale": 8, "color_image": api.b64png(palette_image()), "seed": seed}
+        img = decode(api.post("/create-image-pixflux", body))
+        p = os.path.join(SRC, f"{name}.png")
+        img.save(p)
+        return p
     body = {"description": STYLE + SCENES[name], "image_size": {"width": 160, "height": 192}, "view": "side",
             "detail": "highly detailed", "shading": "detailed shading", "outline": "selective outline",
             "text_guidance_scale": 8, "color_image": api.b64png(palette_image()), "seed": seed}
