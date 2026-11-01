@@ -10,8 +10,8 @@ import sys
 import numpy as np
 from PIL import Image
 
-from pixel2 import (HERO_HAND, HERO_KEYS, HERO_SIT, HERO_STAND, H, W, XX, YY,
-                    ZOMBIE, ZOMBIE_KEYS, Scene, col, value_noise)
+from characters import hero_sit, hero_stand, zombie
+from pixel2 import H, W, XX, YY, Scene, col, value_noise
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frames_v2")
 os.makedirs(OUT, exist_ok=True)
@@ -162,14 +162,9 @@ def wall_lamp(s, x, y, on=True, inten=1.0):
         s.add_light(x, y + 2, 90, inten)
 
 
-def hero(s, x, y, pipe=False, dark=0.0):
-    s.sprite(HERO_STAND, HERO_KEYS, x, y, dark=dark)
-    if pipe:
-        hx, hy = x + HERO_HAND[0], y + HERO_HAND[1]
-        s.line([(hx, hy + 3), (hx + 6, hy - 20)], "G0", 3)
-        m = s.line([(hx, hy + 3), (hx + 6, hy - 20)], "G7", 1)
-        s.actor |= m
-        s.rect(hx - 1, hy - 1, hx + 1, hy + 1, "S2")
+def hero(s, cx, y, pipe=False, dark=0.0):
+    """Герой стоя (лицом вправо); cx — центр спрайта, y — линия пола."""
+    s.paste(hero_stand(pipe), cx, y, dark=dark)
 
 
 # ================================================================== КАДР 3
@@ -216,7 +211,7 @@ def frame_door():
     floor(s, 396, 4)
     rubble(s, 0, 60, 396, 7, 30)
     rubble(s, 176, 230, 396, 8, 25)
-    hero(s, 34, 395, pipe=True)
+    hero(s, 56, 395, pipe=True)
     s.ambient = np.array([0.5, 0.62, 0.55], np.float32)
     return s
 
@@ -291,7 +286,7 @@ def frame_wake():
     cobweb(s, 0, 35, 30, 1, 1, 4)
     floor(s, 396, 5, deck=("B2", "B1", "B0"))
     rubble(s, 100, 260, 396, 9, 30, tones=("G3", "E0", "B1", "G4"))
-    hero(s, 140, 395)
+    hero(s, 152, 395)
     s.add_light(185, 230, 150, 1.0, halo=False, ry=190)
     s.add_light(185, 300, 120, 0.7, ry=80)
     s.ambient = np.array([0.42, 0.5, 0.46], np.float32)
@@ -340,34 +335,31 @@ def frame_supplies():
                     s.rect(x, sy - 12, x + w, sy - 1, "B1"); s.rect(x, sy - 12, x + w, sy - 12, "B2")
             x += w + 3
     # стол
-    s.rect(70, 318, 262, 324, "B2"); s.rect(70, 318, 262, 318, "B2"); s.rect(70, 325, 262, 326, "G0")
-    s.rect(72, 327, 77, 395, "B1"); s.rect(254, 327, 259, 395, "B1")
+    s.rect(70, 348, 262, 354, "B2"); s.rect(70, 348, 262, 348, "B2"); s.rect(70, 355, 262, 356, "G0")
+    s.rect(72, 357, 77, 395, "B1"); s.rect(254, 357, 259, 395, "B1")
     # вода: две пятилитровки
     for jx in (84, 104):
-        s.rect(jx, 284, jx + 16, 317, "G6"); s.rect(jx + 1, 298, jx + 15, 316, "G7")
-        s.rect(jx + 2, 286, jx + 3, 314, "E2"); s.rect(jx + 5, 278, jx + 11, 283, "R3")
+        s.rect(jx, 314, jx + 16, 347, "G6"); s.rect(jx + 1, 328, jx + 15, 346, "G7")
+        s.rect(jx + 2, 316, jx + 3, 344, "E2"); s.rect(jx + 5, 308, jx + 11, 313, "R3")
     # консервы
-    for cx, cy in [(128, 317), (139, 317), (133, 305)]:
+    for cx, cy in [(128, 347), (139, 347), (133, 335)]:
         s.rect(cx, cy - 11, cx + 9, cy, "G7"); s.rect(cx, cy - 8, cx + 9, cy - 3, "R2"); s.rect(cx, cy - 11, cx + 9, cy - 11, "E1")
     # аптечка
-    s.rect(154, 296, 182, 317, "E1"); s.rect(154, 296, 182, 296, "E2"); s.rect(154, 317, 182, 317, "E0")
-    s.rect(166, 300, 170, 313, "R3"); s.rect(161, 304, 175, 308, "R3"); s.rect(163, 292, 173, 295, "G3")
+    s.rect(154, 326, 182, 347, "E1"); s.rect(154, 326, 182, 326, "E2"); s.rect(154, 347, 182, 347, "E0")
+    s.rect(166, 330, 170, 343, "R3"); s.rect(161, 334, 175, 338, "R3"); s.rect(163, 322, 173, 325, "G3")
     # батарейки
     for bx in (188, 193, 198):
-        s.rect(bx, 305, bx + 3, 317, "G1"); s.rect(bx, 305, bx + 3, 308, "O1"); s.px(bx + 1, 304, "E1")
+        s.rect(bx, 335, bx + 3, 347, "G1"); s.rect(bx, 335, bx + 3, 338, "O1"); s.px(bx + 1, 334, "E1")
     # фонарь, светит вправо
-    s.rect(208, 308, 226, 316, "G2"); s.rect(208, 308, 226, 308, "G5"); s.rect(226, 306, 230, 318, "G4")
-    s.rect(230, 307, 231, 317, "O4", emissive=True)
-    cone = Scene.mask(lambda d: d.polygon([(231, 307), (269, 290), (269, 335), (231, 317)], fill=255))
+    s.rect(208, 338, 226, 346, "G2"); s.rect(208, 338, 226, 338, "G5"); s.rect(226, 336, 230, 348, "G4")
+    s.rect(230, 337, 231, 347, "O4", emissive=True)
+    cone = Scene.mask(lambda d: d.polygon([(231, 337), (269, 320), (269, 335), (231, 347)], fill=255))
     s.blend(cone, "O1", np.clip(1 - (XX - 231) / 40, 0, 1) * 0.55)
-    s.add_light(236, 312, 60, 0.9, ry=40)
-    # рюкзак героя на полу
-    s.poly([(20, 395), (24, 350), (52, 346), (58, 395)], "M1"); s.rect(26, 352, 50, 362, "M2")
-    s.rect(34, 364, 42, 372, "B1"); s.rect(28, 340, 50, 347, "R2")
+    s.add_light(236, 342, 60, 0.9, ry=40)
     wall_lamp(s, 160, 250, inten=1.0)
     floor(s, 396, 6)
     rubble(s, 120, 250, 396, 3, 18)
-    hero(s, 56, 395)
+    hero(s, 62, 395)
     s.ambient = np.array([0.46, 0.56, 0.5], np.float32)
     return s
 
@@ -412,7 +404,7 @@ def frame_radio():
     s.add_light(145, 384, 40, 0.6)
     s.line([(244, 395), (258, 300)], "G0", 3); s.line([(250, 345), (252, 335)], "B2", 4)
     floor(s, 396, 7)
-    s.sprite(HERO_SIT, HERO_KEYS, 40, 395)
+    s.paste(hero_sit(), 60, 395)
     s.ambient = np.array([0.36, 0.46, 0.44], np.float32)
     return s
 
@@ -455,13 +447,13 @@ def frame_window():
     s.rect(52, 240, 114, 395, "G0")
     s.rect(46, 234, 52, 395, "B1"); s.rect(114, 234, 120, 395, "B1"); s.rect(46, 230, 120, 235, "B1")
     s.rect(47, 234, 47, 395, "B2")
-    s.sprite(ZOMBIE, ZOMBIE_KEYS, 70, 395, dark=0.15)
+    s.paste(zombie(), 84, 395, dark=0.15)
     s.add_light(110, 330, 50, 0.25, color=(0.55, 0.75, 0.8), halo=False)
     floor(s, 396, 8, deck=("B2", "B1", "B0"))
     s.rect(122, 395, 146, 395, "E0")  # скрипнувшая доска
     s.line([(128, 392), (130, 388)], "G6"); s.line([(138, 391), (141, 387)], "G6")
     rubble(s, 110, 260, 396, 12, 20, tones=("G3", "E0", "B1"))
-    hero(s, 166, 395)
+    hero(s, 180, 395)
     s.ambient = np.array([0.32, 0.42, 0.42], np.float32)
     return s
 
@@ -469,7 +461,7 @@ def frame_window():
 # имя файла, сцена, левый верхний угол камеры 180x320
 FRAMES = [
     ("01_probuzhdenie.png", frame_wake, (84, 96)),
-    ("02_pripasy.png", frame_supplies, (40, 96)),
+    ("02_pripasy.png", frame_supplies, (34, 96)),
     ("03_stuk_v_dver.png", frame_door, (12, 100)),
     ("04_vtoraya_noch_radio.png", frame_radio, (28, 100)),
     ("05_ne_smotri_v_okno.png", frame_window, (60, 96)),

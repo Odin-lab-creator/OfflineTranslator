@@ -32,7 +32,9 @@ PALETTE = {
     "P0": "2b2b35", "P1": "454552", "P2": "676777", "P3": "8b8b98",
     "B0": "20170f", "B1": "3a2a1d", "B2": "56402d",
     # заражённые
-    "Z0": "3f4a37", "Z1": "5f6e52", "Z2": "829072",
+    "Z0": "3f4a37", "Z1": "5f6e52", "Z2": "829072", "Z3": "a3ad8c",
+    # дополнительные тона для детальных персонажей
+    "H2": "5c4430", "M3": "68763f", "B3": "72563a", "R5": "bf7258", "P4": "a9a9b4",
 }
 NAMES = list(PALETTE)
 PAL = np.array([[int(PALETTE[n][i:i + 2], 16) for i in (0, 2, 4)] for n in NAMES], np.float32)
@@ -153,6 +155,21 @@ class Scene:
         return img
 
     # ---------------------------------------------------------------- спрайты
+    def paste(self, spr, cx, y, dark=0.0, flip=False):
+        """Вставить готовый спрайт (rgb HxWx3, alpha, emissive) по центру cx, ступни на y."""
+        rgb, alpha, emis = spr
+        if flip:
+            rgb, alpha, emis = rgb[:, ::-1], alpha[:, ::-1], emis[:, ::-1]
+        h, w = alpha.shape
+        x0, y0 = int(cx - w // 2), int(y - h + 1)
+        for j in range(h):
+            for i in range(w):
+                if alpha[j, i] and 0 <= x0 + i < W and 0 <= y0 + j < H:
+                    self.rgb[y0 + j, x0 + i] = rgb[j, i] * (1 - dark)
+                    self.actor[y0 + j, x0 + i] = dark < 0.3
+                    if emis[j, i]:
+                        self.emis[y0 + j, x0 + i] = True
+
     def sprite(self, rows, keys, x, y, flip=False, dark=0.0):
         """rows — ASCII-арт; (x, y) — левый нижний угол."""
         h = len(rows); w = max(len(r) for r in rows)
