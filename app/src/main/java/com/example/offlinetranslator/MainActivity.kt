@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY }
+enum class Screen { TRANSLATE, HISTORY, SETTINGS, MODELS, CAMERA, SHOW, TOOLS, CONVERSATION, PHRASEBOOK, DOCUMENTS, HANDWRITING, FLASHCARDS, SCREEN, SLANG, GLOSSARY, NOTIFY, KEYBOARD }
 
 const val ACTION_PICK_SCREENSHOT = "com.example.offlinetranslator.PICK_SCREENSHOT"
 const val ACTION_OPEN_CAMERA = "com.example.offlinetranslator.OPEN_CAMERA"
@@ -98,6 +98,9 @@ class MainActivity : ComponentActivity() {
                             BackHandler { go(Screen.TRANSLATE) }
                             ToolsScreen(
                                 tools = listOf(
+                                    Tool("Клавиатура-переводчик", "Пишете по-русски в любом мессенджере — отправляется на языке собеседника") {
+                                        go(Screen.KEYBOARD)
+                                    },
                                     Tool("Перевод экрана", "Золотая кнопка поверх любого приложения: перевод прямо поверх текста") {
                                         go(Screen.SCREEN)
                                     },
@@ -138,6 +141,10 @@ class MainActivity : ComponentActivity() {
                         Screen.DOCUMENTS -> {
                             BackHandler { go(Screen.TOOLS) }
                             DocumentScreen(vm, onBack = { go(Screen.TOOLS) })
+                        }
+                        Screen.KEYBOARD -> {
+                            BackHandler { go(Screen.TOOLS) }
+                            KeyboardScreen(vm, onBack = { go(Screen.TOOLS) })
                         }
                         Screen.GLOSSARY -> {
                             BackHandler { go(Screen.TOOLS) }

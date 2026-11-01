@@ -105,6 +105,17 @@ class AppSettings private constructor(context: Context) {
     var myLanguage by mutableStateOf(prefs.getString("my_language", null) ?: TranslateLanguage.RUSSIAN)
         private set
 
+    /** Языки собеседников для клавиатуры-переводчика. */
+    var keyboardTargets by mutableStateOf(
+        (prefs.getString("keyboard_targets", null) ?: TranslateLanguage.ENGLISH).split(",").filter { it.isNotBlank() }
+    )
+        private set
+
+    fun updateKeyboardTargets(value: List<String>) {
+        keyboardTargets = value.distinct().take(6)
+        prefs.edit().putString("keyboard_targets", keyboardTargets.joinToString(",")).apply()
+    }
+
     // ---- DeepL ----
     var deeplEnabled by mutableStateOf(prefs.getBoolean("deepl_enabled", false))
         private set
