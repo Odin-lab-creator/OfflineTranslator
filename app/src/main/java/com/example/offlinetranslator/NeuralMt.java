@@ -202,7 +202,8 @@ public final class NeuralMt implements AutoCloseable {
             if (id == unk) piece = "";
             sb.append(piece);
         }
-        return sb.toString().replace(SPACE, " ").replaceAll(" +", " ").trim();
+        return sb.toString().replace(SPACE, " ").replaceAll(" +", " ").trim()
+                .replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?");
     }
 
     // ---- Перевод ----
