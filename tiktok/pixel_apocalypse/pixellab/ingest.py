@@ -29,7 +29,7 @@ import master_palette as mp  # noqa: E402
 
 ASSETS = os.environ.get("PIXELLAB_ASSETS", os.path.join(HERE, "assets"))
 PREVIEW = os.path.join(ASSETS, "_preview")
-BG_SIZES = {(162, 192), (108, 192)}
+BG_SIZES = {(160, 192), (162, 192), (108, 192)}
 SPRITE_MAX = 128
 PX = 10
 
