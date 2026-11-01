@@ -49,7 +49,9 @@ def detect_scale(a, tol=10):
             continue
         b = a.reshape(h // s, s, w // s, s, 4).astype(int)
         ref = b[:, :1, :, :1]
-        ok = (np.abs(b - ref).max(axis=(1, 3, 4)) <= tol).mean()
+        uni = np.abs(b - ref).max(axis=(1, 3, 4)) <= tol
+        busy = (b[..., 3] > 0).any(axis=(1, 3))      # учитываем только блоки, где что-то нарисовано
+        ok = uni[busy].mean() if busy.any() else uni.mean()
         if ok >= 0.97:
             return s
     return 1
