@@ -21,21 +21,25 @@
 | `hero_rot/000–007` | герой, 8 ракурсов (S, SE, **E=002**, NE, N, NW, W, SW) | 64×64 | y=62 |
 | `hero_walk/000–007` | ходьба вправо, Skeleton v3 «Walking (8 frames)» | 96×96 | y=78 |
 | `zombie_rot/000–007` | заражённый, 8 ракурсов (E=002, **W=006** — идёт на героя справа) | 64×64 | y=61–62 |
+| `hero_idle/000–003` | стоит, дышит (`breathing-idle`, skeleton-v3), 4 к/с | 96×96 | |
+| `hero_crouch/000–004` | приседает (`crouching`), проигрывать 1 раз и держать | 96×96 | |
+| `zombie_walk/000–007` | шаркающая походка (`sad-walk`), 6 к/с; влево — зеркалом | 96×96 | |
+| `bg_*` | 5 фонов 160×192 (corridor, storeroom, radio, window, night_street) | | |
 
 Ходьба: 8 кадров/с, скорость 36 арт-пикселей/с (опорная нога ≈4,5 px/кадр) — ноги не скользят.
 Проба: `pixellab/preview_walk.mp4`.
 
 ## Дальше
-1. ~~Заражённый~~ ✅ (character_id `a57c15fe-81e3-4bfc-bcb8-c32c9d38ca5b`, seed 1313). Далее его походка (Sad Walk / Walking 8 frames).
+1. ~~Заражённый и анимации~~ ✅ (character_id `a57c15fe-81e3-4bfc-bcb8-c32c9d38ca5b`, seed 1313). Далее его походка (Sad Walk / Walking 8 frames).
    Герой создан владельцем в браузере (его character_id — `GET /characters`).
-2. Герой: Crouching, Idle (Skeleton v3, East).
+2. ~~Герой: Crouching, Idle~~ ✅ (skeleton-v3: 3 генерации за анимацию; на пробном тарифе 1 задача одновременно).
 3. ~~Фоны~~ ✅ сокращённый набор из 5 (выбор владельца), **160×192** (pixflux требует кратность 4), сгенерированы `gen_bg.py`
    (pixflux + принудительная главная палитра, 1 генерация за фон; pixen на пробном тарифе отвечает 502).
    Пол (y ступней): corridor 168, storeroom 152, radio 150 (радио уже есть на ящике), window 180, night_street 172.
    Пропы: `prop_radio` (32px), `prop_radio_48`. Превью: `pixellab/preview_backgrounds.png`.
-4. Монтаж серии 1 на v3: фон + спрайты + камера целыми пикселями + субтитры + `make_audio()`; все кадры — через `check_style.py`.
+4. ~~Монтаж серии 1 на v3~~ ✅ `video_v3.py` → `pixel_apocalypse_ep1_v3.mp4` (120,5 с, кадры проходят `check_style.py`).
 
-## Генерация через API PixelLab — ВКЛЮЧЕНА (пробный тариф: 40 генераций, на 01.11 после фонов осталось 26)
+## Генерация через API PixelLab — ВКЛЮЧЕНА (пробный тариф: 40 генераций, на 01.11 после фонов и анимаций осталось 17)
 - Клиент: `pixellab/api.py` (ключ подставляет сетевой прокси — секрет для api.pixellab.ai; в коде ключа нет).
 - `backblaze.pixellab.ai` (storage_urls) заблокирован сетью → выгружать через `GET /characters/{id}/zip` (идёт с api.pixellab.ai).
 - Персонаж v3 64px с нуля = 2 генерации. Стоимость остального смотреть в ответе `usage` / `GET /balance`.
@@ -44,3 +48,7 @@
 - Ключ: секрет сети для `api.pixellab.ai` либо переменная окружения `PIXELLAB_API_KEY` (Bearer). Никогда не просить ключ в чате.
 - Сначала проверить доступ: документация API на `https://api.pixellab.ai/v2/docs` (или v1), затем пробный запрос.
 - Все результаты — через `python3 pixellab/ingest.py` (масштаб, палитра, проверка стиля).
+
+## Шаблоны анимаций PixelLab (проверено)
+`walking-8-frames`, `sad-walk`, `crouching`, `breathing-idle`, `crouched-walking` — режим `skeleton-v3`, `directions: ["east"]`.
+Список целиком API не отдаёт; неверное имя → бесплатная ошибка 422.

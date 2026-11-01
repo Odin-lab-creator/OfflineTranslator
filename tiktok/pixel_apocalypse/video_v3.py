@@ -131,8 +131,13 @@ Z_WALK = ("zombie_walk", "zombie_rot:2")
 Z_IDLE = ("zombie_rot:2", "zombie_rot:2")
 
 
-def act(spr, x0, x1=None, flip=False, fps=8, feet=None, dark=0.0, t_from=None):
-    return dict(spr=spr, x0=x0, x1=x0 if x1 is None else x1, flip=flip, fps=fps, feet=feet, dark=dark, t_from=t_from)
+ANIM_FPS = {"hero_idle": 4, "hero_walk": 8, "hero_crouch": 10, "zombie_walk": 6}
+ONCE = {"hero_crouch"}  # проиграть один раз и держать последнюю позу
+
+
+def act(spr, x0, x1=None, flip=False, fps=None, feet=None, dark=0.0, t_from=None):
+    return dict(spr=spr, x0=x0, x1=x0 if x1 is None else x1, flip=flip, fps=fps or ANIM_FPS.get(spr[0], 6),
+                feet=feet, dark=dark, t_from=t_from, once=spr[0] in ONCE)
 
 
 # (начало, конец, фон, камера x от, до, актёры, параметры)
@@ -362,7 +367,8 @@ def render(i):
             continue
         spr = sprite(*a["spr"])
         fr, feet, cxc = spr
-        f = fr[int((t - t0) * a["fps"]) % len(fr)]
+        n = int((t - t0) * a["fps"])
+        f = fr[min(n, len(fr) - 1)] if a["once"] else fr[n % len(fr)]
         wx = a["x0"] + (a["x1"] - a["x0"]) * min(1.0, max(0.0, (t - t0) / max(1e-6, t1 - t0)))
         wy = a["feet"] if a["feet"] is not None else FLOOR[name]
         blit(img, f, feet, cxc, wx, wy, cam, a["flip"], a["dark"])
