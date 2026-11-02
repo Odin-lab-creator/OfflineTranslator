@@ -77,11 +77,13 @@ def b64(path):
             "usage_description": "the main character Denis: keep his face, hair, beard, grey hoodie, ripped jeans and sneakers"}
 
 
-def run(names, seed):
+def run(names, seed, size=(W, H), out=None):
+    global OUT
+    OUT = out or OUT
     refs = [b64(os.path.join(DEN, f"Idle__rotations__{v}.png")) for v in ("south", "east", "north")]
     jobs = {}
     for n in names:
-        body = {"description": STYLE + HERO + SHOTS[n], "image_size": {"width": W, "height": H},
+        body = {"description": STYLE + HERO + SHOTS[n], "image_size": {"width": size[0], "height": size[1]},
                 "no_background": False, "reference_images": refs, "seed": seed}
         for a in range(5):
             try:
@@ -103,7 +105,7 @@ def run(names, seed):
         raw = base64.b64decode(im["base64"] if isinstance(im, dict) else im)
         img = Image.open(io.BytesIO(raw)).convert("RGB")
         img.save(os.path.join(OUT, f"{n}.png"))
-        img.resize((img.width * 3, img.height * 3), Image.NEAREST).save(os.path.join(OUT, f"{n}_1080.png"))
+        img.resize((1080, 1920), Image.NEAREST).save(os.path.join(OUT, f"{n}_1080.png"))
         print(n, img.size, r.get("usage"), flush=True)
 
 
@@ -111,5 +113,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", default=list(SHOTS))
     ap.add_argument("--seed", type=int, default=21)
+    ap.add_argument("--small", action="store_true", help="экономный размер 216×384 (15 генераций вместо 25)")
     a = ap.parse_args()
-    run(a.names, a.seed)
+    if a.small:
+        run(a.names, a.seed, (216, 384), os.path.join(HERE, "pro216"))
+    else:
+        run(a.names, a.seed)
