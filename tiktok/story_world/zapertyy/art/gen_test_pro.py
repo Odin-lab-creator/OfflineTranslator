@@ -102,6 +102,18 @@ SHOTS = {
                     "bottles and cooking pots full of water and cans of stewed meat, grey light from a barred window",
     "e2b_mailbox": "medium close-up of Denis from the side reading a paper list pinned on a wall of old metal mailboxes, "
                    "his finger on the paper, shocked face, dim ground floor hall",
+    "e2b_lips": "extreme close-up of Denis's face in profile, cracked dry lips, his throat moving as he swallows, "
+                "stubble, exhausted eyes, dim grey light",
+    "e2b_doors": "medium shot of Denis standing in a dim apartment building corridor holding a metal bucket and a cooking "
+                 "pot, looking at the neighbours' apartment doors standing wide open, peeling green walls",
+    "e2b_neighbor": "medium shot of Denis with a bucket stepping quietly into a stranger's dark apartment hallway, pairs "
+                    "of slippers on the doormat in the foreground, family photos on the wall, coats on hooks",
+    "e2b_radiator": "close-up of Denis crouching and opening a valve on an old cast iron radiator, rusty orange water "
+                    "pouring into a metal bucket, splashes, dim light",
+    "e2b_boiler": "medium close-up of Denis kneeling under a white electric water boiler on a cracked tiled bathroom wall, "
+                  "opening the drain tap, a steady stream of clear water pouring into a big cooking pot",
+    "e2b_cupboard": "medium close-up of Denis opening a kitchen cupboard in a stranger's dark kitchen, shelves with cans "
+                    "of stewed meat, a bag of buckwheat, a bag of rusks and a jar of honey, surprised face",
 }
 
 

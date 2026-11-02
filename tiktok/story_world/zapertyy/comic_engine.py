@@ -1,7 +1,9 @@
 """Движок кинокомикса «ЗАПЕРТЫЙ» (общий для серий): кадры PixelLab + камера + эффекты + титры + звук.
 
 Компоновка 1080×1920: картинка 1080×1200 посередине, сверху чёрная полоса с титрами, снизу — с субтитрами.
-Кадры ищутся в art/pro216 (216×384, ×6), art/proc (рисованные кодом, ×6), art/test_pro (360×640, ×4).
+Кадры ищутся (по порядку) в art/pro270 (270×300 — ровно видимая часть, ×8), art/proc (рисованные кодом 216×384, ×10),
+art/test_pro (Pro 360×640, ×6), art/pro216 (216×384, ×6). База увеличена так, что при масштабе 1 кадр
+уменьшается ровно вдвое — пиксели остаются чёткими.
 Координаты камеры — в «виртуальной» сетке 360×640: (масштаб, центр x, центр y).
 
 Пример — см. ep2_comic.py.
@@ -16,7 +18,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ART = os.path.join(HERE, "art")
-DIRS = [(os.path.join(ART, "pro216"), 6), (os.path.join(ART, "proc"), 6), (os.path.join(ART, "test_pro"), 4)]
+DIRS = [(os.path.join(ART, "pro270"), 8), (os.path.join(ART, "proc"), 10), (os.path.join(ART, "test_pro"), 6),
+        (os.path.join(ART, "pro216"), 6)]
 FPS, SR = 30, 44100
 W, H = 1080, 1920
 BAND_H, BAND_Y = 1200, 360
@@ -217,6 +220,7 @@ def chunks(text, limit=46):
 
 # ------------------------------------------------------------------ серия
 class Episode:
+    patch = {}                                                # имя кадра → функция правки массива (надписи и т. п.)
     def __init__(self, lines, voice_path, out, tempo=1.06):
         self.out = out
         self.voice = {i: load_audio(voice_path(i), tempo) for i, *_ in lines}
@@ -271,7 +275,7 @@ class Episode:
 
     # картинка
     @staticmethod
-    @functools.lru_cache(6)
+    @functools.lru_cache(4)
     def big(name):
         for d, k in DIRS:
             p = os.path.join(d, f"{name}.png")
@@ -280,6 +284,8 @@ class Episode:
                 for x in range(a.shape[1]):                   # белые поля по краям у части кадров
                     if a[:, x].mean() > 245:
                         a[:, x] = a[:, 5 if x < a.shape[1] // 2 else a.shape[1] - 6]
+                if Episode.patch.get(name):
+                    a = Episode.patch[name](a)
                 return Image.fromarray(a).resize((a.shape[1] * k, a.shape[0] * k), Image.NEAREST)
         raise FileNotFoundError(name)
 
