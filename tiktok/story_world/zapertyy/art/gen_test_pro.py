@@ -68,6 +68,29 @@ SHOTS = {
                     "seen from behind, back to the camera, standing in front of a heavy locked metal entrance door, about "
                     "to kick it, lots of empty tiled floor around him, metal mailboxes on the left wall, intercom panel, "
                     "thin line of daylight under the door, dim, dramatic",
+    # ---- серия 2 «Вода» (главный объект — в середине кадра по высоте: видно полосу 216×240)
+    "e2_lips": "extreme close-up of Denis's face from the side, cracked dry lips, his throat moving as he swallows, "
+               "stubble, exhausted, dim grey light, the face in the middle of the frame",
+    "e2_kitchen": "Denis in a dim old soviet kitchen greedily drinking from the spout of an old kettle, the door of a dark "
+                  "warm fridge open beside him, dirty dishes, grey daylight, Denis in the middle of the frame",
+    "e2_toilet": "Denis in a small old tiled bathroom lifting the porcelain lid of a toilet cistern, clear water inside, "
+                 "a mug in his other hand, dim light, Denis in the middle of the frame",
+    "e2_doors": "Denis standing in a dim apartment building corridor holding a bucket and a cooking pot, looking at the "
+                "neighbours' apartment doors standing wide open, peeling green walls, Denis in the middle of the frame",
+    "e2_neighbor": "Denis carrying a bucket stepping quietly into a stranger's dark apartment hallway, pairs of slippers "
+                   "on the doormat, family photos on the wall, coats on hooks, Denis in the middle of the frame",
+    "e2_radiator": "close-up of Denis's hand in a grey hoodie sleeve opening a valve on an old cast iron radiator, rusty "
+                   "orange water pouring into a metal bucket below, dim light, in the middle of the frame",
+    "e2_boiler": "Denis kneeling under a white electric water boiler on a bathroom wall, opening the drain tap, a steady "
+                 "stream of clear water pouring into a big cooking pot, dim light, Denis in the middle of the frame",
+    "e2_cupboard": "Denis opening a kitchen cupboard in a stranger's dark kitchen, shelves with cans of stewed meat, a bag "
+                   "of buckwheat, a bag of rusks and a jar of honey, Denis in the middle of the frame",
+    "e2_supplies": "Denis sitting at his kitchen table counting on his fingers, in front of him a row of plastic bottles "
+                   "and cooking pots full of water and several cans of food, grey daylight from a barred window, "
+                   "Denis in the middle of the frame",
+    "e2_mailbox": "Denis standing at a wall of old metal mailboxes in a dim ground floor hall, reading a paper list pinned "
+                  "on the wall, his finger on the paper, the heavy welded entrance door nearby, Denis in the middle of "
+                  "the frame",
 }
 
 
