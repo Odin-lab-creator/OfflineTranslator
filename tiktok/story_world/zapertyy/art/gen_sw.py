@@ -31,9 +31,12 @@ BGS = {  # имя: (ширина, высота, сцена)
     "hall": (180, 192, "ground floor entrance hall of an old apartment building, a heavy closed dark metal entrance door "
                        "in the middle, an intercom panel next to it, a row of metal mailboxes on the left wall, a thin "
                        "line of daylight under the door, tiled floor strip along the very bottom"),
-    "street": (360, 192, "empty city street seen through nothing, abandoned cars with open doors on the road, a baby "
-                         "stroller lying on its side, nine-storey apartment blocks behind, overcast sky, asphalt strip "
-                         "along the very bottom"),
+    "street": (360, 224, "empty city street, abandoned cars with open doors standing on the road, a baby stroller "
+                         "lying on its side, a plastic bag on the asphalt, grey nine-storey apartment blocks behind, "
+                         "overcast sky, asphalt strip along the very bottom"),
+    "stairs": (360, 224, "stairwell of an old apartment building, a concrete staircase going down from the upper left to "
+                         "a landing on the lower right, metal railing with a wooden handrail, two-tone painted walls green "
+                         "below and cream above, a small dirty window, landing floor strip along the very bottom"),
 }
 
 
