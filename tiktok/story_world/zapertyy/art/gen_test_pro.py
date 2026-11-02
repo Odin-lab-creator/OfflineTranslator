@@ -64,6 +64,10 @@ SHOTS = {
     "16_crack": "extreme close-up of the narrow gap between a heavy metal entrance door and its frame near the hinges, "
                 "bright daylight through the gap, outside a thick rusty iron strip is welded across the door, rough fresh "
                 "weld seam, dark metal, dust",
+    "04_kick_wide": "wide shot of a ground floor entrance hall of an old apartment building, Denis small in the frame, "
+                    "seen from behind, back to the camera, standing in front of a heavy locked metal entrance door, about "
+                    "to kick it, lots of empty tiled floor around him, metal mailboxes on the left wall, intercom panel, "
+                    "thin line of daylight under the door, dim, dramatic",
 }
 
 
