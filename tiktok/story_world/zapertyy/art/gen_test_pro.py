@@ -42,6 +42,28 @@ SHOTS = {
     "05_end": "Denis sitting on the floor with his back against a heavy welded-shut metal entrance door, knees up, head "
               "down, arms on knees, exhausted, thin bright line of daylight under the door, dark ground floor hall, "
               "mailboxes on the wall, lonely and quiet",
+    "06_stand": "Denis standing in the middle of a dim old soviet apartment living room, holding his head with one hand, "
+                "looking around confused, an overturned chair and a broken mug on the floor, pale grey light and striped "
+                "shadows from a barred window",
+    "07_phone": "close-up of Denis's hand in a grey hoodie sleeve holding a black smartphone with a completely dead black "
+                "screen, thumb pressing the power button, an old light switch on the wallpapered wall behind, dim room",
+    "08_watch": "extreme close-up of Denis's left wrist in a grey hoodie sleeve with an old mechanical wristwatch, "
+                "the hands stopped at twenty to four, scratched glass, dust, dim grey light",
+    "09_pills": "close-up of an old wooden table with empty pill blister packs, an old glass thermometer and an empty glass, "
+                "dust and crumbs, grey daylight from a window",
+    "10_tap": "close-up of Denis's hand turning the handle of an old kitchen faucet over a metal sink, a single water drop "
+              "falling from the tap, rust stains, dim kitchen",
+    "11_weld": "close-up of Denis's hands gripping thick metal window bars, shiny fresh weld seams where the bars are welded "
+               "to the window frame, grey light, empty street blurred outside the glass",
+    "13_door": "Denis opening the front door of his apartment from inside, the door creaking open into a dim stairwell "
+               "landing, seen from the apartment hallway behind him, coats on hooks, shoes on the floor",
+    "14_stairs": "Denis walking down a dim concrete stairwell of a soviet apartment building, one hand on the handrail, "
+                 "a big red painted arrow pointing down on the green wall, peeling paint, small dirty window, dusty light",
+    "15_intercom": "close-up of Denis's finger pressing a button on a dead intercom panel next to a heavy metal entrance door, "
+                   "the intercom display is dark, dim ground floor hall",
+    "16_crack": "extreme close-up of the narrow gap between a heavy metal entrance door and its frame near the hinges, "
+                "bright daylight through the gap, outside a thick rusty iron strip is welded across the door, rough fresh "
+                "weld seam, dark metal, dust",
 }
 
 
