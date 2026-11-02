@@ -57,5 +57,7 @@
 - **Серия 1 — `zapertyy_ep1_v3.mp4`** (`python3 ep1_v3.py`, кадры Pro 360×640 из `art/test_pro`, видна часть 360×400).
 - **Серия 2 — `zapertyy_ep2.mp4`** (`python3 ep2_comic.py`, кадры `art/pro360/e2c_*`, записка и список — `art/proc360`).
 - Озвучка: ElevenLabs, голос Chris, ×1.06 (`ep1_lines.py`, `ep2_lines.py`).
+- Пробы стиля канала story world (как ролик про Мирона: вид сбоку, панель с надписями «караоке») —
+  `ep1_sw.py`, `zapertyy_ep1_sw.mp4`, `art/sw`. Владелец решил **оставить кинокомикс**.
 - Пробы других способов (спрайты, HD, вид сбоку по методичке «Сто метров», PixMiniMax, параллакс)
   оставлены как справка: `ep1_build*.py`, `ep1_sto.py`, `ep1_comic*.py`, `art/variants`, `art/sto`.
