@@ -1,7 +1,8 @@
 """Движок кинокомикса «ЗАПЕРТЫЙ» (общий для серий): кадры PixelLab + камера + эффекты + титры + звук.
 
 Компоновка 1080×1920: картинка 1080×1200 посередине, сверху чёрная полоса с титрами, снизу — с субтитрами.
-Кадры ищутся (по порядку) в art/pro270 (270×300 — ровно видимая часть, ×8), art/proc (рисованные кодом 216×384, ×10),
+Кадры ищутся (по порядку) в art/pro360 и art/proc360 (360×400 — видимая часть, мелкий пиксель, ×6),
+art/pro270 (270×300, ×8), art/proc (рисованные кодом 216×384, ×10),
 art/test_pro (Pro 360×640, ×6), art/pro216 (216×384, ×6). База увеличена так, что при масштабе 1 кадр
 уменьшается ровно вдвое — пиксели остаются чёткими.
 Координаты камеры — в «виртуальной» сетке 360×640: (масштаб, центр x, центр y).
@@ -18,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ART = os.path.join(HERE, "art")
-DIRS = [(os.path.join(ART, "pro270"), 8), (os.path.join(ART, "proc"), 10), (os.path.join(ART, "test_pro"), 6),
+DIRS = [(os.path.join(ART, "pro360"), 6), (os.path.join(ART, "proc360"), 6), (os.path.join(ART, "pro270"), 8), (os.path.join(ART, "proc"), 10), (os.path.join(ART, "test_pro"), 6),
         (os.path.join(ART, "pro216"), 6)]
 FPS, SR = 30, 44100
 W, H = 1080, 1920

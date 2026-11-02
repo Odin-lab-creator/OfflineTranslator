@@ -121,6 +121,28 @@ SHOTS = {
                    "old kettle, the door of a dark warm fridge open beside him, dirty dishes, grey daylight, fine details",
     "e2c_toilet": "medium wide shot of Denis in a small old tiled bathroom lifting the porcelain lid of a toilet cistern, "
                   "clear water inside, a mug in his other hand, cracked tiles, dim light, fine details",
+    "e2c_hook": "medium shot of Denis sitting on the floor of a dim old apartment room leaning against the wall, "
+                "exhausted and thirsty, one hand on his throat, cracked dry lips, an empty glass on its side next to him, "
+                "grey light from a barred window, fine details",
+    "e2c_bed": "medium wide shot of Denis sitting on the edge of an unmade bed in a dim old bedroom in the morning, elbows "
+               "on his knees, head low, grey daylight through a barred window draws striped shadows on the floor, dust in "
+               "the air, fine details",
+    "e2c_doors": "wide shot of Denis standing in a dim apartment building corridor holding a metal bucket and a cooking "
+                 "pot, looking at the neighbours' apartment doors standing wide open, peeling green walls, debris, "
+                 "fine details",
+    "e2c_neighbor": "medium wide shot of Denis with a bucket stepping quietly into a stranger's dark apartment hallway, "
+                    "pairs of slippers on the doormat, family photos on the wall, coats on hooks, fine details",
+    "e2c_boiler": "medium wide shot of Denis kneeling in a small cracked tiled bathroom under a white electric water "
+                  "boiler on the wall, opening its drain tap, a steady stream of clear water pouring into a big cooking "
+                  "pot, fine details",
+    "e2c_cupboard": "medium wide shot of Denis in a stranger's dark kitchen opening a wall cupboard, shelves with cans of "
+                    "stewed meat, a bag of buckwheat, a bag of rusks and a jar of honey, dirty dishes, fine details",
+    "e2c_supplies": "medium wide shot of Denis sitting at his kitchen table counting on his fingers, on the table a row "
+                    "of plastic bottles and cooking pots full of water and cans of food, grey light from a barred "
+                    "window, fine details",
+    "e2c_mailbox": "medium wide shot of Denis in a dim ground floor hall standing at a wall of old metal mailboxes, "
+                   "reading a paper list pinned on the wall, his finger on the paper, the heavy welded entrance door "
+                   "nearby, fine details",
 }
 
 
