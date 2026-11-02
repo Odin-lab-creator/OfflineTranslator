@@ -91,6 +91,17 @@ SHOTS = {
     "e2_mailbox": "Denis standing at a wall of old metal mailboxes in a dim ground floor hall, reading a paper list pinned "
                   "on the wall, his finger on the paper, the heavy welded entrance door nearby, Denis in the middle of "
                   "the frame",
+    # ---- серия 2, крупнее и детальнее: кадр 270×300 целиком виден в видео
+    "e2b_bed": "medium close-up of Denis sitting on the edge of an unmade bed in the morning, elbows on his knees, head "
+               "low, tired, grey daylight through a barred window draws striped shadows across him, dust in the air",
+    "e2b_kitchen": "medium close-up of Denis greedily drinking water from the spout of an old dented kettle, eyes closed, "
+                   "a dark open fridge behind him, old soviet kitchen, grey light",
+    "e2b_toilet": "close-up of Denis's hands lifting the heavy porcelain lid of a toilet cistern, clear water inside "
+                  "reflecting light, his face above looking down in relief, old cracked tiled bathroom",
+    "e2b_supplies": "medium close-up of Denis at his kitchen table counting on his fingers, in front of him plastic "
+                    "bottles and cooking pots full of water and cans of stewed meat, grey light from a barred window",
+    "e2b_mailbox": "medium close-up of Denis from the side reading a paper list pinned on a wall of old metal mailboxes, "
+                   "his finger on the paper, shocked face, dim ground floor hall",
 }
 
 
@@ -128,7 +139,8 @@ def run(names, seed, size=(W, H), out=None):
         raw = base64.b64decode(im["base64"] if isinstance(im, dict) else im)
         img = Image.open(io.BytesIO(raw)).convert("RGB")
         img.save(os.path.join(OUT, f"{n}.png"))
-        img.resize((1080, 1920), Image.NEAREST).save(os.path.join(OUT, f"{n}_1080.png"))
+        img.resize((img.width * (1080 // img.width), img.height * (1080 // img.width)), Image.NEAREST).save(
+            os.path.join(OUT, f"{n}_1080.png"))
         print(n, img.size, r.get("usage"), flush=True)
 
 
@@ -137,8 +149,11 @@ if __name__ == "__main__":
     ap.add_argument("names", nargs="*", default=list(SHOTS))
     ap.add_argument("--seed", type=int, default=21)
     ap.add_argument("--small", action="store_true", help="экономный размер 216×384 (15 генераций вместо 25)")
+    ap.add_argument("--band", action="store_true", help="кадр 270×300 — ровно видимая часть видео (×4 = 1080×1200)")
     a = ap.parse_args()
-    if a.small:
+    if a.band:
+        run(a.names, a.seed, (270, 300), os.path.join(HERE, "pro270"))
+    elif a.small:
         run(a.names, a.seed, (216, 384), os.path.join(HERE, "pro216"))
     else:
         run(a.names, a.seed)
