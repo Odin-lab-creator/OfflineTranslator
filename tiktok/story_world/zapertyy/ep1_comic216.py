@@ -26,6 +26,7 @@ SRC216 = os.path.join(HERE, "art", "pro216")
 MAIN = {"01_wake", "06_stand", "02_window", "13_door", "03_corridor", "14_stairs", "04_kick", "05_end"}
 FPS, SR = 30, base.SR
 W, H = 1080, 1920
+BAND_H, BAND_Y = 1200, 360        # картинка посередине, сверху и снизу чёрные полосы (титры / субтитры)
 GW, GH = 360, 640                 # сетка кадра PixelLab
 UP = 4                            # база для камеры: 1440×2560
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -50,18 +51,18 @@ for k in range(3):
     tl.fx("bang", 0.15 + k * 0.6)
 tl.wait(1.9)
 tl.say("00", 0.35)
-tl.titles.append((tl.t, tl.t + 1.7, "ЗАПЕРТЫЙ", 290))
-tl.titles.append((tl.t + 0.3, tl.t + 1.7, "СЕРИЯ 1", 312))
+tl.titles.append((tl.t, tl.t + 1.7, "ЗАПЕРТЫЙ", 44))
+tl.titles.append((tl.t + 0.3, tl.t + 1.7, "СЕРИЯ 1", 74))
 tl.wait(1.9)
 
 shot("01_wake", (1.0, 180, 330), (1.22, 185, 410), eyelids=True, dust=True)
 tl.fx("ring")
-tl.titles.append((tl.t + 0.8, tl.t + 4.0, "ДЕНЬ 1", 60))
+tl.titles.append((tl.t + 0.8, tl.t + 4.0, "ДЕНЬ 1", 56))
 tl.wait(0.8)
 tl.say("01", 0.5)
 tl.say("02", 0.4)
 
-shot("06_stand", (1.18, 120, 250), (1.0, 180, 320), dust=True)
+shot("06_stand", (1.18, 120, 250), (1.0, 180, 275), dust=True)
 tl.say("03", 0.35)
 t04 = tl.say("04", 0.0)
 c04 = base.chunk_times("04", t04)
@@ -136,9 +137,9 @@ tl.fx("slide", tl.t + 0.2)
 tl.wait(0.3)
 tl.say("18", 0.8)
 tl.say("19", 0.5)
-tl.titles.append((tl.t, tl.t + 2.4, "ПОПЫТКА №1: ДВЕРЬ — ПРОВАЛ", 290))
+tl.titles.append((tl.t, tl.t + 2.4, "ПОПЫТКА №1: ДВЕРЬ — ПРОВАЛ", 44))
 tl.wait(2.4)
-tl.titles.append((tl.t, tl.t + 3.0, "ЧТО БЫ ВЫ СДЕЛАЛИ ПЕРВЫМ?", 290))
+tl.titles.append((tl.t, tl.t + 3.0, "ЧТО БЫ ВЫ СДЕЛАЛИ ПЕРВЫМ?", 44))
 tl.wait(3.0)
 SHOTS[-1][1] = tl.t
 TOTAL = tl.t
@@ -205,19 +206,20 @@ def camera_frame(s, t):
     img = big(name)
     BW, BH = img.size
     sx, sy = BW / GW, BH / GH
-    cw, ch = BW / z, BH / z
+    cw = BW / z
+    ch = cw * BAND_H / W
     x0 = np.clip((cx + off[0]) * sx - cw / 2, 0, BW - cw)
     y0 = np.clip((cy + off[1]) * sy - ch / 2, 0, BH - ch)
-    fr = img.resize((W, H), Image.BILINEAR, box=(x0, y0, x0 + cw, y0 + ch))
+    fr = img.resize((W, BAND_H), Image.BILINEAR, box=(x0, y0, x0 + cw, y0 + ch))
     a = np.asarray(fr).astype(np.float32)
     if ex.get("dust"):
         a = dust(a, t, t0)
     if ex.get("eyelids"):
         k = max(0.0, 1 - (t - t0) / 2.4)
         if k > 0:
-            h = int(H / 2 * k ** 0.6)
+            h = int(BAND_H / 2 * k ** 0.6)
             a[:h] = 0
-            a[H - h:] = 0
+            a[BAND_H - h:] = 0
     if ex.get("fade"):
         k = min(1.0, (t - t0) / 9.0) * 0.6
         a *= 1 - k
@@ -227,13 +229,13 @@ def camera_frame(s, t):
 def dust(a, t, t0):
     r = np.random.default_rng(11)
     n = 70
-    px, py = r.uniform(0, W, n), r.uniform(0, H * 0.8, n)
+    px, py = r.uniform(0, W, n), r.uniform(0, BAND_H * 0.85, n)
     vx, vy = r.uniform(-6, 6, n), r.uniform(-14, -3, n)
     ph = r.uniform(0, 6.28, n)
     lt = t - t0
     for k in range(n):
         x = int((px[k] + vx[k] * lt) % W)
-        y = int((py[k] + vy[k] * lt) % H)
+        y = int((py[k] + vy[k] * lt) % BAND_H)
         al = 0.25 + 0.2 * np.sin(lt * 1.3 + ph[k])
         a[y:y + 3, x:x + 3] = a[y:y + 3, x:x + 3] * (1 - al) + 235 * al
     return a
@@ -241,8 +243,8 @@ def dust(a, t, t0):
 
 @functools.lru_cache(1)
 def vignette():
-    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
-    r2 = ((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2
+    yy, xx = np.mgrid[0:BAND_H, 0:W].astype(np.float32)
+    r2 = ((xx - W / 2) / (W / 2)) ** 2 + ((yy - BAND_H / 2) / (BAND_H / 2)) ** 2
     return np.clip(1.08 - 0.28 * r2, 0.55, 1)[..., None]
 
 
@@ -260,7 +262,7 @@ def picture(t):
     i = shot_at(t)
     s = SHOTS[i]
     if s[2] is None:
-        return np.zeros((H, W, 3), np.float32)
+        return np.zeros((BAND_H, W, 3), np.float32)
     a = camera_frame(s, t)
     if i > 0 and t - s[0] < XF and SHOTS[i - 1][2] is not None:
         u = (t - s[0]) / XF
@@ -311,21 +313,22 @@ def draw_line(ui, s, cy, sz, color):
 @functools.lru_cache(256)
 def ui_layer(sub, titles):
     ui = np.zeros((GH, GW, 4), np.uint8)
-    if sub:
-        lines = wrap(sub, 16, GW - 30)
-        y = 450 - 11 * len(lines)
-        for ln in lines:
-            draw_line(ui, ln, y, 16, C_TEXT)
-            y += 22
-    for text, y in titles:
-        for k, ln in enumerate(wrap(text, 17, GW - 40)):
-            draw_line(ui, ln, y + k * 24, 17, C_HI)
+    if sub:                                                   # субтитры — по нижней чёрной полосе
+        y = (BAND_Y + BAND_H) // 3 + 16
+        for ln in wrap(sub, 18, GW - 30):
+            draw_line(ui, ln, y, 18, C_TEXT)
+            y += 25
+    for text, y in titles:                                    # титры — по верхней чёрной полосе
+        for k, ln in enumerate(wrap(text, 18, GW - 30)):
+            draw_line(ui, ln, y + k * 26, 18, C_HI)
     big_ = Image.fromarray(ui, "RGBA").resize((W, H), Image.NEAREST)
     return np.asarray(big_)
 
 
 def render(t):
-    a = picture(t)
+    a = np.zeros((H, W, 3), np.float32)
+    a[:] = C_DARK
+    a[BAND_Y:BAND_Y + BAND_H] = picture(t)
     sub = next((s for x, y, s in SUBS if x <= t < y), "")
     titles = tuple((x, y) for p, q, x, y in tl.titles if p <= t < q)
     if sub or titles:
