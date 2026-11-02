@@ -114,6 +114,13 @@ SHOTS = {
                   "opening the drain tap, a steady stream of clear water pouring into a big cooking pot",
     "e2b_cupboard": "medium close-up of Denis opening a kitchen cupboard in a stranger's dark kitchen, shelves with cans "
                     "of stewed meat, a bag of buckwheat, a bag of rusks and a jar of honey, surprised face",
+    # ---- мелкий пиксель: 360×400 (×3 на экране), только общие и средние планы
+    "e2c_radiator": "medium shot of Denis crouching in a dim room next to an old cast iron radiator, opening its valve, "
+                    "rusty orange water pouring into a metal bucket, the whole room visible around him, fine details",
+    "e2c_kitchen": "medium wide shot of Denis standing in a dim old soviet kitchen greedily drinking from the spout of an "
+                   "old kettle, the door of a dark warm fridge open beside him, dirty dishes, grey daylight, fine details",
+    "e2c_toilet": "medium wide shot of Denis in a small old tiled bathroom lifting the porcelain lid of a toilet cistern, "
+                  "clear water inside, a mug in his other hand, cracked tiles, dim light, fine details",
 }
 
 
@@ -162,8 +169,11 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=21)
     ap.add_argument("--small", action="store_true", help="экономный размер 216×384 (15 генераций вместо 25)")
     ap.add_argument("--band", action="store_true", help="кадр 270×300 — ровно видимая часть видео (×4 = 1080×1200)")
+    ap.add_argument("--fine", action="store_true", help="кадр 360×400 — видимая часть, мелкий пиксель (×3)")
     a = ap.parse_args()
-    if a.band:
+    if a.fine:
+        run(a.names, a.seed, (360, 400), os.path.join(HERE, "pro360"))
+    elif a.band:
         run(a.names, a.seed, (270, 300), os.path.join(HERE, "pro270"))
     elif a.small:
         run(a.names, a.seed, (216, 384), os.path.join(HERE, "pro216"))
