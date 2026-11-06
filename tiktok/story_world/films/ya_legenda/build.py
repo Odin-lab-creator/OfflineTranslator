@@ -3,7 +3,7 @@
 
 Картинки сцен: frames/01.png … frames/29.png (png/jpg/webp, любой размер 9:16). Нет картинки — серая заглушка.
 Голос: voice/NN.mp3 + voice/NN.json (разметка символов ElevenLabs).
-python3 build.py [--preview]   →  ya_legenda.mp4 (или ya_legenda_preview.mp4 в 540×960)
+python3 build.py [--preview|--clean]   →  ya_legenda.mp4 (ya_legenda_preview.mp4 в 540×960; ya_legenda_clean.mp4 без голоса и надписей)
 
 Что в кадре: медленный наезд камеры, слова субтитров по одному под голос, ключевые фразы (**…** в script.py)
 крупно в две строки — вторая фиолетовая, буквы печатаются под голос; жёлтые имена героев (LABELS),
@@ -158,8 +158,8 @@ def halftone():
 G = {}
 
 
-def init(scenes, scale):
-    G["scenes"], G["scale"] = scenes, scale
+def init(scenes, scale, clean=False):
+    G["scenes"], G["scale"], G["clean"] = scenes, scale, clean
     G["img"], G["spr"] = {}, {}
     G["dots"] = halftone()
     rng = np.random.default_rng(5)
@@ -342,7 +342,9 @@ def render(fi):
     # точечный растр на тёмных местах
     lum = frame.mean(2, keepdims=True) / 255
     frame = frame * (1 - 0.22 * G["dots"][..., None] * np.clip(1 - lum * 1.6, 0, 1))
-    if s["n"] == 1:
+    if G.get("clean"):
+        pass                                          # чистая версия: без надписей
+    elif s["n"] == 1:
         frame *= 0.82                                 # притемнить под надписи интро
         intro(frame, s, t)
     else:
@@ -393,14 +395,16 @@ def audio(scenes, total, sr=44100, voice=True):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", action="store_true", help="540×960, быстро")
+    ap.add_argument("--clean", action="store_true", help="без голоса и без надписей → ya_legenda_clean.mp4")
     a = ap.parse_args()
     scenes = timeline()
     total = scenes[-1]["end"]
     nfr = int(total * FPS)
     scale = 0.5 if a.preview else 1
-    out = os.path.join(HERE, "ya_legenda_preview.mp4" if a.preview else "ya_legenda.mp4")
+    out = os.path.join(HERE, "ya_legenda_preview.mp4" if a.preview else
+                       "ya_legenda_clean.mp4" if a.clean else "ya_legenda.mp4")
     wav = os.path.join(HERE, "_audio.f32")
-    audio(scenes, total).tofile(wav)
+    audio(scenes, total, voice=not a.clean).tofile(wav)
     extract_clips()
     have = sorted(glob.glob(os.path.join(HERE, "frames", "*.*")))
     print(f"длина {total:.1f} с, кадров {nfr}, картинок в frames/: {len(have)} из {len(scenes)}", flush=True)
@@ -410,7 +414,7 @@ def main():
                            "-c:v", "libx264", "-crf", "23" if a.preview else "21", "-preset", "slow",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
-    with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale)) as pool:
+    with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale, a.clean)) as pool:
         for k, fr in enumerate(pool.imap(render, range(nfr), chunksize=8)):
             ff.stdin.write(fr)
             if k % 300 == 0:
