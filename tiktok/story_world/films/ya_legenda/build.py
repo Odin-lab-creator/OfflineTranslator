@@ -357,10 +357,10 @@ def render(fi):
 
 
 # ---------- звук ----------
-def audio(scenes, total, sr=44100):
+def audio(scenes, total, sr=44100, voice=True):
     n = int(total * sr)
     mix = np.zeros(n, np.float32)
-    for s in scenes:
+    for s in (scenes if voice else []):
         v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(HERE, "voice", f"{s['n']:02d}.mp3"),
                                           "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True).stdout,
                           np.float32)
