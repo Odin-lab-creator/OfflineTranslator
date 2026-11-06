@@ -53,7 +53,7 @@ def font(path, size, bold=False):
 def pixel_sprite(text, size, color):
     """Пиксельное слово: шрифт 8 px без сглаживания, чёрная обводка в 1 «пиксель», увеличение без размытия.
     size — примерная высота букв на экране; масштаб целый."""
-    k = max(2, round(size / 8))
+    k = max(2, int(round(size / 16)) * 2)
     f = ImageFont.truetype(PIXEL, 8)
     w = int(f.getlength(text)) + 4
     m = Image.new("L", (w, 12), 0)
@@ -234,7 +234,7 @@ def paste(frame, im, cx, cy, alpha=1.0, scale=1.0):
     if scale != 1.0:
         im = im.resize((max(1, int(im.width * scale)), max(1, int(im.height * scale))), Image.BILINEAR)
     a = np.asarray(im, dtype=np.float32)
-    x0, y0 = int(cx - im.width / 2), int(cy - im.height / 2)
+    x0, y0 = int(cx - im.width / 2) // 2 * 2, int(cy - im.height / 2) // 2 * 2
     xa, ya, xb, yb = max(0, x0), max(0, y0), min(W, x0 + im.width), min(H, y0 + im.height)
     if xa >= xb or ya >= yb:
         return
@@ -305,18 +305,19 @@ def intro(frame, s, t):
     t_a, t_b = s["voice"] - 0.1, title[-1]["t1"] if title else s["voice"] + 1
     letters = list("Я — ЛЕГЕНДА")
     k = int(len(letters) * min(1, max(0, (t - t_a) / max(0.2, t_b - t_a)))) if t >= t_a else 0
-    cell = 80                                         # пиксельный шрифт моноширинный: клетка на букву
+    cell = 64                                         # пиксельный шрифт моноширинный: клетка на букву
     x0 = W / 2 - len(letters) * cell / 2
     for i, ch in enumerate(letters[:k]):
         if ch != " ":
             col = WHITE if i < 3 else RED
             paste(frame, spr(("t", ch, col), ch, cell, col, 0), x0 + i * cell + cell / 2, 300)
     if k == len(letters):                             # пиксельная черта под заголовком
-        y, h = 372, 10
-        frame[y + 4:y + h + 4, 104:W - 96] *= 0.4
-        frame[y:y + h, 100:W - 100] = np.array(WHITE, np.float32)
+        y, h = 352, 8
+        xa, xb = int(x0) // 2 * 2, int(x0 + len(letters) * cell) // 2 * 2
+        frame[y + 4:y + h + 4, xa + 4:xb + 4] *= 0.4
+        frame[y:y + h, xa:xb] = np.array(WHITE, np.float32)
     # «СЮЖЕТ» фиолетовым и «ЗА МИНУТУ» белым, печатаются под голос — тем же пиксельным шрифтом
-    for txt, col, y, cellw, ws in (("СЮЖЕТ", PURPLE, 1180, 136, sub[:1]), ("ЗА МИНУТУ", WHITE, 1330, 80, sub[1:])):
+    for txt, col, y, cellw, ws in (("СЮЖЕТ", PURPLE, 1180, 96, sub[:1]), ("ЗА МИНУТУ", WHITE, 1300, 56, sub[1:])):
         typed = "".join(c for w in ws for c, st in w["chars"] if st <= t)
         if len(ws) == 2 and typed and sub[1]["t1"] <= t:
             typed = "ЗА МИНУТУ"
@@ -419,7 +420,7 @@ def main():
     ff = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{int(W * scale)}x{int(H * scale)}", "-r", str(FPS), "-i", "-",
                            "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav,
-                           "-c:v", "libx264", "-crf", "23" if a.preview else "21", "-preset", "slow",
+                           "-c:v", "libx264", "-crf", "23" if a.preview else "18", "-preset", "slow", "-tune", "animation",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
     with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale, a.clean)) as pool:
