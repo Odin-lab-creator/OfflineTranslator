@@ -178,8 +178,36 @@ def spr(key, *args):
     return G["spr"][key]
 
 
+CLIPS = os.path.join(HERE, "clips")            # оживлённые сцены из Veo: clips/NN.mp4
+CACHE = os.path.join(HERE, "_clipcache")
+
+
+def extract_clips():
+    """Клипы → кадры 1080×1920 по 30 к/с в _clipcache/NN/ (берутся вместо картинки и наезда)."""
+    for p in sorted(glob.glob(os.path.join(CLIPS, "*.mp4"))):
+        n = os.path.basename(p)[:2]
+        d = os.path.join(CACHE, n)
+        if os.path.isdir(d) and os.listdir(d):
+            continue
+        os.makedirs(d, exist_ok=True)
+        subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-vf",
+                        f"fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,crop={W}:{H}",
+                        "-q:v", "2", os.path.join(d, "%04d.jpg")], check=True)
+
+
+def clip_frame(n, tr):
+    d = os.path.join(CACHE, f"{n:02d}")
+    if not os.path.isdir(d):
+        return None
+    k = min(len(os.listdir(d)), max(1, int(tr * FPS) + 1))
+    return np.asarray(Image.open(os.path.join(d, f"{k:04d}.jpg")).convert("RGB"), dtype=np.float32)
+
+
 def camera(s, t, i):
-    """Наезд: чётные сцены приближаются, нечётные отъезжают; лёгкий сдвиг."""
+    """Наезд: чётные сцены приближаются, нечётные отъезжают; лёгкий сдвиг. Оживлённая сцена — кадр клипа."""
+    cf = clip_frame(s["n"], max(0.0, t - s["start"]))
+    if cf is not None:
+        return cf
     im = img(s["n"])
     p = min(1, max(0, (t - s["start"]) / max(0.1, s["end"] - s["start"])))
     p = p * p * (3 - 2 * p) * 0.6 + p * 0.4
@@ -373,6 +401,7 @@ def main():
     out = os.path.join(HERE, "ya_legenda_preview.mp4" if a.preview else "ya_legenda.mp4")
     wav = os.path.join(HERE, "_audio.f32")
     audio(scenes, total).tofile(wav)
+    extract_clips()
     have = sorted(glob.glob(os.path.join(HERE, "frames", "*.*")))
     print(f"длина {total:.1f} с, кадров {nfr}, картинок в frames/: {len(have)} из {len(scenes)}", flush=True)
     ff = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
