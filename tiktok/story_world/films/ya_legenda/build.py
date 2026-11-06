@@ -378,7 +378,7 @@ def main():
     ff = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{int(W * scale)}x{int(H * scale)}", "-r", str(FPS), "-i", "-",
                            "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav,
-                           "-c:v", "libx264", "-preset", "medium", "-crf", "23" if a.preview else "17",
+                           "-c:v", "libx264", "-crf", "23" if a.preview else "21", "-preset", "slow",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
     with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale)) as pool:
@@ -389,6 +389,10 @@ def main():
     ff.stdin.close()
     ff.wait()
     os.remove(wav)
+    tmp = out.replace(".mp4", "_ln.mp4")                # громкость под TikTok (−14 LUFS)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+                    "-ar", "44100", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp], check=True)
+    os.replace(tmp, out)
     print("готово:", out)
 
 
