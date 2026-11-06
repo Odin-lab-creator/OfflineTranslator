@@ -305,30 +305,27 @@ def intro(frame, s, t):
     t_a, t_b = s["voice"] - 0.1, title[-1]["t1"] if title else s["voice"] + 1
     letters = list("Я — ЛЕГЕНДА")
     k = int(len(letters) * min(1, max(0, (t - t_a) / max(0.2, t_b - t_a)))) if t >= t_a else 0
-    size = 190
-    while font(OSWALD, size).getlength("Я — ЛЕГЕНДА") > W - 150:
-        size -= 4
-    f = font(OSWALD, size)
-    x = W / 2 - f.getlength("Я — ЛЕГЕНДА") / 2
+    cell = 80                                         # пиксельный шрифт моноширинный: клетка на букву
+    x0 = W / 2 - len(letters) * cell / 2
     for i, ch in enumerate(letters[:k]):
-        col = WHITE if i < 3 else RED
-        im = spr(("t", ch, col, size), ch, size, col, 8, OSWALD) if ch != " " else None
-        if im:
-            paste(frame, im, x + f.getlength(ch) / 2, 300)
-        x += f.getlength(ch)
-    if k == len(letters):                             # черта под заголовком
-        frame[420:428, 90:W - 90] = frame[420:428, 90:W - 90] * 0.2 + np.array(WHITE, np.float32) * 0.8
-    # «СЮЖЕТ» фиолетовым и «ЗА МИНУТУ» белым, печатаются под голос
-    for txt, col, y, size, ws in (("СЮЖЕТ", PURPLE, 1180, 170, sub[:1]), ("ЗА МИНУТУ", WHITE, 1340, 104, sub[1:])):
+        if ch != " ":
+            col = WHITE if i < 3 else RED
+            paste(frame, spr(("t", ch, col), ch, cell, col, 0), x0 + i * cell + cell / 2, 300)
+    if k == len(letters):                             # пиксельная черта под заголовком
+        y, h = 372, 10
+        frame[y + 4:y + h + 4, 104:W - 96] *= 0.4
+        frame[y:y + h, 100:W - 100] = np.array(WHITE, np.float32)
+    # «СЮЖЕТ» фиолетовым и «ЗА МИНУТУ» белым, печатаются под голос — тем же пиксельным шрифтом
+    for txt, col, y, cellw, ws in (("СЮЖЕТ", PURPLE, 1180, 136, sub[:1]), ("ЗА МИНУТУ", WHITE, 1330, 80, sub[1:])):
         typed = "".join(c for w in ws for c, st in w["chars"] if st <= t)
         if len(ws) == 2 and typed and sub[1]["t1"] <= t:
             typed = "ЗА МИНУТУ"
         elif len(ws) == 2 and len(typed) > 2:
             typed = typed[:2] + " " + typed[2:]
-        if typed:
-            fs = spr(("ifull", txt, size), txt, size, col, 10, RUSSO)
-            im = spr(("i", typed, col, size), typed, size, col, 10, RUSSO)
-            paste(frame, im, W / 2 - fs.width / 2 + im.width / 2, y)
+        left = W / 2 - len(txt) * cellw / 2
+        for i, ch in enumerate(typed):
+            if ch != " ":
+                paste(frame, spr(("i", ch, col, cellw), ch, cellw, col, 0), left + i * cellw + cellw / 2, y)
 
 
 def render(fi):
