@@ -89,8 +89,12 @@ def clean(word):
     return "".join(ch for ch in word if ch.isalnum() or ch in "-ё").upper()
 
 
+VOICE_DIR = "voice"                         # "voice_user" — своя озвучка одной записью (флаг --user)
+USER_LEAD = 0.25                            # пауза перед началом записи
+
+
 def load_scene(n, marked):
-    a = json.load(open(os.path.join(HERE, "voice", f"{n:02d}.json")))
+    a = json.load(open(os.path.join(HERE, VOICE_DIR, f"{n:02d}.json")))
     chars, st, en = a["characters"], a["character_start_times_seconds"], a["character_end_times_seconds"]
     plain = marked.replace("**", "")
     assert "".join(chars) == plain, (n, "".join(chars), plain)
@@ -120,7 +124,25 @@ def load_scene(n, marked):
     return out
 
 
+def timeline_user():
+    """Своя озвучка: время слов уже от начала записи; сцена начинается чуть раньше своей первой фразы."""
+    scenes = []
+    for n, names, marked in SCENES:
+        words = load_scene(n, marked)
+        for w in words:
+            w["t0"] += USER_LEAD; w["t1"] += USER_LEAD
+            w["chars"] = [(c, st + USER_LEAD) for c, st in w["chars"]]
+        scenes.append({"n": n, "voice": words[0]["t0"], "words": words, "dur": words[-1]["t1"] - words[0]["t0"]})
+    for i, s in enumerate(scenes):
+        s["start"] = 0.25 if i == 0 else max(scenes[i - 1]["words"][-1]["t1"] + 0.03, s["voice"] - 0.12)
+    for i, s in enumerate(scenes):
+        s["end"] = scenes[i + 1]["start"] if i + 1 < len(scenes) else s["words"][-1]["t1"] + TAIL
+    return scenes
+
+
 def timeline():
+    if VOICE_DIR == "voice_user":
+        return timeline_user()
     t, scenes = 0.25, []
     for n, names, marked in SCENES:
         dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
@@ -169,7 +191,9 @@ def halftone():
 G = {}
 
 
-def init(scenes, scale, clean=False):
+def init(scenes, scale, clean=False, voice_dir="voice"):
+    global VOICE_DIR
+    VOICE_DIR = voice_dir
     G["scenes"], G["scale"], G["clean"] = scenes, scale, clean
     G["img"], G["spr"] = {}, {}
     G["dots"] = halftone()
@@ -371,6 +395,13 @@ def render(fi):
 def audio(scenes, total, sr=44100, voice=True):
     n = int(total * sr)
     mix = np.zeros(n, np.float32)
+    if voice and VOICE_DIR == "voice_user":           # своя озвучка — одна запись целиком
+        v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(HERE, "voice_user", "vo.mp3"),
+                                          "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True).stdout,
+                          np.float32)
+        a = int(USER_LEAD * sr)
+        mix[a:a + len(v)] += v[:n - a]
+        voice = False
     for s in (scenes if voice else []):
         v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(HERE, "voice", f"{s['n']:02d}.mp3"),
                                           "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True).stdout,
@@ -405,13 +436,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", action="store_true", help="540×960, быстро")
     ap.add_argument("--clean", action="store_true", help="без голоса и без надписей → ya_legenda_clean.mp4")
+    ap.add_argument("--user", action="store_true", help="своя озвучка voice_user/ → ya_legenda_user.mp4")
     a = ap.parse_args()
+    global VOICE_DIR
+    if a.user:
+        VOICE_DIR = "voice_user"
     scenes = timeline()
     total = scenes[-1]["end"]
     nfr = int(total * FPS)
     scale = 0.5 if a.preview else 1
     out = os.path.join(HERE, "ya_legenda_preview.mp4" if a.preview else
-                       "ya_legenda_clean.mp4" if a.clean else "ya_legenda.mp4")
+                       "ya_legenda_clean.mp4" if a.clean else "ya_legenda_user.mp4" if a.user else "ya_legenda.mp4")
     wav = os.path.join(HERE, "_audio.f32")
     audio(scenes, total, voice=not a.clean).tofile(wav)
     extract_clips()
@@ -423,7 +458,7 @@ def main():
                            "-c:v", "libx264", "-crf", "23" if a.preview else "18", "-preset", "slow", "-tune", "animation",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
-    with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale, a.clean)) as pool:
+    with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale, a.clean, VOICE_DIR)) as pool:
         for k, fr in enumerate(pool.imap(render, range(nfr), chunksize=8)):
             ff.stdin.write(fr)
             if k % 300 == 0:
