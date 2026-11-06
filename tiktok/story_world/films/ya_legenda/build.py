@@ -27,7 +27,8 @@ FPS = 30
 W, H = 1080, 1920
 RUSSO = os.path.join(HERE, "fonts", "RussoOne-Regular.ttf")
 OSWALD = os.path.join(HERE, "fonts", "Oswald.ttf")
-WHITE, PURPLE, YELLOW, RED, BLACK = (255, 255, 255), (138, 61, 255), (255, 210, 58), (226, 38, 44), (0, 0, 0)
+PIXEL = os.path.join(HERE, "fonts", "PressStart2P-Regular.ttf")   # пиксельные субтитры, как в референсе
+WHITE, PURPLE, YELLOW, RED, BLACK = (255, 255, 255), (158, 88, 255), (255, 210, 58), (226, 38, 44), (0, 0, 0)
 GAP = 0.14                                  # пауза между фразами
 EXTRA_GAP = {25: 0.35, 26: 0.25, 28: 0.55}  # дольше после сцены N
 TAIL = 1.2                                  # конец после последней фразы
@@ -65,8 +66,34 @@ def font(path, size, bold=False):
     return f
 
 
-def sprite(text, size, color, stroke, path=RUSSO):
+def pixel_sprite(text, size, color):
+    """Пиксельное слово: шрифт 8 px без сглаживания, чёрная обводка в 1 «пиксель», увеличение без размытия.
+    size — примерная высота букв на экране; масштаб целый."""
+    k = max(2, round(size / 8))
+    f = ImageFont.truetype(PIXEL, 8)
+    w = int(f.getlength(text)) + 4
+    m = Image.new("L", (w, 12), 0)
+    ImageDraw.Draw(m).text((2, 2), text, font=f, fill=255, fontmode="1")
+    a = np.asarray(m) > 0
+    ring = np.zeros_like(a)
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            ring |= np.roll(np.roll(a, dy, 0), dx, 1)
+    sh = np.roll(np.roll(ring, 1, 0), 1, 1) & ~ring                  # тень вниз-вправо
+    rgba = np.zeros(a.shape + (4,), np.uint8)
+    rgba[sh] = (0, 0, 0, 150)
+    rgba[ring] = (0, 0, 0, 255)
+    rgba[a] = (*color, 255)
+    ys, xs = np.where(rgba[..., 3] > 0)
+    rgba = rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    im = Image.fromarray(rgba, "RGBA")
+    return im.resize((im.width * k, im.height * k), Image.NEAREST)
+
+
+def sprite(text, size, color, stroke, path=PIXEL):
     """Слово с обводкой → RGBA-картинка (кешируется вызывающим)."""
+    if path == PIXEL:
+        return pixel_sprite(text, size, color)
     f = font(path, size)
     x0, y0, x1, y1 = f.getbbox(text, stroke_width=stroke)
     im = Image.new("RGBA", (x1 - x0 + 4, y1 - y0 + 4), (0, 0, 0, 0))
@@ -246,12 +273,12 @@ def captions(frame, s, t):
         half = math.ceil(len(key) / 2)
         lines = [key[:half], key[half:]] if len(key) > 1 else [key]
         cols = [WHITE, PURPLE] if len(lines) == 2 else [PURPLE]
-        size = 118
+        size = 80
         for ln in lines:                              # ужать, если строка не влезает
             full = " ".join(w["text"] for w in ln)
-            while sprite(full, size, WHITE, 9).width > W - 90 and size > 60:
-                size -= 6
-        ys = [1120, 1120 + size + 6] if len(lines) == 2 else [1180]
+            while sprite(full, size, WHITE, 9).width > W - 90 and size > 24:
+                size -= 8
+        ys = [1120, 1120 + int(size * 1.35)] if len(lines) == 2 else [1180]
         for ln, col, y in zip(lines, cols, ys):
             shown = []
             for w in ln:
@@ -274,7 +301,7 @@ def captions(frame, s, t):
             cur = w
     if cur:
         sc, _ = pop(t, cur["t0"], 0.1)
-        paste(frame, spr(("w", cur["text"]), cur["text"], 70, WHITE, 7), W / 2, 1500, 1.0, sc)
+        paste(frame, spr(("w", cur["text"]), cur["text"], 48, WHITE, 7), W / 2, 1500, 1.0, sc)
 
 
 def labels(frame, s, t):
@@ -282,7 +309,7 @@ def labels(frame, s, t):
         t0 = s["start"] + 0.15 + 0.12 * j
         if t >= t0:
             sc, p = pop(t, t0, 0.15)
-            paste(frame, spr(("l", name), name.upper(), 44, YELLOW, 6), fx * W, fy * H, p, sc)
+            paste(frame, spr(("l", name), name.upper(), 32, YELLOW, 6), fx * W, fy * H, p, sc)
 
 
 def intro(frame, s, t):
@@ -315,8 +342,8 @@ def intro(frame, s, t):
         elif len(ws) == 2 and len(typed) > 2:
             typed = typed[:2] + " " + typed[2:]
         if typed:
-            fs = spr(("full", txt, size), txt, size, col, 10)
-            im = spr(("i", typed, col, size), typed, size, col, 10)
+            fs = spr(("ifull", txt, size), txt, size, col, 10, RUSSO)
+            im = spr(("i", typed, col, size), typed, size, col, 10, RUSSO)
             paste(frame, im, W / 2 - fs.width / 2 + im.width / 2, y)
 
 
