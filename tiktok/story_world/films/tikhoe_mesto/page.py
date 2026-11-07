@@ -4,7 +4,7 @@ import os
 import re
 
 from prompts import REFS, SCENES, REF_NAMES, full
-MISSING = [5, 6, 7, 8, 9, 10, 11, 12, 14]  # ещё нет картинок
+MISSING = []  # всё генерируется заново
 from script import SCENES as TEXT
 
 esc = html.escape
@@ -90,7 +90,7 @@ section {{ display: grid; gap: 14px; }}
   <div class="top">
     <span class="eyebrow">Сюжет фильма за минуту · выпуск 2</span>
     <h1>Тихое <span>место</span></h1>
-    <p class="sub">Промты для Google Flow: 5 образцов героев и 29 сцен. Формат 9:16.</p>
+    <p class="sub">Обновлённые промты для Google Flow: внешность героев и твари прописана в каждой сцене. 5 образцов и 29 сцен, формат 9:16.</p>
   </div>
 
   <section aria-labelledby="how">
@@ -98,17 +98,13 @@ section {{ display: grid; gap: 14px; }}
     <ol class="steps">
       <li>Во Flow выбери генерацию картинок (Nano Banana) и формат <b>9:16</b>.</li>
       <li>Сначала сделай образцы <b>R1–R5</b>. Выбери лучший вариант каждого и сохрани.</li>
-      <li>Модель выбери одну на все сцены. Когда получится первая удачная сцена, прикрепляй её ко всем следующим как <b>образец стиля</b> и дописывай в начало промта: «Match the art style, color palette and level of detail of the attached scene image exactly.»</li>
+      <li>Модель выбери <b>одну на все сцены</b> (лучше Nano Banana Pro) и не меняй до конца.</li>
+      <li><b>Сцену 01</b> делай только с образцами героев. Потом прикрепляй готовую 01 ко всем остальным сценам как <b>образец стиля</b> — фраза про стиль уже есть в начале каждого промта.</li>
+      <li>Для сцен с тварью (жёлтая плашка R5) дополнительно прикрепляй образец твари R5.</li>
       <li>Для каждой сцены прикрепи образцы с жёлтых плашек и вставь промт.</li>
       <li>Сохраняй картинки с номером сцены (01, 02 … 29) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
     </ol>
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
-  </section>
-
-  <section aria-labelledby="todo">
-    <h2 id="todo">Осталось сделать: 9 сцен</h2>
-    <p class="note">Промты обновлены: внешность героев и твари теперь прописана прямо в тексте. Прикрепляй образцы героев и сцену 25 как образец твари.</p>
-    {todo_html}
   </section>
 
   <section aria-labelledby="refs">
@@ -117,7 +113,7 @@ section {{ display: grid; gap: 14px; }}
   </section>
 
   <section aria-labelledby="scenes">
-    <h2 id="scenes">Готовые сцены (для перегенерации)</h2>
+    <h2 id="scenes">Сцены</h2>
     <span class="progress" id="progress"></span>
     {scenes_html}
   </section>
@@ -134,8 +130,8 @@ section {{ display: grid; gap: 14px; }}
     boxes.forEach(function (b) {{ document.getElementById('c-' + b.dataset.id).classList.toggle('is-done', b.checked); }});
   }}
   boxes.forEach(function (b) {{
-    b.checked = store('quiet-' + b.dataset.id) === '1';
-    b.addEventListener('change', function () {{ store('quiet-' + b.dataset.id, b.checked ? '1' : '0'); paint(); }});
+    b.checked = store('quiet2-' + b.dataset.id) === '1';
+    b.addEventListener('change', function () {{ store('quiet2-' + b.dataset.id, b.checked ? '1' : '0'); paint(); }});
   }});
   paint();
   document.querySelectorAll('.copy').forEach(function (btn) {{
