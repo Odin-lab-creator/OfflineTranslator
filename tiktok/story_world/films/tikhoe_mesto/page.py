@@ -90,7 +90,7 @@ section {{ display: grid; gap: 14px; }}
   <div class="top">
     <span class="eyebrow">Сюжет фильма за минуту · выпуск 2</span>
     <h1>Тихое <span>место</span></h1>
-    <p class="sub">Обновлённые промты для Google Flow: внешность героев и твари прописана в каждой сцене. 5 образцов и 29 сцен, формат 9:16.</p>
+    <p class="sub">Обновлённые промты для Google Flow: внешность героев и твари прописана в каждой сцене. 5 образцов и 30 сцен, формат 9:16.</p>
   </div>
 
   <section aria-labelledby="how">

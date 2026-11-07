@@ -41,52 +41,55 @@ SCENES = [
      "sister watches him, dusty toy aisle, soft daylight."),
     (5, "R1 R3 R4", "The father kneels and gently takes the batteries out of the toy shuttle, shaking his head, the "
      "little boy looks sad, the older sister stands behind them."),
-    (6, "R4", "A long old wooden bridge over a river in a forest, the little boy stands alone in the middle holding the "
+    (6, "R3 R4", "In the abandoned store the older sister secretly hands the toy space shuttle back to the little boy and "
+     "puts a finger to her lips, the removed batteries lie on the counter behind them and the little boy glances at them, "
+     "the father walks away in the background, soft daylight."),
+    (7, "R4", "A long old wooden bridge over a river in a forest, the little boy stands alone in the middle holding the "
      "toy shuttle that lights up and makes noise, the rest of the family far ahead, tense moment."),
-    (7, "R1", "The father runs desperately toward the camera along the bridge, arm reaching forward, face full of "
+    (8, "R1", "The father runs desperately toward the camera along the bridge, arm reaching forward, face full of "
      "horror, a dark blur of movement at the edge of the frame."),
-    (8, "", "Wide shot of an isolated farmhouse and a red barn among cornfields under a grey sky, a year later, quiet "
+    (9, "", "Wide shot of an isolated farmhouse and a red barn among cornfields under a grey sky, a year later, quiet "
      "and lonely, a lantern on the porch."),
-    (9, "R1", "A farm at dusk: paths of white sand lead between the house and the barn, strings of lightbulbs on poles, "
+    (10, "R1", "A farm at dusk: paths of white sand lead between the house and the barn, strings of lightbulbs on poles, "
      "a red warning bulb glows, the father walks barefoot on the sand path."),
-    (10, "R2", "The pregnant mother sits on the edge of a bed in a dim farmhouse bedroom, one hand on her belly, "
+    (11, "R2", "The pregnant mother sits on the edge of a bed in a dim farmhouse bedroom, one hand on her belly, "
      "looking at a baby crib, worried and tender, warm candle light."),
-    (11, "R3", "The deaf girl sits alone on a basement workbench full of radio parts and hearing devices, holding her "
+    (12, "R3", "The deaf girl sits alone on a basement workbench full of radio parts and hearing devices, holding her "
      "hearing implant, sad and angry, cold lamp light."),
-    (12, "R1 R3", "The father and his son stand by a loud waterfall in a forest, talking out loud, mist and spray "
+    (13, "R1 R3", "The father and his son stand by a loud waterfall in a forest, talking out loud, mist and spray "
      "around them, the son looks surprised that they can speak."),
-    (13, "R2", "Close shot on the wooden basement stairs: a big rusty nail sticks up from a step, the pregnant mother's "
+    (14, "R2", "Close shot on the wooden basement stairs: a big rusty nail sticks up from a step, the pregnant mother's "
      "bare foot is about to step on it, dim light, suspense."),
-    (14, "R2 R5", "The mother drops a picture frame that shatters on the floor, through the window behind her the "
+    (15, "R2 R5", "The mother drops a picture frame that shatters on the floor, through the window behind her the "
      "silhouette of a blind creature turns its head toward the house."),
-    (15, "R2", "The pregnant mother in labor flips a switch, red bulbs light up the whole farm around the house at "
+    (16, "R2", "The pregnant mother in labor flips a switch, red bulbs light up the whole farm around the house at "
      "night, she holds her belly in pain, biting her lip."),
-    (16, "R3", "Night: the son lights fireworks in a field, bright colorful fireworks burst over the cornfield, he "
+    (17, "R3", "Night: the son lights fireworks in a field, bright colorful fireworks burst over the cornfield, he "
      "runs away from them, dramatic."),
-    (17, "R2", "The mother lies in a bathtub in a dim bathroom with red light, giving birth silently, hand pressed over "
+    (18, "R2", "The mother lies in a bathtub in a dim bathroom with red light, giving birth silently, hand pressed over "
      "her own mouth, sweat and tears, a dark shape of a creature in the doorway behind the curtain."),
-    (18, "R3", "The girl and the boy climb onto the top of a tall grain silo at night, holding hands, the farm with red "
+    (19, "R3", "The girl and the boy climb onto the top of a tall grain silo at night, holding hands, the farm with red "
      "lights below them."),
-    (19, "R3", "Inside a grain silo, the boy sinks into the corn grain up to his chest, the girl pulls him out by the "
+    (20, "R3", "Inside a grain silo, the boy sinks into the corn grain up to his chest, the girl pulls him out by the "
      "arms with all her strength, grain pouring down."),
-    (20, "R3 R5", "Inside a dark grain silo, the blind creature recoils and twists in pain, the deaf girl in front of "
+    (21, "R3 R5", "Inside a dark grain silo, the blind creature recoils and twists in pain, the deaf girl in front of "
      "it holds her hand to her ear, sparks of sound in the air."),
-    (21, "R1 R5", "Night, the father stands in front of an old pickup truck where the children hide, the creature "
+    (22, "R1 R5", "Night, the father stands in front of an old pickup truck where the children hide, the creature "
      "attacks the truck, the father holds an axe, injured."),
-    (22, "R1 R3", "Close shot: the injured father looks at his daughter through the truck window and signs I love you "
+    (23, "R1 R3", "Close shot: the injured father looks at his daughter through the truck window and signs I love you "
      "with his hand, tears in his eyes, red light on his face."),
-    (23, "R3", "The deaf girl looks at her hearing implant in her palm with sudden realization, a light of hope in her "
+    (24, "R3", "The deaf girl looks at her hearing implant in her palm with sudden realization, a light of hope in her "
      "eyes, dim basement."),
-    (24, "R3 R2", "In the basement the girl holds her hearing implant to a microphone and turns the volume knob of a "
+    (25, "R3 R2", "In the basement the girl holds her hearing implant to a microphone and turns the volume knob of a "
      "radio amplifier to the maximum, the mother holds the baby and a shotgun behind her."),
-    (25, "R5", "Close shot: the blind creature in the basement doorway opens the armored plates on its head in pain, "
+    (26, "R5", "Close shot: the blind creature in the basement doorway opens the armored plates on its head in pain, "
      "revealing the soft vulnerable inner part, sound waves in the air."),
-    (26, "R2", "The mother fires a shotgun, a bright muzzle flash in the dark basement, determined face."),
-    (27, "R5", "Wide night shot of the farm, several blind creatures run through the cornfield toward the house, "
+    (27, "R2", "The mother fires a shotgun, a bright muzzle flash in the dark basement, determined face."),
+    (28, "R5", "Wide night shot of the farm, several blind creatures run through the cornfield toward the house, "
      "lit by red lights."),
-    (28, "R2 R3", "The mother cocks the shotgun with one sharp motion, the daughter stands beside her holding the "
+    (29, "R2 R3", "The mother cocks the shotgun with one sharp motion, the daughter stands beside her holding the "
      "hearing implant to the microphone, both look forward fearless, the baby sleeps in a box behind them."),
-    (29, "R3", "The deaf girl stands in a golden cornfield at dawn, finger to her lips, looking at the viewer, "
+    (30, "R3", "The deaf girl stands in a golden cornfield at dawn, finger to her lips, looking at the viewer, "
      "mysterious mood."),
 ]
 
