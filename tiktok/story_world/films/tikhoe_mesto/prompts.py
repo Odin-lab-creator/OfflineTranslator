@@ -90,12 +90,58 @@ SCENES = [
      "mysterious mood."),
 ]
 
+
+# полные описания героев — подставляются в каждую сцену, чтобы внешность не «плыла» между кадрами
+LOOKS = [
+    ("the deaf girl", "the deaf 12-year-old girl (short straight blonde bob hair, small grey hearing implant behind her ear, "
+     "blue denim jacket)"),
+    ("the girl", "the deaf 12-year-old girl (short straight blonde bob hair, small grey hearing implant behind her ear, "
+     "blue denim jacket)"),
+    ("the daughter", "the deaf 12-year-old girl (short straight blonde bob hair, small grey hearing implant behind her ear, "
+     "blue denim jacket)"),
+    ("older sister", "older sister, a 12-year-old girl with short straight blonde bob hair and a blue denim jacket,"),
+    ("the son", "the son (10-year-old boy with messy dark hair, green t-shirt)"),
+    ("the boy and", "the 10-year-old boy with messy dark hair in a green t-shirt and"),
+    ("The girl and the boy", "The deaf blonde girl in a denim jacket and her 10-year-old brother with messy dark hair"),
+    ("the boy sinks", "the 10-year-old boy with messy dark hair sinks"),
+    ("the little boy", "the little 4-year-old boy (light brown hair, blue t-shirt)"),
+    ("The little boy", "The little 4-year-old boy (light brown hair, blue t-shirt)"),
+    ("the pregnant mother", "the pregnant mother (long dark brown hair in a loose braid, grey cardigan, light dress)"),
+    ("The pregnant mother", "The pregnant mother (long dark brown hair in a loose braid, grey cardigan, light dress)"),
+    ("The mother", "The mother (long dark brown hair in a loose braid, grey cardigan)"),
+    ("the mother", "the mother (long dark brown hair in a loose braid, grey cardigan)"),
+    ("the father", "the father (bearded man in his late 30s, short brown hair, faded plaid flannel shirt)"),
+    ("The father", "The father (bearded man in his late 30s, short brown hair, faded plaid flannel shirt)"),
+    ("The injured father", "The injured father (bearded man, short brown hair, plaid flannel shirt)"),
+]
+CREATURE = ("a tall thin blind alien creature with dark grey armored skin, long spidery limbs, no eyes and a head of "
+            "layered armor plates (always the same creature design)")
+
 REF_NAMES = {r: n for r, n, _ in REFS}
 
 
 def full(prompt):
+    import re
+    if not prompt.startswith("Character reference"):
+        done = set()
+        for a, b in LOOKS:                                     # первое упоминание героя → полное описание
+            key = b.split(" (")[0].lower()
+            m = re.search(re.escape(a) + r"(?! \()", prompt, flags=re.I)
+            if m and key not in done:
+                rep = b[0].upper() + b[1:] if m.group()[0].isupper() else b
+                prompt = prompt[:m.start()] + rep + prompt[m.end():]
+                done.add(key)
+        if re.search(r"several blind creatures", prompt):
+            prompt = prompt.replace("several blind creatures", "several identical creatures, each " + CREATURE, 1)
+        else:
+            m = re.search(r"(a tall blind armored creature|the blind creature|a blind creature|the creature|a creature)",
+                          prompt, flags=re.I)
+            if m:
+                rep = CREATURE if m.group()[0].islower() else CREATURE[0].upper() + CREATURE[1:]
+                prompt = prompt[:m.start()] + rep + prompt[m.end():]
+        prompt = ("Match the art style, color palette and level of detail of the attached scene image exactly. "
+                  "Use the attached reference images for the characters. " + prompt)
     return f"{prompt} {STYLE}"
-
 
 if __name__ == "__main__":
     assert [n for n, *_ in SCENES] == [n for n, *_ in TEXT]

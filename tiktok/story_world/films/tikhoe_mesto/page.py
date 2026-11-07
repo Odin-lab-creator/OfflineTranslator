@@ -4,6 +4,7 @@ import os
 import re
 
 from prompts import REFS, SCENES, REF_NAMES, full
+MISSING = [5, 6, 7, 8, 9, 10, 11, 12, 14]  # ещё нет картинок
 from script import SCENES as TEXT
 
 esc = html.escape
@@ -31,10 +32,14 @@ def card(pid, head, chips, line, prompt):
 
 
 refs_html = "".join(card(r, f"{r} · {n}", [], "", full(p)) for r, n, p in REFS)
+todo_html = "".join(
+    card(f"s{n:02d}", f"Сцена {n:02d}", [f"{r} · {REF_NAMES[r]}" for r in refs.split()] or ["без образцов"],
+         voice(text[n]), full(p))
+    for n, refs, p in SCENES if n in MISSING)
 scenes_html = "".join(
     card(f"s{n:02d}", f"Сцена {n:02d}", [f"{r} · {REF_NAMES[r]}" for r in refs.split()] or ["без образцов"],
          voice(text[n]), full(p))
-    for n, refs, p in SCENES)
+    for n, refs, p in SCENES if n not in MISSING)
 
 page = f'''<title>Тихое место: промты</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -100,13 +105,19 @@ section {{ display: grid; gap: 14px; }}
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
   </section>
 
+  <section aria-labelledby="todo">
+    <h2 id="todo">Осталось сделать: 9 сцен</h2>
+    <p class="note">Промты обновлены: внешность героев и твари теперь прописана прямо в тексте. Прикрепляй образцы героев и сцену 25 как образец твари.</p>
+    {todo_html}
+  </section>
+
   <section aria-labelledby="refs">
     <h2 id="refs">Образцы героев</h2>
     {refs_html}
   </section>
 
   <section aria-labelledby="scenes">
-    <h2 id="scenes">Сцены</h2>
+    <h2 id="scenes">Готовые сцены (для перегенерации)</h2>
     <span class="progress" id="progress"></span>
     {scenes_html}
   </section>
