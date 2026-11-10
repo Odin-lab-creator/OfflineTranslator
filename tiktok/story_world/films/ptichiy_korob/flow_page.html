@@ -1,0 +1,420 @@
+<title>Птичий короб: промты</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Плёночная лента: тёмный зал кинотеатра, фиолетовые ключевые фразы и жёлтые имена, как в формате «Сюжет за минуту». Тема одна, тёмная, намеренно. */
+:root {
+  --bg: #0f0d14; --panel: #1a1622; --line: #2e2739; --fg: #ece8f2; --muted: #a39cb3;
+  --violet: #9b63ff; --gold: #ffcf3f; --ok: #5fd38a;
+  --display: "Russo One", "Arial Black", system-ui, sans-serif;
+  --body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+.top { display: grid; gap: 6px; }
+.eyebrow { font: 700 13px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+h1 { font: 400 clamp(34px, 9vw, 54px)/1 var(--display); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 span { color: var(--violet); }
+.sub { color: var(--muted); margin: 0; }
+h2 { font: 400 22px/1.2 var(--display); margin: 0; text-wrap: balance; }
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; color: var(--fg); }
+.steps b { color: var(--gold); font-weight: 700; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+section { display: grid; gap: 14px; }
+.progress { font: 500 13px/1 var(--mono); color: var(--muted); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.card.is-done { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.done { display: flex; align-items: center; gap: 10px; font: 400 18px/1 var(--display); cursor: pointer; }
+.done input { width: 20px; height: 20px; accent-color: var(--ok); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 700 12px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; color: var(--bg); background: var(--gold); padding: 5px 8px; border-radius: 4px; }
+.voice { margin: 0; font-style: italic; color: var(--muted); }
+.voice .key { color: var(--violet); font-style: normal; font-weight: 700; }
+.prompt { margin: 0; font: 13px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; color: var(--fg); user-select: all; }
+.copy { justify-self: start; font: 700 15px/1 var(--body); color: #fff; background: var(--violet); border: 0; border-radius: 6px; padding: 12px 16px; cursor: pointer; }
+.copy:focus-visible, .done input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.copy.ok { background: var(--ok); color: var(--bg); }
+@media (prefers-reduced-motion: no-preference) { .copy { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">Сюжет фильма за минуту · выпуск 3</span>
+    <h1>Птичий <span>короб</span></h1>
+    <p class="sub">Промты для Google Flow: внешность героев прописана в каждой сцене. 5 образцов и 30 сцен, формат 9:16.</p>
+  </div>
+
+  <section aria-labelledby="how">
+    <h2 id="how">Как генерировать</h2>
+    <ol class="steps">
+      <li>Во Flow выбери генерацию картинок (Nano Banana) и формат <b>9:16</b>.</li>
+      <li>Сначала сделай образцы <b>R1–R5</b>. Выбери лучший вариант каждого и сохрани.</li>
+      <li>Модель выбери <b>одну на все сцены</b> (лучше Nano Banana Pro) и не меняй до конца.</li>
+      <li><b>Сцену 01</b> делай только с образцами героев. Потом прикрепляй готовую 01 ко всем остальным сценам как <b>образец стиля</b> — фраза про стиль уже есть в начале каждого промта.</li>
+      <li>Тварей в фильме не видно — их не рисуем. Для сцен с птицами (жёлтая плашка R5) прикрепляй образец птиц.</li>
+      <li>Для каждой сцены прикрепи образцы с жёлтых плашек и вставь промт.</li>
+      <li>Сохраняй картинки с номером сцены (01, 02 … 29) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
+    </ol>
+    <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="refs">
+    <h2 id="refs">Образцы героев</h2>
+    
+<article class="card" id="c-R1">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R1" data-id="R1"><span>R1 · Малори</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R1">Character reference sheet. An original character: a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans, boots, a grey cloth blindfold hanging around her neck. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real actress. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R1">Копировать промт</button>
+</article>
+<article class="card" id="c-R2">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R2" data-id="R2"><span>R2 · Мальчик и Девочка</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R2">Character reference sheet. Two original characters side by side: a 5-year-old boy with short brown hair in a dark blue jacket; a 5-year-old girl with long light brown hair in a faded pink jacket; both have grey cloth blindfolds pushed up on their foreheads. Full body, front view, plain neutral grey background. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R2">Копировать промт</button>
+</article>
+<article class="card" id="c-R3">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R3" data-id="R3"><span>R3 · Том</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R3">Character reference sheet. An original character: a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket, jeans, boots. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real actor. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R3">Копировать промт</button>
+</article>
+<article class="card" id="c-R4">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R4" data-id="R4"><span>R4 · Олимпия и Гэри</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R4">Character reference sheet. Two original characters side by side: a shy pregnant young woman with curly blonde hair in a light floral dress; an unsettling man in his 50s with a receding grey hairline, wire glasses and a beige knitted sweater. Full body, front view, plain neutral grey background. Original designs, not resembling any real actors. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R4">Копировать промт</button>
+</article>
+<article class="card" id="c-R5">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R5" data-id="R5"><span>R5 · Птицы</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R5">Reference sheet: three small green and yellow budgerigar birds sitting in an open cardboard box with air holes, front view and top view side by side, plain neutral grey background. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R5">Копировать промт</button>
+</article>
+  </section>
+
+  <section aria-labelledby="scenes">
+    <h2 id="scenes">Сцены</h2>
+    <span class="progress" id="progress"></span>
+    
+<article class="card" id="c-s01">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s01" data-id="s01"><span>Сцена 01</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span><span class="chip">R5 · Птицы</span></div>
+  </header>
+  <p class="voice">«Птичий короб». Сюжет за минуту.</p>
+  <pre class="prompt" id="p-s01">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans), the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) and the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket), all wearing a grey cloth blindfold over the eyes, sit in a small wooden rowboat drifting on a wide misty river through a dark forest at dawn, Malorie rows, three small green and yellow budgerigar birds in a cardboard box with air holes at her feet. Keep the top third of the image as open sky for a title. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s01">Копировать промт</button>
+</article>
+<article class="card" id="c-s02">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s02" data-id="s02"><span>Сцена 02</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">Малори завязывает глаза двум детям: кто снимет повязку, <b class="key">тот умрёт</b>.</p>
+  <pre class="prompt" id="p-s02">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Inside a dim wooden riverside shed, Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) kneels and firmly ties a grey cloth blindfold over the eyes on the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket), the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) already blindfolded stands beside her, serious and scared, thin grey light through cracks in the walls. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s02">Копировать промт</button>
+</article>
+<article class="card" id="c-s03">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s03" data-id="s03"><span>Сцена 03</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span><span class="chip">R5 · Птицы</span></div>
+  </header>
+  <p class="voice">Им предстоит двое суток плыть по реке вслепую.</p>
+  <pre class="prompt" id="p-s03">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Wide shot: a small wooden rowboat with a blindfolded woman and two blindfolded children pushes off from a rocky shore into thick white fog on a river, a cardboard box with birds in the boat. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s03">Копировать промт</button>
+</article>
+<article class="card" id="c-s04">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s04" data-id="s04"><span>Сцена 04</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span></div>
+  </header>
+  <p class="voice">Пять лет назад мир накрыла странная эпидемия.</p>
+  <pre class="prompt" id="p-s04">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) stands in a cozy art studio full of canvases, watching a TV news report about mass panic in Europe, a paintbrush frozen in her hand, worried, warm lamp light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s04">Копировать промт</button>
+</article>
+<article class="card" id="c-s05">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s05" data-id="s05"><span>Сцена 05</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Люди видели что-то невидимое и <b class="key">сходили с ума</b>.</p>
+  <pre class="prompt" id="p-s05">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A city street in chaos: people stop and stare at the sky with frozen terrified faces, crashed cars, smoke, people running in panic, something invisible is near: leaves swirl in an unnatural wind and shadows move, no creature is shown, no violence. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s05">Копировать промт</button>
+</article>
+<article class="card" id="c-s06">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s06" data-id="s06"><span>Сцена 06</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Беременная Малори чудом спасается в чужом доме.</p>
+  <pre class="prompt" id="p-s06">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) runs toward the front door of a big suburban house through a chaotic street, Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket) holds the door open and reaches out his hand to her, urgent. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s06">Копировать промт</button>
+</article>
+<article class="card" id="c-s07">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s07" data-id="s07"><span>Сцена 07</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Там прячутся незнакомые друг другу люди.</p>
+  <pre class="prompt" id="p-s07">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Inside a dim living room of a big house, a group of tense strangers (a grumpy older man with grey hair, a young woman, a middle-aged man in a suit) sit apart from each other, Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) and Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket) among them, candles, windows covered. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s07">Копировать промт</button>
+</article>
+<article class="card" id="c-s08">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s08" data-id="s08"><span>Сцена 08</span></label>
+    <div class="chips"><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Окна закрывают одеялами, а на улицу выходят <b class="key">только с повязкой</b>.</p>
+  <pre class="prompt" id="p-s08">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket) and other survivors tape thick blankets and newspapers over all the windows of a big house, thin lines of daylight through the gaps, tense. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s08">Копировать промт</button>
+</article>
+<article class="card" id="c-s09">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s09" data-id="s09"><span>Сцена 09</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Один решил посмотреть на тварей через камеры и не выжил.</p>
+  <pre class="prompt" id="p-s09">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A dark room lit only by security camera monitors, a man in a sweater leans close to the screens showing an empty garden where leaves swirl strangely, his face frozen in fear. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s09">Копировать промт</button>
+</article>
+<article class="card" id="c-s10">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s10" data-id="s10"><span>Сцена 10</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">За едой едут вслепую, по датчикам машины.</p>
+  <pre class="prompt" id="p-s10">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A car with all windows painted black drives slowly down an empty road full of abandoned cars; inside, Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket) drives using only the GPS screen and car sensors, Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) sits beside him holding her breath. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s10">Копировать промт</button>
+</article>
+<article class="card" id="c-s11">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s11" data-id="s11"><span>Сцена 11</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R5 · Птицы</span></div>
+  </header>
+  <p class="voice">В магазине находят птиц: они <b class="key">чуют тварей</b> и начинают кричать.</p>
+  <pre class="prompt" id="p-s11">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Inside an empty dusty supermarket, Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) carefully holds three small green and yellow budgerigar birds in a cardboard box with air holes in her hands, the birds chirping loudly, dim light through dirty windows. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s11">Копировать промт</button>
+</article>
+<article class="card" id="c-s12">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s12" data-id="s12"><span>Сцена 12</span></label>
+    <div class="chips"><span class="chip">R4 · Олимпия и Гэри</span><span class="chip">R1 · Малори</span></div>
+  </header>
+  <p class="voice">В дом пускают ещё одну беременную — Олимпию.</p>
+  <pre class="prompt" id="p-s12">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Olympia (a shy pregnant young woman with curly blonde hair in a light floral dress) stands at the front door of the house, scared and shivering, Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) opens the door for her. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s12">Копировать промт</button>
+</article>
+<article class="card" id="c-s13">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s13" data-id="s13"><span>Сцена 13</span></label>
+    <div class="chips"><span class="chip">R4 · Олимпия и Гэри</span></div>
+  </header>
+  <p class="voice">А следом — незнакомца Гэри.</p>
+  <pre class="prompt" id="p-s13">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Gary (an unsettling man in his 50s with a receding grey hairline, wire glasses and a beige knitted sweater) stands on the doorstep of the house at dusk, smiling politely, survivors look at him suspiciously from the doorway. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s13">Копировать промт</button>
+</article>
+<article class="card" id="c-s14">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s14" data-id="s14"><span>Сцена 14</span></label>
+    <div class="chips"><span class="chip">R4 · Олимпия и Гэри</span></div>
+  </header>
+  <p class="voice">Гэри оказывается безумцем: таких твари <b class="key">не убивают</b>.</p>
+  <pre class="prompt" id="p-s14">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Close shot: a sketchbook full of eerie pencil drawings of twisted shapes on Gary (an unsettling man in his 50s with a receding grey hairline, wire glasses and a beige knitted sweater)&#x27;s lap, he smiles strangely, dim candle light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s14">Копировать промт</button>
+</article>
+<article class="card" id="c-s15">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s15" data-id="s15"><span>Сцена 15</span></label>
+    <div class="chips"><span class="chip">R4 · Олимпия и Гэри</span></div>
+  </header>
+  <p class="voice">Он срывает одеяла с окон, и почти все в доме гибнут.</p>
+  <pre class="prompt" id="p-s15">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Gary (an unsettling man in his 50s with a receding grey hairline, wire glasses and a beige knitted sweater) rips the blankets off the living room windows, bright daylight floods in, survivors cover their eyes and scream, outside something invisible is near: leaves swirl in an unnatural wind and shadows move, no creature is shown, no violence. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s15">Копировать промт</button>
+</article>
+<article class="card" id="c-s16">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s16" data-id="s16"><span>Сцена 16</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R4 · Олимпия и Гэри</span></div>
+  </header>
+  <p class="voice">В тот же день Малори и Олимпия рожают.</p>
+  <pre class="prompt" id="p-s16">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a pregnant woman in her late 30s with shoulder-length dark brown hair, grey cardigan over a dark blue dress) and Olympia (a shy pregnant young woman with curly blonde hair in a light floral dress) are both in labor in a dim upstairs bedroom, holding each other&#x27;s hands, scared, blankets over the windows, candle light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s16">Копировать промт</button>
+</article>
+<article class="card" id="c-s17">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s17" data-id="s17"><span>Сцена 17</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Олимпия погибает. Малори и Том остаются с двумя малышами.</p>
+  <pre class="prompt" id="p-s17">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) and Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket) each hold a newborn baby wrapped in blankets in a dark quiet house, exhausted and grieving, candle light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s17">Копировать промт</button>
+</article>
+<article class="card" id="c-s18">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s18" data-id="s18"><span>Сцена 18</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Пять лет спустя по рации их зовут в убежище вниз по реке.</p>
+  <pre class="prompt" id="p-s18">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Five years later: Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket), Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans), the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) and the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket) sit around an old radio in a boarded-up house, listening to a man&#x27;s voice, hope on their faces, candle light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s18">Копировать промт</button>
+</article>
+<article class="card" id="c-s19">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s19" data-id="s19"><span>Сцена 19</span></label>
+    <div class="chips"><span class="chip">R3 · Том</span></div>
+  </header>
+  <p class="voice">Том погибает, защищая семью от безумцев.</p>
+  <pre class="prompt" id="p-s19">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Tom (a kind man in his late 30s with dark skin, short black hair and a short beard, brown canvas jacket), wearing a grey cloth blindfold over the eyes, bravely fights two wild-eyed men in the overgrown backyard of the house, protecting the family, dramatic, not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s19">Копировать промт</button>
+</article>
+<article class="card" id="c-s20">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s20" data-id="s20"><span>Сцена 20</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span><span class="chip">R5 · Птицы</span></div>
+  </header>
+  <p class="voice">Малори сажает детей в лодку.</p>
+  <pre class="prompt" id="p-s20">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. At a misty riverbank, Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) lifts blindfolded the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) into a small wooden rowboat, blindfolded the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket) holds three small green and yellow budgerigar birds in a cardboard box with air holes. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s20">Копировать промт</button>
+</article>
+<article class="card" id="c-s21">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s21" data-id="s21"><span>Сцена 21</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">С берега безумец уговаривает их снять повязки.</p>
+  <pre class="prompt" id="p-s21">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A wild-eyed man stands on the foggy riverbank shouting to the boat, blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) rows hard, the blindfolded children hug each other. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s21">Копировать промт</button>
+</article>
+<article class="card" id="c-s22">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s22" data-id="s22"><span>Сцена 22</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">Впереди пороги, и кто-то <b class="key">должен посмотреть</b>.</p>
+  <pre class="prompt" id="p-s22">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) in the rowboat listens to roaring rapids ahead, white water and rocks in front of them, she holds the blindfolded children close, a tense decision. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s22">Копировать промт</button>
+</article>
+<article class="card" id="c-s23">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s23" data-id="s23"><span>Сцена 23</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">Малори не готова жертвовать детьми, и они плывут вслепую.</p>
+  <pre class="prompt" id="p-s23">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. The small rowboat with blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans), the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) and the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket) plunges into wild white-water rapids, spray everywhere, dramatic. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s23">Копировать промт</button>
+</article>
+<article class="card" id="c-s24">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s24" data-id="s24"><span>Сцена 24</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">Лодка переворачивается, но все выбираются на берег.</p>
+  <pre class="prompt" id="p-s24">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) drags the soaked blindfolded children onto a rocky riverbank, the capsized boat behind them, exhausted but alive. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s24">Копировать промт</button>
+</article>
+<article class="card" id="c-s25">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s25" data-id="s25"><span>Сцена 25</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">В лесу твари шепчут голосами близких.</p>
+  <pre class="prompt" id="p-s25">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A dark forest: blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) holds the hands of the blindfolded children, something invisible is near: leaves swirl in an unnatural wind and shadows move, no creature is shown, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s25">Копировать промт</button>
+</article>
+<article class="card" id="c-s26">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s26" data-id="s26"><span>Сцена 26</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span></div>
+  </header>
+  <p class="voice">Мальчик теряется, и Малори в отчаянии зовёт его.</p>
+  <pre class="prompt" id="p-s26">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) crawls on the forest floor among roots and ferns, calling out desperately, one hand reaching forward, misty forest. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s26">Копировать промт</button>
+</article>
+<article class="card" id="c-s27">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s27" data-id="s27"><span>Сцена 27</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span><span class="chip">R5 · Птицы</span></div>
+  </header>
+  <p class="voice">Их выводит пение птиц.</p>
+  <pre class="prompt" id="p-s27">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Blindfolded Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) and the blindfolded children walk through the forest following the chirping of three small green and yellow budgerigar birds in a cardboard box with air holes that she carries, soft light rays through the trees. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s27">Копировать промт</button>
+</article>
+<article class="card" id="c-s28">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s28" data-id="s28"><span>Сцена 28</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Убежище оказывается <b class="key">школой для слепых</b>.</p>
+  <pre class="prompt" id="p-s28">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. The gates of an old school with a stone wall among trees, blind people with white canes in the yard, hundreds of birds flying over the courtyard, safe and peaceful, sunlight. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s28">Копировать промт</button>
+</article>
+<article class="card" id="c-s29">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s29" data-id="s29"><span>Сцена 29</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span><span class="chip">R2 · Мальчик и Девочка</span></div>
+  </header>
+  <p class="voice">И Малори впервые даёт детям имена — Том и Олимпия.</p>
+  <pre class="prompt" id="p-s29">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. In a bright school courtyard full of free-flying birds, Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) without a blindfold hugs the Boy (a 5-year-old boy with short brown hair in a dark blue jacket) and the Girl (a 5-year-old girl with long light brown hair in a faded pink jacket), both without blindfolds, tears of joy, warm sunlight. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s29">Копировать промт</button>
+</article>
+<article class="card" id="c-s30">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s30" data-id="s30"><span>Сцена 30</span></label>
+    <div class="chips"><span class="chip">R1 · Малори</span></div>
+  </header>
+  <p class="voice">А ты смог бы прожить пять лет с завязанными глазами? Пиши в комментариях!</p>
+  <pre class="prompt" id="p-s30">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Malorie (a tough woman in her late 30s with shoulder-length dark brown hair tied back, olive green jacket, dark jeans) with the blindfold lowered around her neck looks straight at the viewer, a misty river behind her, birds flying, mysterious hopeful mood. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s30">Копировать промт</button>
+</article>
+  </section>
+</div>
+
+<script>
+(function () {
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.done input'));
+  function paint() {
+    var scenes = boxes.filter(function (b) { return b.dataset.id.charAt(0) === 's'; });
+    var n = scenes.filter(function (b) { return b.checked; }).length;
+    document.getElementById('progress').textContent = 'Готово сцен: ' + n + ' из ' + scenes.length;
+    boxes.forEach(function (b) { document.getElementById('c-' + b.dataset.id).classList.toggle('is-done', b.checked); });
+  }
+  boxes.forEach(function (b) {
+    b.checked = store('birdbox-' + b.dataset.id) === '1';
+    b.addEventListener('change', function () { store('birdbox-' + b.dataset.id, b.checked ? '1' : '0'); paint(); });
+  });
+  paint();
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.dataset.target);
+      function done() { btn.textContent = 'Скопировано'; btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = 'Копировать промт'; btn.classList.remove('ok'); }, 1600); }
+      function fallback() { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'Текст выделен, скопируй вручную'; }
+      try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+    });
+  });
+})();
+</script>
