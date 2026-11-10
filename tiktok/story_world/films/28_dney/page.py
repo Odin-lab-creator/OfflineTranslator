@@ -33,11 +33,11 @@ def card(pid, head, chips, line, prompt):
 
 refs_html = "".join(card(r, f"{r} · {n}", [], "", full(p)) for r, n, p in REFS)
 todo_html = "".join(
-    card(f"s{n:02d}", f"Сцена {n:02d}", [],
+    card(f"s{n:02d}", f"Сцена {n:02d}", [f"{r} · {REF_NAMES[r]}" for r in refs.split()] or ["без образцов"],
          voice(text[n]), full(p, n))
     for n, refs, p in SCENES if n in MISSING)
 scenes_html = "".join(
-    card(f"s{n:02d}", f"Сцена {n:02d}", [],
+    card(f"s{n:02d}", f"Сцена {n:02d}", [f"{r} · {REF_NAMES[r]}" for r in refs.split()] or ["без образцов"],
          voice(text[n]), full(p, n))
     for n, refs, p in SCENES if n not in MISSING)
 
@@ -90,19 +90,26 @@ section {{ display: grid; gap: 14px; }}
   <div class="top">
     <span class="eyebrow">Сюжет фильма за минуту · выпуск 3</span>
     <h1>28 дней <span>спустя</span></h1>
-    <p class="sub">Промты для Google Flow без прикреплённых картинок: стиль и внешность героев прописаны в каждой сцене. 30 сцен, формат 9:16.</p>
+    <p class="sub">Промты для Google Flow: внешность героев и заражённых прописана в каждой сцене. 5 образцов и 30 сцен, формат 9:16.</p>
   </div>
 
   <section aria-labelledby="how">
     <h2 id="how">Как генерировать</h2>
     <ol class="steps">
-      <li>Во Flow выбери генерацию картинок, модель <b>Nano Banana Pro</b>, формат <b>9:16</b>, <b>x1</b>. Модель не меняй до конца.</li>
-      <li><b>Ничего прикреплять не нужно.</b> Стиль и внешность героев уже описаны в каждом промте.</li>
-      <li>Нажми «Копировать промт», вставь во Flow, сгенерируй.</li>
-      <li>Готовую картинку скачай (⋮ → Скачать) и отметь сцену галочкой.</li>
-      <li>Присылай картинки сюда, номер сцены я определю сам. Голос, субтитры и сборку сделаю я.</li>
+      <li>Во Flow выбери генерацию картинок (Nano Banana) и формат <b>9:16</b>.</li>
+      <li>Сначала сделай образцы <b>R1–R5</b>. Выбери лучший вариант каждого и сохрани.</li>
+      <li>Модель выбери <b>одну на все сцены</b> (лучше Nano Banana Pro) и не меняй до конца.</li>
+      <li><b>Сцену 01</b> делай только с образцами героев. Дальше ко всем сценам прикрепляй <b>одну удачную сцену как образец стиля</b> (например, лабораторию 02) — фраза про стиль уже есть в начале каждого промта.</li>
+      <li>Для сцен с заражёнными (жёлтая плашка R4) обязательно прикрепляй образец заражённого R4.</li>
+      <li>Для каждой сцены прикрепи образцы с жёлтых плашек и вставь промт.</li>
+      <li>Сохраняй картинки с номером сцены (01, 02 … 29) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
     </ol>
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="refs">
+    <h2 id="refs">Образцы героев</h2>
+    {refs_html}
   </section>
 
   <section aria-labelledby="scenes">
@@ -123,8 +130,8 @@ section {{ display: grid; gap: 14px; }}
     boxes.forEach(function (b) {{ document.getElementById('c-' + b.dataset.id).classList.toggle('is-done', b.checked); }});
   }}
   boxes.forEach(function (b) {{
-    b.checked = store('days28-' + b.dataset.id) === '1';
-    b.addEventListener('change', function () {{ store('days28-' + b.dataset.id, b.checked ? '1' : '0'); paint(); }});
+    b.checked = store('days28b-' + b.dataset.id) === '1';
+    b.addEventListener('change', function () {{ store('days28b-' + b.dataset.id, b.checked ? '1' : '0'); paint(); }});
   }});
   paint();
   document.querySelectorAll('.copy').forEach(function (btn) {{
