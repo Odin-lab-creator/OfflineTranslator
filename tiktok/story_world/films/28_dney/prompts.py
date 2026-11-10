@@ -46,9 +46,11 @@ REFS = [
 
 # (№, образцы, промт сцены)
 SCENES = [
-    (1, "R1", f"{JIM_H} stands alone in the middle of an empty Westminster Bridge in London at dawn, an overturned red "
-     "double-decker bus, scattered papers on the road, Big Ben in grey morning mist behind him. Keep the top third of "
-     "the image as open sky for a title."),
+    (1, "R1", f"Cinematic wide shot from a low angle: {JIM_H} walks alone, small in the frame, across an empty "
+     "Westminster Bridge in London at dawn, looking around in confusion, one hand raised to his head. An overturned red "
+     "double-decker bus lies on its side, papers blow across the road, abandoned cars, Big Ben and the Houses of "
+     "Parliament in grey morning mist, pale golden light breaking through the clouds, atmospheric fog. Keep the top "
+     "third of the image as open sky for a title."),
     (2, "", "Night, a secret primate research laboratory: animal rights activists in dark hoodies and balaclavas break "
      "into the lab, rows of cages with chimpanzees, monitors on the wall, cold blue light."),
     (3, "", "Close shot: a frightened scientist in a white lab coat raises his hands and shouts a warning, behind him a "
@@ -116,20 +118,20 @@ REF_NAMES = {r: n for r, n, _ in REFS}
 def full(prompt, n=0):
     if prompt.startswith("Character reference"):
         return f"{prompt} {STYLE}"
-    head = "Use the attached reference images for the characters. "
-    if n != 1:
-        head = ("Match the art style, color palette and level of detail of the attached scene image exactly. " + head)
+    head = ("Match the art style, color palette and level of detail of the attached scene image exactly: detailed "
+            "cinematic pixel art with rich textures, soft atmospheric light and a natural, dynamic composition. "
+            "Use the attached character reference images only for faces, hair and clothes, not for poses or art style; "
+            "this is a movie scene, not a character sheet. ")
     style = STYLE
     if "HELLO" in prompt:
         style = style.replace("no text, no letters,", "no other text except the word HELLO on the grass,")
     return f"{head}{prompt} {style}"
 
-
 if __name__ == "__main__":
     assert [n for n, *_ in SCENES] == [n for n, *_ in TEXT]
     text = {n: t.replace("**", "") for n, _, t in TEXT}
     out = ["# «28 дней спустя» · промты для Google Flow (Nano Banana)", "",
-           "Формат 9:16. Сначала образцы R1–R5. Сцену 01 делай только с образцами героев,",
+           "Формат 9:16. Сначала образцы R1–R5. К сцене 01 прикрепи образец стиля style/style_ref.png,",
            "дальше прикрепляй готовую сцену 01 как образец стиля.", "", "## Образцы героев", ""]
     for r, nm, p in REFS:
         out += [f"### {r} · {nm}", "", full(p), ""]
