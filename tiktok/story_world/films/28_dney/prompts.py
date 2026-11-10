@@ -6,9 +6,10 @@ import os
 
 from script import SCENES as TEXT
 
-STYLE = ("Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, "
-         "rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, "
-         "no text, no letters, no logos, no watermark.")
+STYLE = ("Detailed pixel art illustration in the style of a modern 16-bit retro game: small crisp pixels, fine "
+         "dithering, richly detailed backgrounds and textures, cinematic lighting with deep blue and teal shadows and "
+         "warm or red accent lights, muted desaturated colors, natural dynamic composition like a movie still, "
+         "vertical 9:16 composition, no text, no letters, no logos, no watermark.")
 
 JIM = ("Jim (a thin young man in his late 20s with short buzzed dark hair and light stubble, dark grey jacket over a "
        "white t-shirt, jeans)")
@@ -116,23 +117,19 @@ REF_NAMES = {r: n for r, n, _ in REFS}
 
 
 def full(prompt, n=0):
+    """Промт без прикреплённых картинок: стиль и внешность героев целиком описаны текстом."""
     if prompt.startswith("Character reference"):
         return f"{prompt} {STYLE}"
-    head = ("Match the art style, color palette and level of detail of the attached scene image exactly: detailed "
-            "cinematic pixel art with rich textures, soft atmospheric light and a natural, dynamic composition. "
-            "Use the attached character reference images only for faces, hair and clothes, not for poses or art style; "
-            "this is a movie scene, not a character sheet. ")
     style = STYLE
     if "HELLO" in prompt:
         style = style.replace("no text, no letters,", "no other text except the word HELLO on the grass,")
-    return f"{head}{prompt} {style}"
+    return f"Movie scene from a dark post-apocalyptic film. {prompt} {style}"
 
 if __name__ == "__main__":
     assert [n for n, *_ in SCENES] == [n for n, *_ in TEXT]
     text = {n: t.replace("**", "") for n, _, t in TEXT}
     out = ["# «28 дней спустя» · промты для Google Flow (Nano Banana)", "",
-           "Формат 9:16. Сначала образцы R1–R5. К сцене 01 прикрепи образец стиля style/style_ref.png,",
-           "дальше прикрепляй готовую сцену 01 как образец стиля.", "", "## Образцы героев", ""]
+           "Формат 9:16. Ничего прикреплять не нужно: стиль и внешность героев описаны в каждом промте.", "", "## Образцы героев", ""]
     for r, nm, p in REFS:
         out += [f"### {r} · {nm}", "", full(p), ""]
     out += ["## Сцены", ""]
