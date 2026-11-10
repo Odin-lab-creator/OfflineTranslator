@@ -7,8 +7,9 @@ import os
 from script import SCENES as TEXT
 
 STYLE = ("Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, "
-         "rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, "
-         "no text, no letters, no logos, no watermark.")
+         "rich detail, cinematic lighting, vertical 9:16 composition. One consistent color grade for the whole film: "
+         "desaturated, slightly cold grey-green tones like faded early-2000s digital video, red is the only strong "
+         "accent color. No text, no letters, no logos, no watermark.")
 
 JIM = ("Jim (a thin young man in his late 20s with short buzzed dark hair and light stubble, dark grey jacket over a "
        "white t-shirt, jeans)")
@@ -52,7 +53,7 @@ SCENES = [
      "Parliament in grey morning mist, pale golden light breaking through the clouds, atmospheric fog. Keep the top "
      "third of the image as open sky for a title."),
     (2, "", "Night, a secret primate research laboratory: animal rights activists in dark hoodies and balaclavas break "
-     "into the lab, rows of cages with chimpanzees, monitors on the wall, cold blue light."),
+     "into the lab, rows of cages with chimpanzees, monitors on the wall, dim cold light."),
     (3, "", "Close shot: a frightened scientist in a white lab coat raises his hands and shouts a warning, behind him a "
      "chimpanzee with glowing blood-red eyes rattles its cage, red alarm light."),
     (4, "R4", f"A young adult female activist in a dark hoodie and jeans convulses and turns into {INF1}, her eyes "
@@ -122,7 +123,7 @@ def full(prompt, n=0):
         return f"{prompt} {STYLE}"
     style = STYLE
     if "HELLO" in prompt:
-        style = style.replace("no text, no letters,", "no other text except the word HELLO on the grass,")
+        style = style.replace("No text, no letters,", "No other text except the word HELLO on the grass,")
     return ("Match the art style, color palette and level of detail of the attached scene image exactly. "
             f"Use the attached reference images for the characters. {prompt} {style}")
 
