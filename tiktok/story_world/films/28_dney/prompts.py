@@ -6,10 +6,11 @@ import os
 
 from script import SCENES as TEXT
 
-STYLE = ("Detailed pixel art illustration in the style of a modern 16-bit retro game: small crisp pixels, fine "
-         "dithering, richly detailed backgrounds and textures, cinematic lighting with deep blue and teal shadows and "
-         "warm or red accent lights, muted desaturated colors, natural dynamic composition like a movie still, "
-         "vertical 9:16 composition, no text, no letters, no logos, no watermark.")
+STYLE = ("Dark cinematic high-resolution pixel art, like a still from a serious modern indie horror adventure game: "
+         "small crisp pixels, fine dithering, richly detailed backgrounds and textures, realistic adult human proportions "
+         "and realistic faces, cinematic lighting with deep blue and teal shadows and warm or red accent lights, muted "
+         "desaturated colors, natural dynamic composition like a movie still, vertical 9:16 composition. "
+         "Not chibi, not anime, not cartoon, not cute, no big heads. No text, no letters, no logos, no watermark.")
 
 JIM = ("Jim (a thin young man in his late 20s with short buzzed dark hair and light stubble, dark grey jacket over a "
        "white t-shirt, jeans)")
@@ -56,8 +57,9 @@ SCENES = [
      "into the lab, rows of cages with chimpanzees, monitors on the wall, cold blue light."),
     (3, "", "Close shot: a frightened scientist in a white lab coat raises his hands and shouts a warning, behind him a "
      "chimpanzee with glowing blood-red eyes rattles its cage, red alarm light."),
-    (4, "R4", f"A young female activist in a hoodie convulses and turns into {INF1}, her eyes glowing blood red, other "
-     "activists back away in horror, dark lab, red alarm light, not gory."),
+    (4, "R4", f"A young adult female activist in a dark hoodie and jeans convulses and turns into {INF1}, her eyes "
+     "glowing blood red, two adult activists in dark hoodies and balaclavas back away in horror, dark primate lab with "
+     "cages, red alarm light, horror atmosphere, not gory."),
     (5, "R1", f"{JIM_H} wakes up in an abandoned hospital room, pulling an IV drip from his arm, empty beds, scattered "
      "medical papers, cold daylight through dirty blinds."),
     (6, "R1", f"Wide shot: {JIM_H} walks alone through empty central London, Piccadilly Circus with dark dead "
