@@ -9,8 +9,8 @@ import os
 from script import SCENES as TEXT
 
 STYLE = ("Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, "
-         "rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense "
-         "mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.")
+         "rich detail, cinematic lighting, slightly muted colors, subtle suspense mood, all people have natural "
+         "warm human skin tones (never blue or grey skin), colors and light match the time of day of the scene, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.")
 
 DEREK = ("Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, "
          "khaki trousers)")
