@@ -1,0 +1,565 @@
+<title>Наблюдатель: промты</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Плёночная лента: тёмный зал кинотеатра, фиолетовые ключевые фразы и жёлтые имена, как в роликах канала. Тема одна, тёмная, намеренно. */
+:root {
+  --bg: #0f0d14; --panel: #1a1622; --line: #2e2739; --fg: #ece8f2; --muted: #a39cb3;
+  --violet: #9b63ff; --gold: #ffcf3f; --ok: #5fd38a;
+  --display: "Russo One", "Arial Black", system-ui, sans-serif;
+  --body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+.top { display: grid; gap: 6px; }
+.eyebrow { font: 700 13px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+h1 { font: 400 clamp(34px, 9vw, 54px)/1 var(--display); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 span { color: var(--violet); }
+.sub { color: var(--muted); margin: 0; }
+h2 { font: 400 22px/1.2 var(--display); margin: 0; text-wrap: balance; }
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; color: var(--fg); }
+.steps b { color: var(--gold); font-weight: 700; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+section { display: grid; gap: 14px; }
+.progress { font: 500 13px/1 var(--mono); color: var(--muted); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.card.is-done { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.done { display: flex; align-items: center; gap: 10px; font: 400 18px/1 var(--display); cursor: pointer; }
+.done input { width: 20px; height: 20px; accent-color: var(--ok); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 700 12px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; color: var(--bg); background: var(--gold); padding: 5px 8px; border-radius: 4px; }
+.voice { margin: 0; font-style: italic; color: var(--muted); }
+.voice .key { color: var(--violet); font-style: normal; font-weight: 700; }
+.prompt { margin: 0; font: 13px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; color: var(--fg); user-select: all; }
+.copy { justify-self: start; font: 700 15px/1 var(--body); color: #fff; background: var(--violet); border: 0; border-radius: 6px; padding: 12px 16px; cursor: pointer; }
+.copy:focus-visible, .done input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.copy.ok { background: var(--ok); color: var(--bg); }
+@media (prefers-reduced-motion: no-preference) { .copy { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">True Crime History расскажет · дело 1</span>
+    <h1>Наблю<span>датель</span></h1>
+    <p class="sub">Промты для Google Flow: внешность героев прописана в каждой сцене. 5 образцов и 46 сцен, формат 9:16.</p>
+  </div>
+
+  <section aria-labelledby="how">
+    <h2 id="how">Как генерировать</h2>
+    <ol class="steps">
+      <li>Во Flow выбери генерацию картинок (Nano Banana) и формат <b>9:16</b>.</li>
+      <li>Сначала сделай образцы <b>R1–R5</b> (Дерек, Мария, дети, дом, письмо). Выбери лучший вариант каждого и сохрани.</li>
+      <li>Модель выбери <b>одну на все сцены</b> (лучше Nano Banana Pro) и не меняй до конца.</li>
+      <li><b>Сцену 01</b> делай только с образцами героев. Потом прикрепляй готовую 01 ко всем остальным сценам как <b>образец стиля</b> — фраза про стиль уже есть в начале каждого промта.</li>
+      <li><b>Наблюдателя не показываем</b>: только тёмный силуэт без лица, тень или фары. Если Flow нарисовал ему лицо — перегенерируй.</li>
+      <li>Дом (R4) прикрепляй во все сцены, где он есть, чтобы он везде был одинаковый.</li>
+      <li>Для каждой сцены прикрепи образцы с жёлтых плашек и вставь промт.</li>
+      <li>Сохраняй картинки с номером сцены (01, 02 … 46) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
+    </ol>
+    <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="refs">
+    <h2 id="refs">Образцы героев</h2>
+    
+<article class="card" id="c-R1">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R1" data-id="R1"><span>R1 · Дерек</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R1">Character reference sheet. An original character: a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers, brown shoes. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real person. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R1">Копировать промт</button>
+</article>
+<article class="card" id="c-R2">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R2" data-id="R2"><span>R2 · Мария</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R2">Character reference sheet. An original character: a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan over a white top, dark jeans, ankle boots. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real person. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R2">Копировать промт</button>
+</article>
+<article class="card" id="c-R3">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R3" data-id="R3"><span>R3 · Дети</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R3">Character reference sheet. Three original children side by side: a 10-year-old girl with long brown hair in a red hoodie; an 8-year-old boy with short brown hair in a green striped t-shirt; a 5-year-old boy with blond hair in a light blue t-shirt. Full body, front view, plain neutral grey background. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R3">Копировать промт</button>
+</article>
+<article class="card" id="c-R4">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R4" data-id="R4"><span>R4 · Дом</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R4">Reference sheet: a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn, a mailbox at the curb. Front view and three-quarter view side by side, daylight. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R4">Копировать промт</button>
+</article>
+<article class="card" id="c-R5">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R5" data-id="R5"><span>R5 · Письмо</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R5">Reference sheet: a typewritten letter on white paper with tiny illegible typed lines, folded in three, next to a plain white envelope without a return address, on a dark wooden table, top view, plain background. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R5">Копировать промт</button>
+</article>
+  </section>
+
+  <section aria-labelledby="scenes">
+    <h2 id="scenes">Сцены</h2>
+    <span class="progress" id="progress"></span>
+    
+<article class="card" id="c-s01">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s01" data-id="s01"><span>Сцена 01</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Наблюдатель». True Crime History расскажет.</p>
+  <pre class="prompt" id="p-s01">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night: the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) stands silent under a dark cloudy sky, one upstairs window faintly glowing, across the street under a tree a dark faceless silhouette of a person standing in deep shadow, no face or features visible watches the house. Keep the top third of the image as dark sky for a title. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s01">Копировать промт</button>
+</article>
+<article class="card" id="c-s02">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s02" data-id="s02"><span>Сцена 02</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">2014 год. Тихий городок Уэстфилд в Нью-Джерси.</p>
+  <pre class="prompt" id="p-s02">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A quiet leafy American suburban street in a small New Jersey town in summer, old trees, big colonial houses with lawns, a church steeple in the distance, peaceful sunny morning. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s02">Копировать промт</button>
+</article>
+<article class="card" id="c-s03">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s03" data-id="s03"><span>Сцена 03</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Дерек и Мария Бродус покупают <b class="key">дом своей мечты</b>.</p>
+  <pre class="prompt" id="p-s03">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) stand on the lawn in front of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), holding a key with a tag, smiling happily, a &#x27;sold&#x27; sign on the lawn, sunny summer day. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s03">Копировать промт</button>
+</article>
+<article class="card" id="c-s04">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s04" data-id="s04"><span>Сцена 04</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Старый особняк начала двадцатого века, шесть спален, огромный двор.</p>
+  <pre class="prompt" id="p-s04">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Inside the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn): a grand old wooden staircase, high ceilings, many doors, empty rooms with sunlight through tall windows, dust in the air. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s04">Копировать промт</button>
+</article>
+<article class="card" id="c-s05">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s05" data-id="s05"><span>Сцена 05</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Он стоит больше миллиона долларов, но они копили на него годами.</p>
+  <pre class="prompt" id="p-s05">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) sit at a small kitchen table in a modest old apartment, looking at house photos on a laptop, a jar of saved coins on the table, warm lamp light, dreaming. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s05">Копировать промт</button>
+</article>
+<article class="card" id="c-s06">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s06" data-id="s06"><span>Сцена 06</span></label>
+    <div class="chips"><span class="chip">R2 · Мария</span><span class="chip">R3 · Дети</span></div>
+  </header>
+  <p class="voice">У них трое маленьких детей, и комната найдётся для каждого.</p>
+  <pre class="prompt" id="p-s06">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) with their three children (a 10-year-old girl with long brown hair in a red hoodie, an 8-year-old boy with short brown hair in a green striped t-shirt, a 5-year-old boy with blond hair in a light blue t-shirt) runs through the empty sunny rooms of a big old house, the kids laughing and choosing their bedrooms, joyful. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s06">Копировать промт</button>
+</article>
+<article class="card" id="c-s07">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s07" data-id="s07"><span>Сцена 07</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Перед переездом Дерек каждый вечер приезжает делать ремонт.</p>
+  <pre class="prompt" id="p-s07">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Evening: Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) on a ladder painting a wall in an empty room of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), paint cans and drop cloths on the floor, dark windows behind him, a single work lamp. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s07">Копировать промт</button>
+</article>
+<article class="card" id="c-s08">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s08" data-id="s08"><span>Сцена 08</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R4 · Дом</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Через три дня после покупки в почтовом ящике <b class="key">лежит письмо</b>.</p>
+  <pre class="prompt" id="p-s08">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Dusk: Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) opens the mailbox at the curb in front of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) and finds a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address inside, his face uneasy, long shadows. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s08">Копировать промт</button>
+</article>
+<article class="card" id="c-s09">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s09" data-id="s09"><span>Сцена 09</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Конверт без обратного адреса. Внутри — текст, набранный на машинке.</p>
+  <pre class="prompt" id="p-s09">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Close shot: Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers)&#x27;s hands unfold a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address under a work lamp, the envelope has no return address, dramatic light, suspense. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s09">Копировать промт</button>
+</article>
+<article class="card" id="c-s10">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s10" data-id="s10"><span>Сцена 10</span></label>
+    <div class="chips"><span class="chip">R5 · Письмо</span><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Дорогой новый сосед, добро пожаловать».</p>
+  <pre class="prompt" id="p-s10">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Close shot: a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address lying on the porch steps of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) at dusk, a long dark shadow of a person falls across it, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s10">Копировать промт</button>
+</article>
+<article class="card" id="c-s11">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s11" data-id="s11"><span>Сцена 11</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Этот дом — дело моей семьи уже много десятилетий».</p>
+  <pre class="prompt" id="p-s11">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Old sepia-toned scene: the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) decades ago with old-fashioned cars on the street, the same tall trees, mysterious mood, as if remembered. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s11">Копировать промт</button>
+</article>
+<article class="card" id="c-s12">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s12" data-id="s12"><span>Сцена 12</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Мой дед следил за ним в двадцатых, отец — в шестидесятых. <b class="key">Теперь моя очередь</b>».</p>
+  <pre class="prompt" id="p-s12">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Three generations: split vertical composition of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) in the 1920s with an old car, in the 1960s with a vintage car, and today at night, in each era a dark faceless silhouette of a person standing in deep shadow, no face or features visible stands across the street. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s12">Копировать промт</button>
+</article>
+<article class="card" id="c-s13">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s13" data-id="s13"><span>Сцена 13</span></label>
+    <div class="chips"><span class="chip">R3 · Дети</span><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Вы привели в дом детей. Я их видел. Узнаю их имена — и <b class="key">позову к себе</b>».</p>
+  <pre class="prompt" id="p-s13">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. their three children (a 10-year-old girl with long brown hair in a red hoodie, an 8-year-old boy with short brown hair in a green striped t-shirt, a 5-year-old boy with blond hair in a light blue t-shirt) play on the front lawn of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) on a sunny day, while far away behind a tree trunk across the street a dark faceless silhouette of a person standing in deep shadow, no face or features visible is half-hidden, the kids don&#x27;t notice. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s13">Копировать промт</button>
+</article>
+<article class="card" id="c-s14">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s14" data-id="s14"><span>Сцена 14</span></label>
+    <div class="chips"><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Подпись: «Наблюдатель».</p>
+  <pre class="prompt" id="p-s14">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Extreme close-up: the bottom of a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address, a typed signature line, an old black typewriter in shadow nearby, cold light, ominous. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s14">Копировать промт</button>
+</article>
+<article class="card" id="c-s15">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s15" data-id="s15"><span>Сцена 15</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Дерек в ту же ночь звонит в полицию.</p>
+  <pre class="prompt" id="p-s15">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night: Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) in a dark kitchen speaks on his phone to the police, a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address in his other hand, worried, blue moonlight through the window. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s15">Копировать промт</button>
+</article>
+<article class="card" id="c-s16">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s16" data-id="s16"><span>Сцена 16</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Полицейский советует пока никому не рассказывать: автором может оказаться <b class="key">сосед</b>.</p>
+  <pre class="prompt" id="p-s16">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A police officer in a dark uniform talks quietly with Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) on a porch at night, the officer glances at the neighboring houses, tense. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s16">Копировать промт</button>
+</article>
+<article class="card" id="c-s17">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s17" data-id="s17"><span>Сцена 17</span></label>
+    <div class="chips"><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Бродусы звонят бывшим хозяевам. Те признаются: им тоже пришло письмо.</p>
+  <pre class="prompt" id="p-s17">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) talks on the phone in a living room, shocked, one hand on her forehead, an old family photo of the house on the shelf behind her, warm lamp light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s17">Копировать промт</button>
+</article>
+<article class="card" id="c-s18">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s18" data-id="s18"><span>Сцена 18</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Но за двадцать с лишним лет — <b class="key">всего одно</b>, и они не придали ему значения.</p>
+  <pre class="prompt" id="p-s18">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. An elderly couple stands in a doorway of an old house, the old man holds a single old letter and shrugs, the woman looks away awkwardly, soft daylight. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s18">Копировать промт</button>
+</article>
+<article class="card" id="c-s19">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s19" data-id="s19"><span>Сцена 19</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R4 · Дом</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Через пару недель приходит второе письмо.</p>
+  <pre class="prompt" id="p-s19">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) pulls a second a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address out of the mailbox of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) on a grey cloudy day, his face pale. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s19">Копировать промт</button>
+</article>
+<article class="card" id="c-s20">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s20" data-id="s20"><span>Сцена 20</span></label>
+    <div class="chips"><span class="chip">R2 · Мария</span><span class="chip">R3 · Дети</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Теперь Наблюдатель знает, как зовут детей, и называет их по старшинству.</p>
+  <pre class="prompt" id="p-s20">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) reads a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address in horror, her hand over her mouth, in the background their three children (a 10-year-old girl with long brown hair in a red hoodie, an 8-year-old boy with short brown hair in a green striped t-shirt, a 5-year-old boy with blond hair in a light blue t-shirt) play with toys unaware, cold light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s20">Копировать промт</button>
+</article>
+<article class="card" id="c-s21">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s21" data-id="s21"><span>Сцена 21</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Вы уже нашли, что спрятано <b class="key">в стенах</b>?»</p>
+  <pre class="prompt" id="p-s21">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Inside the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn): an old plaster wall with a crack in a dark empty hallway, a flashlight beam on the wall, as if something is hidden inside, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s21">Копировать промт</button>
+</article>
+<article class="card" id="c-s22">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s22" data-id="s22"><span>Сцена 22</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Будут ли дети играть в подвале? Я бы на их месте <b class="key">боялся</b>».</p>
+  <pre class="prompt" id="p-s22">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A dark old stone basement of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), a single bare bulb, a children&#x27;s ball lies on the floor at the bottom of the narrow wooden stairs, shadows in the corners, creepy. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s22">Копировать промт</button>
+</article>
+<article class="card" id="c-s23">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s23" data-id="s23"><span>Сцена 23</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Наверху вы даже не услышите, как они кричат».</p>
+  <pre class="prompt" id="p-s23">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Cross-section of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) at night: warm lit rooms upstairs, a dark far basement below, the distance between them is huge, unsettling. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s23">Копировать промт</button>
+</article>
+<article class="card" id="c-s24">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s24" data-id="s24"><span>Сцена 24</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">«Кто я? Мимо дома каждый день едут сотни машин. <b class="key">Может, я в одной из них</b>».</p>
+  <pre class="prompt" id="p-s24">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night street in front of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn): many cars drive by with glowing headlights, one dark car slows down in front of the house, its driver only a shadow. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s24">Копировать промт</button>
+</article>
+<article class="card" id="c-s25">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s25" data-id="s25"><span>Сцена 25</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Третье письмо короче: «Куда вы пропали? Дом скучает по вам».</p>
+  <pre class="prompt" id="p-s25">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A short a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address lies on the doormat of the dark empty porch of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), fallen leaves, lonely, melancholic and eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s25">Копировать промт</button>
+</article>
+<article class="card" id="c-s26">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s26" data-id="s26"><span>Сцена 26</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Бродусы так и не решаются переехать и остаются в старом доме.</p>
+  <pre class="prompt" id="p-s26">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) sit at a cramped kitchen table in their old small house among moving boxes they never unpacked, exhausted and worried, night. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s26">Копировать промт</button>
+</article>
+<article class="card" id="c-s27">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s27" data-id="s27"><span>Сцена 27</span></label>
+    <div class="chips"><span class="chip">R2 · Мария</span><span class="chip">R3 · Дети</span></div>
+  </header>
+  <p class="voice">Детей больше не отпускают гулять одних.</p>
+  <pre class="prompt" id="p-s27">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) holds the hands of their three children (a 10-year-old girl with long brown hair in a red hoodie, an 8-year-old boy with short brown hair in a green striped t-shirt, a 5-year-old boy with blond hair in a light blue t-shirt) tightly as they walk along a suburban sidewalk, looking around nervously, overcast day. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s27">Копировать промт</button>
+</article>
+<article class="card" id="c-s28">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s28" data-id="s28"><span>Сцена 28</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Полиция проверяет соседей, но улик <b class="key">не находит</b>.</p>
+  <pre class="prompt" id="p-s28">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A police detective in a coat knocks on the door of a neighbor&#x27;s old house at dusk, notebook in hand, curtains in the windows are drawn. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s28">Копировать промт</button>
+</article>
+<article class="card" id="c-s29">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s29" data-id="s29"><span>Сцена 29</span></label>
+    <div class="chips"><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">На конверте находят ДНК, скорее всего женскую. Совпадений нет.</p>
+  <pre class="prompt" id="p-s29">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A forensic lab: a scientist in gloves holds the envelope from a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address under a blue light, DNA test tubes and a computer screen nearby, cold blue light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s29">Копировать промт</button>
+</article>
+<article class="card" id="c-s30">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s30" data-id="s30"><span>Сцена 30</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span></div>
+  </header>
+  <p class="voice">Семья нанимает частных детективов и бывшего агента ФБР.</p>
+  <pre class="prompt" id="p-s30">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) meets a serious older man in a dark suit, a former FBI agent, in a dim office, files and photos of the house spread on the desk. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s30">Копировать промт</button>
+</article>
+<article class="card" id="c-s31">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s31" data-id="s31"><span>Сцена 31</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Они изучают каждое слово в письмах, следят за домом. Бесполезно.</p>
+  <pre class="prompt" id="p-s31">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A private detective sits in a parked car at night with binoculars, watching the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) across the street, cold coffee on the dashboard. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s31">Копировать промт</button>
+</article>
+<article class="card" id="c-s32">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s32" data-id="s32"><span>Сцена 32</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Через год Бродусы подают в суд на бывших хозяев: те <b class="key">скрыли письмо</b>.</p>
+  <pre class="prompt" id="p-s32">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) sit in a wooden courtroom with a lawyer, a judge in a black robe at the bench, serious mood. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s32">Копировать промт</button>
+</article>
+<article class="card" id="c-s33">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s33" data-id="s33"><span>Сцена 33</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Так история попадает в новости, и к дому <b class="key">съезжаются зеваки</b>.</p>
+  <pre class="prompt" id="p-s33">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Daytime: a crowd of curious people and TV news vans with cameras gather on the street in front of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), people take photos with phones. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s33">Копировать промт</button>
+</article>
+<article class="card" id="c-s34">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s34" data-id="s34"><span>Сцена 34</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">Интернет-сыщики ищут Наблюдателя по всему городу.</p>
+  <pre class="prompt" id="p-s34">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A dark room lit only by several computer screens with maps and photos of a suburban street, a person in a hoodie seen from behind, red strings on a corkboard. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s34">Копировать промт</button>
+</article>
+<article class="card" id="c-s35">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s35" data-id="s35"><span>Сцена 35</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">А кто-то решает, что семья <b class="key">всё выдумала</b>, чтобы избавиться от дома.</p>
+  <pre class="prompt" id="p-s35">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) sit on a couch watching TV news about themselves, sad, while phone screens next to them show angry comments as abstract red symbols. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s35">Копировать промт</button>
+</article>
+<article class="card" id="c-s36">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s36" data-id="s36"><span>Сцена 36</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Бродусы хотят снести особняк и построить на участке два новых.</p>
+  <pre class="prompt" id="p-s36">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) unrolls a large architect&#x27;s plan on a table showing two smaller new houses on the plot of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), determined. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s36">Копировать промт</button>
+</article>
+<article class="card" id="c-s37">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s37" data-id="s37"><span>Сцена 37</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R2 · Мария</span></div>
+  </header>
+  <p class="voice">Но соседи против, и город <b class="key">отказывает</b>.</p>
+  <pre class="prompt" id="p-s37">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A town council meeting in a crowded hall, many neighbors raise their hands against, Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) and Maria (a woman around 40 with shoulder-length wavy dark brown hair, cream knitted cardigan, dark jeans) sit in the front row, disappointed. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s37">Копировать промт</button>
+</article>
+<article class="card" id="c-s38">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s38" data-id="s38"><span>Сцена 38</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Тогда дом сдают другой семье, честно рассказав про письма.</p>
+  <pre class="prompt" id="p-s38">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A new family with two kids carries boxes into the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) on a sunny day, a moving truck at the curb, the father glances at the mailbox uneasily. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s38">Копировать промт</button>
+</article>
+<article class="card" id="c-s39">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s39" data-id="s39"><span>Сцена 39</span></label>
+    <div class="chips"><span class="chip">R1 · Дерек</span><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">А через пару лет Бродусам приходит новое письмо — <b class="key">злее прежних</b>.</p>
+  <pre class="prompt" id="p-s39">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night: Derek (a man around 40 with short dark brown hair, clean-shaven, navy blue quarter-zip sweater, khaki trousers) holds a new a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address, his face lit by the cold light of a hallway lamp, anger and fear. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s39">Копировать промт</button>
+</article>
+<article class="card" id="c-s40">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s40" data-id="s40"><span>Сцена 40</span></label>
+    <div class="chips"><span class="chip">R5 · Письмо</span></div>
+  </header>
+  <p class="voice">Наблюдатель намекает на аварию, на пожар… и на болезнь, которая не проходит.</p>
+  <pre class="prompt" id="p-s40">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Dark montage: a typewritten letter on white paper with tiny illegible typed lines and a plain white envelope without a return address on a table, its shadow forms the shapes of a car crash, flames and a hospital bed, symbolic, no violence. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s40">Копировать промт</button>
+</article>
+<article class="card" id="c-s41">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s41" data-id="s41"><span>Сцена 41</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">В 2019-м дом наконец продают, потеряв почти 400 тысяч долларов.</p>
+  <pre class="prompt" id="p-s41">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Day: a &#x27;sold&#x27; sign on the lawn of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) again, the grass a bit overgrown, cloudy sky, a sense of loss. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s41">Копировать промт</button>
+</article>
+<article class="card" id="c-s42">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s42" data-id="s42"><span>Сцена 42</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Новые хозяева, говорят, писем не получали.</p>
+  <pre class="prompt" id="p-s42">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A new owner checks the mailbox in front of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) on a calm sunny day, it is empty, birds on the wires. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s42">Копировать промт</button>
+</article>
+<article class="card" id="c-s43">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s43" data-id="s43"><span>Сцена 43</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">По этой истории снимают сериал, но настоящий Наблюдатель <b class="key">так и не найден</b>.</p>
+  <pre class="prompt" id="p-s43">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. A film set: cameras, lights and a director&#x27;s chair in front of a big white colonial house, and far away at the end of the street a dark faceless silhouette of a person standing in deep shadow, no face or features visible watches. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s43">Копировать промт</button>
+</article>
+<article class="card" id="c-s44">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s44" data-id="s44"><span>Сцена 44</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Кто он? Сосед, жестокий шутник или правда третий наблюдатель в роду?</p>
+  <pre class="prompt" id="p-s44">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Triple composition: a curtain moving in a neighbor&#x27;s window, a hand in a black glove typing on an old typewriter, and a dark faceless silhouette of a person standing in deep shadow, no face or features visible under a streetlight, mysterious. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s44">Копировать промт</button>
+</article>
+<article class="card" id="c-s45">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s45" data-id="s45"><span>Сцена 45</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">Дом и сейчас стоит на той же улице.</p>
+  <pre class="prompt" id="p-s45">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Present day night: the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn) on the quiet street under a streetlight, fog, all windows dark. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s45">Копировать промт</button>
+</article>
+<article class="card" id="c-s46">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s46" data-id="s46"><span>Сцена 46</span></label>
+    <div class="chips"><span class="chip">R4 · Дом</span></div>
+  </header>
+  <p class="voice">А ты бы остался жить в таком доме? <b class="key">Пиши в комментариях</b>!</p>
+  <pre class="prompt" id="p-s46">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night: view from across the street of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), in the foreground the dark shoulder of a dark faceless silhouette of a person standing in deep shadow, no face or features visible in the corner of the frame, as if the viewer is the watcher, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors with cold blue night tones, eerie suspense mood, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s46">Копировать промт</button>
+</article>
+  </section>
+</div>
+
+<script>
+(function () {
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.done input'));
+  function paint() {
+    var scenes = boxes.filter(function (b) { return b.dataset.id.charAt(0) === 's'; });
+    var n = scenes.filter(function (b) { return b.checked; }).length;
+    document.getElementById('progress').textContent = 'Готово сцен: ' + n + ' из ' + scenes.length;
+    boxes.forEach(function (b) { document.getElementById('c-' + b.dataset.id).classList.toggle('is-done', b.checked); });
+  }
+  boxes.forEach(function (b) {
+    b.checked = store('watcher-' + b.dataset.id) === '1';
+    b.addEventListener('change', function () { store('watcher-' + b.dataset.id, b.checked ? '1' : '0'); paint(); });
+  });
+  paint();
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.dataset.target);
+      function done() { btn.textContent = 'Скопировано'; btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = 'Копировать промт'; btn.classList.remove('ok'); }, 1600); }
+      function fallback() { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'Текст выделен, скопируй вручную'; }
+      try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+    });
+  });
+})();
+</script>

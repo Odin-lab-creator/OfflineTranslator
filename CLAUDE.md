@@ -55,7 +55,7 @@
 факты сверять через WebSearch). Пересказывать своими словами; людей, которых не обвинили, по именам не называть
 как подозреваемых; жестокость не показывать (охват в TikTok).
 Папки: `tiktok/true_crime_history/cases/<дело>/`. Сценарии: `nablyudatel` («Наблюдатель», выбран владельцем, 46 сцен ~3 мин),
-`alkatras` (в запасе). Публикация: `true_crime_history/publish.py` → https://claude.ai/artifact/Y6ZkhoDaUasQNqHBLbwbpJ
+`alkatras` (в запасе). Промты «Наблюдателя»: `prompts.py` → `flow_page.html`. Публикация: `true_crime_history/publish.py` → https://claude.ai/artifact/Y6ZkhoDaUasQNqHBLbwbpJ
 
 ## Музыка (FL Studio)
 Владелец делает фонк/мемфис-биты. Анализ BPM/тональности — numpy (см. историю в `tiktok/beats/`).
