@@ -317,17 +317,17 @@ The camera stays still. Fog slowly drifts across the lawn, tree branches sway ge
 
 The camera stays still. The long dark shadow of a person slowly slides across the letter on the porch steps and then pulls back, a few dry leaves blow past. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 22
+### Анимация 21
 
-Голос: «Будут ли дети играть в подвале? Я бы на их месте боялся».
+Голос: «Вы уже нашли, что спрятано в стенах?»
 
-The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway with it, the ball on the floor rolls a little. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in the light, the shadows in the hallway shift slightly. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 31
+### Анимация 24
 
-Голос: Они изучают каждое слово в письмах, следят за домом. Бесполезно.
+Голос: «Кто я? Мимо дома каждый день едут сотни машин. Может, я в одной из них».
 
-The camera stays still. Raindrops slowly run down the windshield, the streetlight flickers softly, the man keeps holding the binoculars and barely moves, steam rises from the coffee cup. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in front of the house and stops, its driver stays a dark shadow. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
 ### Анимация 46
 
