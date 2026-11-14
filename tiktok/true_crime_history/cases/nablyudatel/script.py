@@ -59,6 +59,18 @@ def plain(t):
     return t.replace("**", "")
 
 
+# Для озвучки на ElevenLabs: латиница и цифры словами, чтобы «Олег» не споткнулся. Субтитры берутся из SCENES.
+VOICE_FIX = [("True Crime History", "Тру Крайм Хистори"), ("2014 год", "Две тысячи четырнадцатый год"),
+             ("В 2019-м", "В две тысячи девятнадцатом"), ("400 тысяч", "четыреста тысяч")]
+
+
+def voice_text():
+    text = "\n".join(plain(t) for _, _, t in SCENES)
+    for a, b in VOICE_FIX:
+        text = text.replace(a, b)
+    return text
+
+
 if __name__ == "__main__":
     total = 0
     for n, names, t in SCENES:

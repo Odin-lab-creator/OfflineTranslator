@@ -146,7 +146,7 @@ SCENES = [(n, r, p if n in SPLIT else f"{p} {ONE_FRAME}") for n, r, p in SCENES]
 
 REF_NAMES = {r: n for r, n, _ in REFS}
 
-# Анимаций у владельца хватает только на 5. Сделаны 01, 10, 21, 24 (clips/), осталась 46 — финал. Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
+# Анимаций у владельца хватает только на 5. Все сделаны: clips/01, 10, 21, 22, 24.mp4. Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
 ANIM_TAIL = "Keep the pixel art style, no new characters, no faces on the silhouette, no text."
 ANIM = [
     (1, "The camera stays still. Fog slowly drifts across the lawn, tree branches sway gently in the wind, the "
@@ -155,10 +155,10 @@ ANIM = [
      "steps and then pulls back, a few dry leaves blow past."),
     (21, "The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in "
      "the light, the shadows in the hallway shift slightly."),
+    (22, "The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway "
+     "with it, the ball on the floor rolls a little."),
     (24, "The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in "
      "front of the house and stops, its driver stays a dark shadow."),
-    (46, "The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes "
-     "slowly, one upstairs window of the house turns on a faint light."),
 ]
 
 

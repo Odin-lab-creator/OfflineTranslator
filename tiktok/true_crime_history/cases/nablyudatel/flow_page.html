@@ -65,9 +65,69 @@ section { display: grid; gap: 14px; }
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
   </section>
 
+  <section aria-labelledby="vo">
+    <h2 id="vo">Текст для озвучки</h2>
+    <p class="note">Скопируй целиком в ElevenLabs, голос «Олег». Цифры и «True Crime History» уже написаны словами, чтобы голос читал правильно. Готовый mp3 пришли мне.</p>
+    
+<article class="card" id="c-vo">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-vo" data-id="vo"><span>Весь текст · 46 сцен</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-vo">«Наблюдатель». Тру Крайм Хистори расскажет.
+Две тысячи четырнадцатый год. Тихий городок Уэстфилд в Нью-Джерси.
+Дерек и Мария Бродус покупают дом своей мечты.
+Старый особняк начала двадцатого века, шесть спален, огромный двор.
+Он стоит больше миллиона долларов, но они копили на него годами.
+У них трое маленьких детей, и комната найдётся для каждого.
+Перед переездом Дерек каждый вечер приезжает делать ремонт.
+Через три дня после покупки в почтовом ящике лежит письмо.
+Конверт без обратного адреса. Внутри — текст, набранный на машинке.
+«Дорогой новый сосед, добро пожаловать».
+«Этот дом — дело моей семьи уже много десятилетий».
+«Мой дед следил за ним в двадцатых, отец — в шестидесятых. Теперь моя очередь».
+«Вы привели в дом детей. Я их видел. Узнаю их имена — и позову к себе».
+Подпись: «Наблюдатель».
+Дерек в ту же ночь звонит в полицию.
+Полицейский советует пока никому не рассказывать: автором может оказаться сосед.
+Бродусы звонят бывшим хозяевам. Те признаются: им тоже пришло письмо.
+Но за двадцать с лишним лет — всего одно, и они не придали ему значения.
+Через пару недель приходит второе письмо.
+Теперь Наблюдатель знает, как зовут детей, и называет их по старшинству.
+«Вы уже нашли, что спрятано в стенах?»
+«Будут ли дети играть в подвале? Я бы на их месте боялся».
+«Наверху вы даже не услышите, как они кричат».
+«Кто я? Мимо дома каждый день едут сотни машин. Может, я в одной из них».
+Третье письмо короче: «Куда вы пропали? Дом скучает по вам».
+Бродусы так и не решаются переехать и остаются в старом доме.
+Детей больше не отпускают гулять одних.
+Полиция проверяет соседей, но улик не находит.
+На конверте находят ДНК, скорее всего женскую. Совпадений нет.
+Семья нанимает частных детективов и бывшего агента ФБР.
+Они изучают каждое слово в письмах, следят за домом. Бесполезно.
+Через год Бродусы подают в суд на бывших хозяев: те скрыли письмо.
+Так история попадает в новости, и к дому съезжаются зеваки.
+Интернет-сыщики ищут Наблюдателя по всему городу.
+А кто-то решает, что семья всё выдумала, чтобы избавиться от дома.
+Бродусы хотят снести особняк и построить на участке два новых.
+Но соседи против, и город отказывает.
+Тогда дом сдают другой семье, честно рассказав про письма.
+А через пару лет Бродусам приходит новое письмо — злее прежних.
+Наблюдатель намекает на аварию, на пожар… и на болезнь, которая не проходит.
+В две тысячи девятнадцатом дом наконец продают, потеряв почти четыреста тысяч долларов.
+Новые хозяева, говорят, писем не получали.
+По этой истории снимают сериал, но настоящий Наблюдатель так и не найден.
+Кто он? Сосед, жестокий шутник или правда третий наблюдатель в роду?
+Дом и сейчас стоит на той же улице.
+А ты бы остался жить в таком доме? Пиши в комментариях!</pre>
+  <button class="copy" type="button" data-target="p-vo">Копировать промт</button>
+</article>
+  </section>
+
   <section aria-labelledby="todo">
     <h2 id="todo">Переделать</h2>
-    <p class="note">Сцены <b>06</b> нет среди присланных — её сделать обязательно. 45 лучше переделать: она почти в самом конце, а вышла коллажем из 4 картинок. 11 и 38 — тоже коллажи, по желанию. Клип 24 уже готов, его картинку не трогаем.</p>
+    <p class="note">Сцены <b>06</b> нет среди присланных — её сделать обязательно. 45 лучше переделать: она почти в самом конце, а вышла коллажем из 4 картинок. 11 и 38 — тоже коллажи, по желанию. Картинки 01, 10, 21, 22, 24 не трогаем — по ним уже сделаны клипы.</p>
     
 <article class="card" id="c-s06">
   <header class="card-head">
@@ -115,7 +175,7 @@ section { display: grid; gap: 14px; }
       <li>Если у силуэта Наблюдателя появилось лицо или герои «поплыли» — перегенерируй.</li>
       <li>Сохраняй клип с номером сцены (01.mp4, 10.mp4 …) и присылай вместе с картинками.</li>
     </ol>
-    <p class="note">Готовы клипы <b>01, 10, 21, 24</b>. Осталась одна анимация — <b>46</b> (финал).</p>
+    <p class="note">Все 5 клипов готовы: <b>01, 10, 21, 22, 24</b>. Больше анимаций не нужно.</p>
     
 <article class="card" id="c-a01">
   <header class="card-head">
@@ -144,6 +204,15 @@ section { display: grid; gap: 14px; }
   <pre class="prompt" id="p-a21">The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in the light, the shadows in the hallway shift slightly. Keep the pixel art style, no new characters, no faces on the silhouette, no text.</pre>
   <button class="copy" type="button" data-target="p-a21">Копировать промт</button>
 </article>
+<article class="card" id="c-a22">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-a22" data-id="a22"><span>Анимация 22</span></label>
+    <div class="chips"><span class="chip">картинка сцены 22</span></div>
+  </header>
+  <p class="voice">«Будут ли дети играть в подвале? Я бы на их месте <b class="key">боялся</b>».</p>
+  <pre class="prompt" id="p-a22">The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway with it, the ball on the floor rolls a little. Keep the pixel art style, no new characters, no faces on the silhouette, no text.</pre>
+  <button class="copy" type="button" data-target="p-a22">Копировать промт</button>
+</article>
 <article class="card" id="c-a24">
   <header class="card-head">
     <label class="done"><input type="checkbox" id="done-a24" data-id="a24"><span>Анимация 24</span></label>
@@ -152,15 +221,6 @@ section { display: grid; gap: 14px; }
   <p class="voice">«Кто я? Мимо дома каждый день едут сотни машин. <b class="key">Может, я в одной из них</b>».</p>
   <pre class="prompt" id="p-a24">The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in front of the house and stops, its driver stays a dark shadow. Keep the pixel art style, no new characters, no faces on the silhouette, no text.</pre>
   <button class="copy" type="button" data-target="p-a24">Копировать промт</button>
-</article>
-<article class="card" id="c-a46">
-  <header class="card-head">
-    <label class="done"><input type="checkbox" id="done-a46" data-id="a46"><span>Анимация 46</span></label>
-    <div class="chips"><span class="chip">картинка сцены 46</span></div>
-  </header>
-  <p class="voice">А ты бы остался жить в таком доме? <b class="key">Пиши в комментариях</b>!</p>
-  <pre class="prompt" id="p-a46">The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes slowly, one upstairs window of the house turns on a faint light. Keep the pixel art style, no new characters, no faces on the silhouette, no text.</pre>
-  <button class="copy" type="button" data-target="p-a46">Копировать промт</button>
 </article>
   </section>
 
