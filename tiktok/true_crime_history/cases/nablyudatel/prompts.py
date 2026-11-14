@@ -146,7 +146,7 @@ SCENES = [(n, r, p if n in SPLIT else f"{p} {ONE_FRAME}") for n, r, p in SCENES]
 
 REF_NAMES = {r: n for r, n, _ in REFS}
 
-# Анимации Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
+# Анимации выбраны по готовым кадрам (без коллажей и крупных лиц). Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
 ANIM_TAIL = "Keep the pixel art style, no new characters, no faces on the silhouette, no text."
 ANIM = [
     (1, "The camera stays still. Fog slowly drifts across the lawn, tree branches sway gently in the wind, the "
@@ -157,12 +157,12 @@ ANIM = [
      "the light, the shadows in the hallway shift slightly."),
     (22, "The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway "
      "with it, the ball on the floor rolls a little."),
-    (24, "The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in "
-     "front of the house and stops, its driver stays a dark shadow."),
-    (33, "The camera stays still. The crowd on the street moves and talks, people raise their phones to take "
-     "photos, phone screens flash, the trees sway in the wind."),
-    (45, "The camera stays still. Thick fog slowly rolls along the street, the streetlight flickers twice, the "
-     "house stays dark and silent."),
+    (25, "The camera stays still. Dry leaves blow slowly across the porch and the steps, the porch swing sways "
+     "gently, the corner of the letter on the doormat flutters slightly in the wind."),
+    (31, "The camera stays still. Raindrops slowly run down the windshield, the streetlight flickers softly, the man "
+     "keeps holding the binoculars and barely moves, steam rises from the coffee cup."),
+    (34, "The camera stays still. The computer screens flicker and slowly scroll maps and photos, the hooded person "
+     "moves the mouse a little, the person's face stays hidden."),
     (46, "The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes "
      "slowly, one upstairs window of the house turns on a faint light."),
 ]

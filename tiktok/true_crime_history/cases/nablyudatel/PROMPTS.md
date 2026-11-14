@@ -329,23 +329,23 @@ The camera stays still. The flashlight beam slowly moves along the cracked wall,
 
 The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway with it, the ball on the floor rolls a little. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 24
+### Анимация 25
 
-Голос: «Кто я? Мимо дома каждый день едут сотни машин. Может, я в одной из них».
+Голос: Третье письмо короче: «Куда вы пропали? Дом скучает по вам».
 
-The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in front of the house and stops, its driver stays a dark shadow. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+The camera stays still. Dry leaves blow slowly across the porch and the steps, the porch swing sways gently, the corner of the letter on the doormat flutters slightly in the wind. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 33
+### Анимация 31
 
-Голос: Так история попадает в новости, и к дому съезжаются зеваки.
+Голос: Они изучают каждое слово в письмах, следят за домом. Бесполезно.
 
-The camera stays still. The crowd on the street moves and talks, people raise their phones to take photos, phone screens flash, the trees sway in the wind. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+The camera stays still. Raindrops slowly run down the windshield, the streetlight flickers softly, the man keeps holding the binoculars and barely moves, steam rises from the coffee cup. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 45
+### Анимация 34
 
-Голос: Дом и сейчас стоит на той же улице.
+Голос: Интернет-сыщики ищут Наблюдателя по всему городу.
 
-The camera stays still. Thick fog slowly rolls along the street, the streetlight flickers twice, the house stays dark and silent. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+The camera stays still. The computer screens flicker and slowly scroll maps and photos, the hooded person moves the mouse a little, the person's face stays hidden. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
 ### Анимация 46
 
