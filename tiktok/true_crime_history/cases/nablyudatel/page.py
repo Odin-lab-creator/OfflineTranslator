@@ -4,7 +4,7 @@ import os
 import re
 
 from prompts import REFS, SCENES, REF_NAMES, full, ANIM, anim_full
-MISSING = [6, 45, 11, 38]  # переделать: 06 нет; 45, 11, 38 вышли коллажами
+MISSING = [45, 11, 38]  # по желанию: вышли коллажами
 from script import SCENES as TEXT, voice_text
 
 esc = html.escape
@@ -118,7 +118,7 @@ section {{ display: grid; gap: 14px; }}
 
   <section aria-labelledby="todo">
     <h2 id="todo">Переделать</h2>
-    <p class="note">Сцены <b>06</b> нет среди присланных — её сделать обязательно. 45 лучше переделать: она почти в самом конце, а вышла коллажем из 4 картинок. 11 и 38 — тоже коллажи, по желанию. Картинки 01, 10, 21, 22, 24 не трогаем — по ним уже сделаны клипы.</p>
+    <p class="note">Все картинки есть. По желанию можно переделать коллажи: 45 (почти в самом конце), 11 и 38. Картинки 01, 10, 21, 22, 24 не трогаем — по ним сделаны клипы.</p>
     {todo_html}
   </section>
 

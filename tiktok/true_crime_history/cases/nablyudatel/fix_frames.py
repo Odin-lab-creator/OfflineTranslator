@@ -77,6 +77,11 @@ if __name__ == "__main__":
             cv2.imwrite(dst, img, [cv2.IMWRITE_JPEG_QUALITY, 95])
         else:
             shutil.copyfile(src, dst)
+    # нет картинки 06 («трое детей, комната для каждого») — берём детей из кадра 13 крупно, без Наблюдателя слева
+    if not os.path.exists(os.path.join(SRC, "06.jpg")):
+        im = cv2.imread(os.path.join(SRC, "13.jpg"))[230:998, 336:768]
+        cv2.imwrite(os.path.join(DST, "06.jpg"), cv2.resize(im, (768, 1365), interpolation=cv2.INTER_LANCZOS4),
+                    [cv2.IMWRITE_JPEG_QUALITY, 95])
     if "--check" in sys.argv:
         out = sys.argv[sys.argv.index("--check") + 1]
         os.makedirs(out, exist_ok=True)
