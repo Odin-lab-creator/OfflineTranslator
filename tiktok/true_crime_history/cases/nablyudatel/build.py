@@ -219,12 +219,16 @@ def init(scenes, scale, clean=False, voice_dir="voice"):
 
 def img(n):
     if n not in G["img"]:
+        if len(G["img"]) >= 3:                        # в памяти не больше 3 картинок на процесс
+            G["img"].pop(next(iter(G["img"])))
         G["img"][n] = scene_image(n)
     return G["img"][n]
 
 
 def spr(key, *args):
     if key not in G["spr"]:
+        if len(G["spr"]) > 3000:
+            G["spr"].clear()
         G["spr"][key] = sprite(*args)
     return G["spr"][key]
 
@@ -470,13 +474,16 @@ def main():
                            "-s", f"{int(W * scale)}x{int(H * scale)}", "-r", str(FPS), "-i", "-",
                            "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav,
                            "-c:v", "libx264", "-crf", "23" if a.preview else "18", "-preset", "slow", "-tune", "animation",
+                           "-x264-params", "rc-lookahead=20",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
+    # кадры порциями: иначе готовые кадры (по 6 МБ) копятся быстрее, чем ffmpeg их сжимает, и память кончается
     with Pool(os.cpu_count(), initializer=init, initargs=(scenes, scale, a.clean, VOICE_DIR)) as pool:
-        for k, fr in enumerate(pool.imap(render, range(nfr), chunksize=8)):
-            ff.stdin.write(fr)
-            if k % 300 == 0:
-                print(f"  {k}/{nfr}", flush=True)
+        for b0 in range(0, nfr, 48):
+            for fr in pool.imap(render, range(b0, min(nfr, b0 + 48)), chunksize=4):
+                ff.stdin.write(fr)
+            if b0 % 288 == 0:
+                print(f"  {b0}/{nfr}", flush=True)
     ff.stdin.close()
     ff.wait()
     os.remove(wav)
