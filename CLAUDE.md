@@ -57,6 +57,12 @@
 Папки: `tiktok/true_crime_history/cases/<дело>/`. Сценарии: `nablyudatel` («Наблюдатель», выбран владельцем, 46 сцен ~3 мин),
 `alkatras` (в запасе). Промты «Наблюдателя»: `prompts.py` → `flow_page.html` (https://claude.ai/artifact/3qJUggCvojnPJzP1cu8QbB). Картинки как пришли — `frames_src/`, `fix_frames.py` → `frames/` (размывает читаемую «рыбу» Lorem ipsum на письмах). Статус: все 46 кадров и 5 клипов (01, 10, 21, 22, 24) есть, `build.py` (тест без голоса), `cover.py`; ждём озвучку (текст для ElevenLabs — `script.voice_text()`, на странице промтов; `align_user.py` → `build.py --user`). Образец дома с двумя видами рядом провоцирует коллажи — в промты добавлено «One single full-frame scene». Публикация: `true_crime_history/publish.py` → https://claude.ai/artifact/Y6ZkhoDaUasQNqHBLbwbpJ
 
+**Обложка канала (утверждена на «Наблюдателе»)**: ночной атмосферный кадр (лучше из клипа, с туманом) + холодная
+цветокоррекция и виньетка (`cover3.grade`) + «запись камеры наблюдения»: белые уголки видоискателя, ● REC слева,
+дата справа, название шрифтом Press Start 2P (первая половина белая, вторая красная, половинки вплотную),
+под ним «TRUE CRIME HISTORY». Код — `nablyudatel/cover4.py` (`var_A`), итог — `covers/cover_tiktok.png`.
+Перегруженные варианты (ленты, бумажки, круги, полосатые градиенты) владелец назвал «дешёвыми».
+
 ## Музыка (FL Studio)
 Владелец делает фонк/мемфис-биты. Анализ BPM/тональности — numpy (см. историю в `tiktok/beats/`).
 Акапеллы: `tiktok/beats/tools/sep.py` (Kim Vocal 2, ONNX, ~3 мин) — модель скачать
