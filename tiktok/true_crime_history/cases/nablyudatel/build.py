@@ -473,7 +473,7 @@ def main():
     ff = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                            "-s", f"{int(W * scale)}x{int(H * scale)}", "-r", str(FPS), "-i", "-",
                            "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav,
-                           "-c:v", "libx264", "-crf", "23" if a.preview else "18", "-preset", "slow", "-tune", "animation",
+                           "-c:v", "libx264", "-crf", "23" if a.preview else "22", "-preset", "slow", "-tune", "animation",
                            "-x264-params", "rc-lookahead=20",
                            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest",
                            "-movflags", "+faststart", out], stdin=subprocess.PIPE)
