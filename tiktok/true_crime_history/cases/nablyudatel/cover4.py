@@ -62,25 +62,8 @@ def shadowed(sp, off=8, alpha=170):
 
 
 def var_A(im):
-    """Камера наблюдения: уголки видоискателя, ● REC, дата, название пиксельным шрифтом из ролика."""
-    d = ImageDraw.Draw(im)
-    m, L, t = 70, 90, 8
-    top, bot = 250, 1440
-    for x0, y0, sx, sy in ((m, top, 1, 1), (W - m, top, -1, 1), (m, bot, 1, -1), (W - m, bot, -1, -1)):
-        d.rectangle(sorted([x0, x0 + sx * L]) + [0, 0][:0] and [min(x0, x0 + sx * L), min(y0, y0 + sy * t), max(x0, x0 + sx * L), max(y0, y0 + sy * t)], fill=(*WHITE, 230))
-        d.rectangle([min(x0, x0 + sx * t), min(y0, y0 + sy * L), max(x0, x0 + sx * t), max(y0, y0 + sy * L)], fill=(*WHITE, 230))
-    rec = build.pixel_sprite("REC", 32, WHITE)
-    d.ellipse([m + 30, top + 40, m + 62, top + 72], fill=(*RED, 255))
-    im.alpha_composite(rec, (m + 76, top + 40))
-    ts = build.pixel_sprite("06.2014", 32, WHITE)
-    im.alpha_composite(ts, (W - m - 30 - ts.width, top + 40))
-    a = build.pixel_sprite("НАБЛЮ", 80, WHITE)
-    b = build.pixel_sprite("ДАТЕЛЬ", 80, RED)
-    x0 = (W - a.width - b.width + 20) // 2          # половинки вплотную: контуры накладываются
-    im.alpha_composite(a, (x0, 380))
-    im.alpha_composite(b, (x0 + a.width - 20, 380))
-    s = build.pixel_sprite("TRUE CRIME HISTORY", 32, (200, 200, 210))
-    im.alpha_composite(s, ((W - s.width) // 2, 380 + a.height + 30))
+    """Камера наблюдения (утверждена): надписи рисует build.cover_overlay — те же, что в заставке ролика."""
+    im.alpha_composite(build.cover_overlay())
 
 
 def var_B(im):

@@ -8,6 +8,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
+import build
 from cover import grid_tile, W, H
 from cover2 import handjet, text_mask, dilate
 
@@ -15,22 +16,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RED = (232, 34, 40)
 
 
-def grade(a):
-    """Ночь: тени в холодный сине-зелёный, светлое тёплое (окна) не трогаем, контраст, туман снизу, виньетка."""
-    a = a / 255.0
-    lum = a.mean(2, keepdims=True)
-    warm = np.clip((a[..., :1] - a[..., 2:3]) * 3, 0, 1) * np.clip(lum * 2, 0, 1)      # огни окон
-    cold = a * np.array([0.62, 0.80, 1.05]) ** 1.0
-    cold = np.clip((cold - 0.04) * 1.18, 0, 1) ** 1.15                                  # глубже тени
-    a = cold * (1 - warm) + np.clip(a * 1.15, 0, 1) * warm
-    hh, ww = a.shape[:2]
-    yy = np.linspace(0, 1, hh)[:, None, None]
-    xx = np.linspace(-1, 1, ww)[None, :, None]
-    fog = np.clip((yy - 0.55) / 0.4, 0, 1) ** 1.5 * 0.22
-    a = a * (1 - fog) + np.array([0.55, 0.62, 0.72]) * fog
-    a *= 1 - 0.75 * np.clip((0.30 - yy) / 0.22, 0, 1)                                   # тёмное небо под название
-    a *= 1 - 0.55 * np.clip(np.hypot(xx * 0.9, (yy - 0.52) * 1.6) - 0.55, 0, 1)        # виньетка
-    return (np.clip(a, 0, 1) * 255).astype(np.uint8)
+grade = build.night_grade                             # та же ночная цветокоррекция, что в заставке ролика
 
 
 def glow_title(text, size):

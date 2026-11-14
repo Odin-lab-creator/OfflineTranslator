@@ -7,7 +7,7 @@ python3 build.py [--preview|--clean|--user]   →  nablyudatel.mp4 (_preview 540
 
 Что в кадре: медленный наезд камеры, слова субтитров по одному под голос, ключевые фразы (**…** в script.py)
 крупно в две строки — вторая фиолетовая, буквы печатаются под голос; жёлтые имена героев (LABELS),
-переход «рваная бумага», точечный растр на тёмных местах. Интро: «НАБЛЮДАТЕЛЬ» по буквам и «TRUE CRIME HISTORY / РАССКАЖЕТ».
+переход «рваная бумага», точечный растр на тёмных местах. Интро выглядит как обложка: запись камеры наблюдения (cover_overlay), REC мигает.
 """
 import argparse
 import glob
@@ -32,12 +32,12 @@ WHITE, PURPLE, YELLOW, RED, BLACK = (255, 255, 255), (158, 88, 255), (255, 210, 
 GAP = 0.14                                  # пауза между фразами
 EXTRA_GAP = {1: 0.3, 7: 0.3, 14: 0.5, 18: 0.3, 25: 0.4, 31: 0.3, 38: 0.3, 40: 0.5, 43: 0.4, 45: 0.6}  # дольше после N
 TAIL = 1.2                                  # конец после последней фразы
-TITLE, TITLE_WHITE, TITLE_CELL = "НАБЛЮДАТЕЛЬ", 5, 80   # «НАБЛЮ» белым, «ДАТЕЛЬ» красным, как на странице промтов
-INTRO_LINES = [("TRUE CRIME HISTORY", PURPLE, 470, 48, ("TRUE", "CRIME", "HISTORY")),   # под названием, над крышей
-               ("РАССКАЖЕТ", WHITE, 555, 64, ("РАССКАЖЕТ",))]
+TITLE, TITLE_WHITE = "НАБЛЮДАТЕЛЬ", 5             # «НАБЛЮ» белым, «ДАТЕЛЬ» красным — как на обложке
 BOOM_AT = set()
 TEAR_AT = {2, 8, 15, 19, 26, 28, 32, 36, 39, 41, 43}   # смена «главы» — «рваная бумага», остальное — склейка
 CLIP_SPEED = {21: 0.7}                      # клип 21 после 2 с «плывёт» — играем медленнее, чтобы хватило начала
+CLIP_START = {1: 4.2}                       # заставка = обложка: клип 01 с того места, где туман уже стелется
+COVER_SHIFT = 200                           # на обложке кадр поднят на 200 px — в заставке так же
 # жёлтые имена: сцена → [(имя, x, y) в долях кадра]; один раз — при первом появлении героя
 LABELS = {
     3: [("Дерек", 0.20, 0.345), ("Мария", 0.42, 0.36)],
@@ -254,7 +254,7 @@ def clip_frame(n, tr):
     d = os.path.join(CACHE, f"{n:02d}")
     if not os.path.isdir(d):
         return None
-    k = min(len(os.listdir(d)), max(1, int(tr * FPS * CLIP_SPEED.get(n, 1.0)) + 1))
+    k = min(len(os.listdir(d)), max(1, int((tr * CLIP_SPEED.get(n, 1.0) + CLIP_START.get(n, 0.0)) * FPS) + 1))
     return np.asarray(Image.open(os.path.join(d, f"{k:04d}.jpg")).convert("RGB"), dtype=np.float32)
 
 
@@ -340,31 +340,68 @@ def labels(frame, s, t):
             paste(frame, spr(("l", name), name.upper(), 32, YELLOW, 6), fx * W, fy * H, p, sc)
 
 
+# ---------- заставка = обложка («запись камеры наблюдения», утверждена владельцем) ----------
+COVER_WHITE, COVER_RED, COVER_DATE = (246, 244, 238), (232, 34, 40), "06.2014"
+
+
+def night_grade(a):
+    """Ночь: тени в холодный сине-зелёный, тёплые окна не трогаем, контраст, туман снизу, тёмное небо, виньетка.
+    a — массив H×W×3 (0…255). Им же красится обложка (cover3/cover4)."""
+    a = a / 255.0
+    lum = a.mean(2, keepdims=True)
+    warm = np.clip((a[..., :1] - a[..., 2:3]) * 3, 0, 1) * np.clip(lum * 2, 0, 1)      # огни окон
+    cold = a * np.array([0.62, 0.80, 1.05])
+    cold = np.clip((cold - 0.04) * 1.18, 0, 1) ** 1.15                                  # глубже тени
+    a = cold * (1 - warm) + np.clip(a * 1.15, 0, 1) * warm
+    hh, ww = a.shape[:2]
+    yy = np.linspace(0, 1, hh)[:, None, None]
+    xx = np.linspace(-1, 1, ww)[None, :, None]
+    fog = np.clip((yy - 0.55) / 0.4, 0, 1) ** 1.5 * 0.22
+    a = a * (1 - fog) + np.array([0.55, 0.62, 0.72]) * fog
+    a *= 1 - 0.75 * np.clip((0.30 - yy) / 0.22, 0, 1)                                   # тёмное небо под название
+    a *= 1 - 0.55 * np.clip(np.hypot(xx * 0.9, (yy - 0.52) * 1.6) - 0.55, 0, 1)        # виньетка
+    return (np.clip(a, 0, 1) * 255).astype(np.uint8)
+
+
+def cover_overlay(rec=True):
+    """Надписи обложки на прозрачном слое W×H: уголки видоискателя, ● REC, дата, «НАБЛЮ|ДАТЕЛЬ», TRUE CRIME HISTORY."""
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    m, L, t = 70, 90, 8
+    top, bot = 250, 1440
+    for x0, y0, sx, sy in ((m, top, 1, 1), (W - m, top, -1, 1), (m, bot, 1, -1), (W - m, bot, -1, -1)):
+        d.rectangle([min(x0, x0 + sx * L), min(y0, y0 + sy * t), max(x0, x0 + sx * L), max(y0, y0 + sy * t)],
+                    fill=(*COVER_WHITE, 230))
+        d.rectangle([min(x0, x0 + sx * t), min(y0, y0 + sy * L), max(x0, x0 + sx * t), max(y0, y0 + sy * L)],
+                    fill=(*COVER_WHITE, 230))
+    if rec:
+        d.ellipse([m + 30, top + 40, m + 62, top + 72], fill=(*COVER_RED, 255))
+    im.alpha_composite(pixel_sprite("REC", 32, COVER_WHITE), (m + 76, top + 40))
+    ts = pixel_sprite(COVER_DATE, 32, COVER_WHITE)
+    im.alpha_composite(ts, (W - m - 30 - ts.width, top + 40))
+    a = pixel_sprite(TITLE[:TITLE_WHITE], 80, COVER_WHITE)
+    b = pixel_sprite(TITLE[TITLE_WHITE:], 80, COVER_RED)
+    x0 = (W - a.width - b.width + 20) // 2          # половинки вплотную: контуры накладываются
+    im.alpha_composite(a, (x0, 380))
+    im.alpha_composite(b, (x0 + a.width - 20, 380))
+    sub = pixel_sprite("TRUE CRIME HISTORY", 32, (200, 200, 210))
+    im.alpha_composite(sub, ((W - sub.width) // 2, 380 + a.height + 30))
+    return im
+
+
 def intro(frame, s, t):
-    """Сцена 1: «НАБЛЮДАТЕЛЬ» по буквам сверху и «TRUE CRIME HISTORY / РАССКАЖЕТ» под голос."""
-    words = s["words"]
-    title = [w for w in words if w["text"] == TITLE]
-    t_a, t_b = s["voice"] - 0.1, title[-1]["t1"] if title else s["voice"] + 1
-    letters = list(TITLE)
-    k = int(len(letters) * min(1, max(0, (t - t_a) / max(0.2, t_b - t_a)))) if t >= t_a else 0
-    cell = TITLE_CELL                                 # пиксельный шрифт моноширинный: клетка на букву
-    x0 = W / 2 - len(letters) * cell / 2
-    for i, ch in enumerate(letters[:k]):
-        if ch != " ":
-            col = WHITE if i < TITLE_WHITE else RED
-            paste(frame, spr(("t", ch, col, cell), ch, cell, col, 0), x0 + i * cell + cell / 2, 300)
-    if k == len(letters):                             # пиксельная черта под заголовком
-        y, h = 300 + int(cell * 0.62), 8
-        xa, xb = int(x0) // 2 * 2, int(x0 + len(letters) * cell) // 2 * 2
-        frame[y + 4:y + h + 4, xa + 4:xb + 4] *= 0.4
-        frame[y:y + h, xa:xb] = np.array(WHITE, np.float32)
-    for txt, col, y, cellw, names in INTRO_LINES:     # строки печатаются под голос, слово за словом
-        ws = [w for w in words if w["text"] in names]
-        typed = " ".join(p for p in ("".join(c for c, st in w["chars"] if st <= t) for w in ws) if p)
-        left = W / 2 - len(txt) * cellw / 2
-        for i, ch in enumerate(typed):
-            if ch != " ":
-                paste(frame, spr(("i", ch, col, cellw), ch, cellw, col, 0), left + i * cellw + cellw / 2, y)
+    """Сцена 1 выглядит как обложка: ночная цветокоррекция клипа и надписи камеры, точка REC мигает."""
+    if "ov" not in G:
+        G["ov"] = [np.asarray(cover_overlay(r), np.float32) for r in (False, True)]
+    up = np.full_like(frame, 7.0)                     # кадр выше на COVER_SHIFT, низ уходит в темноту
+    up[:H - COVER_SHIFT] = frame[COVER_SHIFT:]
+    yy = np.arange(H)[:, None, None]
+    edge = H - COVER_SHIFT
+    up *= np.where(yy < edge - 120, 1, np.clip(1 - (yy - (edge - 120)) / 120, 0, 1))
+    g = night_grade(up).astype(np.float32)
+    ov = G["ov"][1 if (t % 1.0) < 0.6 else 0]
+    al = ov[..., 3:4] / 255
+    frame[:] = ov[..., :3] * al + g * (1 - al)
 
 
 def render(fi):
@@ -378,6 +415,8 @@ def render(fi):
         p = (t - s["start"]) / 0.32
         p = 1 - (1 - p) ** 3
         old = camera(scenes[i - 1], t, i - 1)
+        if scenes[i - 1]["n"] == 1 and not G.get("clean"):
+            intro(old, scenes[i - 1], t)              # уходящая заставка — тоже в виде обложки
         edge = (W * (1 - p) + G["tear"][s["n"]]).astype(int)
         xs = np.arange(W)[None, :]
         new_mask = xs >= edge[:, None]
@@ -386,19 +425,16 @@ def render(fi):
         out = np.where(new_mask[..., None], frame, old * (1 - 0.45 * shadow[..., None]))
         out[paper] = (238, 232, 220)
         frame = out
-    # точечный растр на тёмных местах
-    lum = frame.mean(2, keepdims=True) / 255
-    frame = frame * (1 - 0.22 * G["dots"][..., None] * np.clip(1 - lum * 1.6, 0, 1))
-    if G.get("clean"):
+    if s["n"] == 1 and not G.get("clean"):
+        intro(frame, s, t)                            # заставка = обложка, без растра и затемнений
+    else:                                             # точечный растр на тёмных местах
+        lum = frame.mean(2, keepdims=True) / 255
+        frame = frame * (1 - 0.22 * G["dots"][..., None] * np.clip(1 - lum * 1.6, 0, 1))
+    if G.get("clean") or s["n"] == 1:
         pass                                          # чистая версия: без надписей
-    elif s["n"] == 1:
-        frame *= 0.82                                 # притемнить под надписи интро
-        intro(frame, s, t)
     else:
         labels(frame, s, t)
         captions(frame, s, t)
-    if t < 0.25:                                      # из чёрного
-        frame *= t / 0.25
     out = np.clip(frame, 0, 255).astype(np.uint8)
     if G["scale"] != 1:
         out = np.asarray(Image.fromarray(out).resize((int(W * G["scale"]), int(H * G["scale"])), Image.BILINEAR))
