@@ -140,6 +140,32 @@ SCENES = [
 
 REF_NAMES = {r: n for r, n, _ in REFS}
 
+# Анимации Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
+ANIM_TAIL = "Keep the pixel art style, no new characters, no faces on the silhouette, no text."
+ANIM = [
+    (1, "The camera stays still. Fog slowly drifts across the lawn, tree branches sway gently in the wind, the "
+     "upstairs window light flickers softly. The dark silhouette under the tree stands completely still."),
+    (10, "The camera stays still. The long dark shadow of a person slowly slides across the letter on the porch "
+     "steps and then pulls back, a few dry leaves blow past."),
+    (21, "The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in "
+     "the light, the shadows in the hallway shift slightly."),
+    (22, "The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway "
+     "with it, the ball on the floor rolls a little."),
+    (24, "The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in "
+     "front of the house and stops, its driver stays a dark shadow."),
+    (33, "The camera stays still. The crowd on the street moves and talks, people raise their phones to take "
+     "photos, phone screens flash, the trees sway in the wind."),
+    (45, "The camera stays still. Thick fog slowly rolls along the street, the streetlight flickers twice, the "
+     "house stays dark and silent."),
+    (46, "The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes "
+     "slowly, one upstairs window of the house turns on a faint light."),
+]
+
+
+def anim_full(prompt):
+    return f"{prompt} {ANIM_TAIL}"
+
+
 
 def full(prompt):
     """Как в «Тихом месте»: просьба повторить стиль прикреплённой сцены и использовать образцы героев."""
@@ -161,5 +187,8 @@ if __name__ == "__main__":
     for n, refs, p in SCENES:
         rr = ", ".join(f"{r} ({REF_NAMES[r]})" for r in refs.split()) or "без образцов"
         out += [f"### {n:02d} · образцы: {rr}", "", f"Голос: {text[n]}", "", full(p), ""]
+    out += ["## Анимации (Veo 3.1 Lite, из готовой картинки, 9:16, x1)", ""]
+    for n, p in ANIM:
+        out += [f"### Анимация {n:02d}", "", f"Голос: {text[n]}", "", anim_full(p), ""]
     open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "PROMPTS.md"), "w").write("\n".join(out))
     print("PROMPTS.md:", len(REFS), "образцов,", len(SCENES), "сцен")

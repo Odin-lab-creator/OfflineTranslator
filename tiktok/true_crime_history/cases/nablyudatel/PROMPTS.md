@@ -302,3 +302,53 @@ Match the art style, color palette and level of detail of the attached scene ima
 Голос: А ты бы остался жить в таком доме? Пиши в комментариях!
 
 Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters and the house. Night: view from across the street of the house (a large white three-story Dutch colonial house from 1905 with a grey gambrel roof, black shutters, a wide front porch with white columns, tall old trees and a big green lawn), in the foreground the dark shoulder of a dark faceless silhouette of a person standing in deep shadow, no face or features visible in the corner of the frame, as if the viewer is the watcher, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, slightly muted colors, subtle suspense mood, all people have natural warm human skin tones (never blue or grey skin), colors and light match the time of day of the scene, vertical 9:16 composition, no readable text, no letters, no logos, no watermark.
+
+## Анимации (Veo 3.1 Lite, из готовой картинки, 9:16, x1)
+
+### Анимация 01
+
+Голос: «Наблюдатель». True Crime History расскажет.
+
+The camera stays still. Fog slowly drifts across the lawn, tree branches sway gently in the wind, the upstairs window light flickers softly. The dark silhouette under the tree stands completely still. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 10
+
+Голос: «Дорогой новый сосед, добро пожаловать».
+
+The camera stays still. The long dark shadow of a person slowly slides across the letter on the porch steps and then pulls back, a few dry leaves blow past. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 21
+
+Голос: «Вы уже нашли, что спрятано в стенах?»
+
+The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in the light, the shadows in the hallway shift slightly. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 22
+
+Голос: «Будут ли дети играть в подвале? Я бы на их месте боялся».
+
+The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway with it, the ball on the floor rolls a little. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 24
+
+Голос: «Кто я? Мимо дома каждый день едут сотни машин. Может, я в одной из них».
+
+The camera stays still. Cars drive past the house with glowing headlights, one dark car slowly rolls in front of the house and stops, its driver stays a dark shadow. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 33
+
+Голос: Так история попадает в новости, и к дому съезжаются зеваки.
+
+The camera stays still. The crowd on the street moves and talks, people raise their phones to take photos, phone screens flash, the trees sway in the wind. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 45
+
+Голос: Дом и сейчас стоит на той же улице.
+
+The camera stays still. Thick fog slowly rolls along the street, the streetlight flickers twice, the house stays dark and silent. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
+
+### Анимация 46
+
+Голос: А ты бы остался жить в таком доме? Пиши в комментариях!
+
+The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes slowly, one upstairs window of the house turns on a faint light. Keep the pixel art style, no new characters, no faces on the silhouette, no text.

@@ -3,7 +3,7 @@ import html
 import os
 import re
 
-from prompts import REFS, SCENES, REF_NAMES, full
+from prompts import REFS, SCENES, REF_NAMES, full, ANIM, anim_full
 MISSING = []  # всё генерируется заново
 from script import SCENES as TEXT
 
@@ -31,6 +31,8 @@ def card(pid, head, chips, line, prompt):
 </article>'''
 
 
+anim_html = "".join(card(f"a{n:02d}", f"Анимация {n:02d}", [f"картинка сцены {n:02d}"], voice(text[n]), anim_full(p))
+                    for n, p in ANIM)
 refs_html = "".join(card(r, f"{r} · {n}", [], "", full(p)) for r, n, p in REFS)
 todo_html = "".join(
     card(f"s{n:02d}", f"Сцена {n:02d}", [f"{r} · {REF_NAMES[r]}" for r in refs.split()] or ["без образцов"],
@@ -106,6 +108,17 @@ section {{ display: grid; gap: 14px; }}
       <li>Сохраняй картинки с номером сцены (01, 02 … 46) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
     </ol>
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="anim">
+    <h2 id="anim">Анимации</h2>
+    <ol class="steps">
+      <li>Открой готовую картинку сцены (номер на жёлтой плашке) и нажми <b>«Анимировать»</b>.</li>
+      <li>Модель <b>Veo 3.1 Lite</b>, формат <b>9:16</b>, x1. Вставь промт.</li>
+      <li>Если у силуэта Наблюдателя появилось лицо или герои «поплыли» — перегенерируй.</li>
+      <li>Сохраняй клип с номером сцены (01.mp4, 10.mp4 …) и присылай вместе с картинками.</li>
+    </ol>
+    {anim_html}
   </section>
 
   <section aria-labelledby="refs">
