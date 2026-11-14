@@ -317,35 +317,17 @@ The camera stays still. Fog slowly drifts across the lawn, tree branches sway ge
 
 The camera stays still. The long dark shadow of a person slowly slides across the letter on the porch steps and then pulls back, a few dry leaves blow past. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 21
-
-Голос: «Вы уже нашли, что спрятано в стенах?»
-
-The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in the light, the shadows in the hallway shift slightly. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
-
 ### Анимация 22
 
 Голос: «Будут ли дети играть в подвале? Я бы на их месте боялся».
 
 The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway with it, the ball on the floor rolls a little. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
-### Анимация 25
-
-Голос: Третье письмо короче: «Куда вы пропали? Дом скучает по вам».
-
-The camera stays still. Dry leaves blow slowly across the porch and the steps, the porch swing sways gently, the corner of the letter on the doormat flutters slightly in the wind. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
-
 ### Анимация 31
 
 Голос: Они изучают каждое слово в письмах, следят за домом. Бесполезно.
 
 The camera stays still. Raindrops slowly run down the windshield, the streetlight flickers softly, the man keeps holding the binoculars and barely moves, steam rises from the coffee cup. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
-
-### Анимация 34
-
-Голос: Интернет-сыщики ищут Наблюдателя по всему городу.
-
-The camera stays still. The computer screens flicker and slowly scroll maps and photos, the hooded person moves the mouse a little, the person's face stays hidden. Keep the pixel art style, no new characters, no faces on the silhouette, no text.
 
 ### Анимация 46
 

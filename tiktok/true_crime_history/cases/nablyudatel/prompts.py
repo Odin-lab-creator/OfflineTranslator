@@ -146,23 +146,17 @@ SCENES = [(n, r, p if n in SPLIT else f"{p} {ONE_FRAME}") for n, r, p in SCENES]
 
 REF_NAMES = {r: n for r, n, _ in REFS}
 
-# Анимации выбраны по готовым кадрам (без коллажей и крупных лиц). Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
+# Анимаций у владельца хватает только на 5: начало, разброс по ролику, финал. Без коллажей и крупных лиц. Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).
 ANIM_TAIL = "Keep the pixel art style, no new characters, no faces on the silhouette, no text."
 ANIM = [
     (1, "The camera stays still. Fog slowly drifts across the lawn, tree branches sway gently in the wind, the "
      "upstairs window light flickers softly. The dark silhouette under the tree stands completely still."),
     (10, "The camera stays still. The long dark shadow of a person slowly slides across the letter on the porch "
      "steps and then pulls back, a few dry leaves blow past."),
-    (21, "The camera stays still. The flashlight beam slowly moves along the cracked wall, dust particles float in "
-     "the light, the shadows in the hallway shift slightly."),
     (22, "The camera stays still. The bare bulb swings slowly on its wire, the shadows in the basement corners sway "
      "with it, the ball on the floor rolls a little."),
-    (25, "The camera stays still. Dry leaves blow slowly across the porch and the steps, the porch swing sways "
-     "gently, the corner of the letter on the doormat flutters slightly in the wind."),
     (31, "The camera stays still. Raindrops slowly run down the windshield, the streetlight flickers softly, the man "
      "keeps holding the binoculars and barely moves, steam rises from the coffee cup."),
-    (34, "The camera stays still. The computer screens flicker and slowly scroll maps and photos, the hooded person "
-     "moves the mouse a little, the person's face stays hidden."),
     (46, "The camera stays still. Fog drifts in front of the house, the dark shoulder in the foreground breathes "
      "slowly, one upstairs window of the house turns on a faint light."),
 ]
