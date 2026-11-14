@@ -460,6 +460,7 @@ def main():
     scale = 0.5 if a.preview else 1
     out = os.path.join(HERE, "nablyudatel_preview.mp4" if a.preview else
                        "nablyudatel_clean.mp4" if a.clean else "nablyudatel_user.mp4" if a.user else "nablyudatel.mp4")
+    final, out = out, os.path.join(HERE, "_render_tmp.mp4")   # пока собирается — во временный файл (git его не видит)
     wav = os.path.join(HERE, "_audio.f32")
     audio(scenes, total, voice=not a.clean).tofile(wav)
     extract_clips()
@@ -482,8 +483,9 @@ def main():
     tmp = out.replace(".mp4", "_ln.mp4")                # громкость под TikTok (−14 LUFS)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
                     "-ar", "44100", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp], check=True)
-    os.replace(tmp, out)
-    print("готово:", out)
+    os.replace(tmp, final)
+    os.remove(out)
+    print("готово:", final)
 
 
 if __name__ == "__main__":
