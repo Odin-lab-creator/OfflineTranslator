@@ -138,6 +138,12 @@ SCENES = [
      "in the corner of the frame, as if the viewer is the watcher, eerie."),
 ]
 
+# Образец дома R4 нарисован в двух видах рядом, и Flow копирует раскладку — выходят коллажи.
+# Всем сценам, кроме задуманных «разделённых» (12, 44), явно просим один цельный кадр.
+SPLIT = {12, 44}
+ONE_FRAME = "One single full-frame scene, not a collage, no panels, no split screen, no borders."
+SCENES = [(n, r, p if n in SPLIT else f"{p} {ONE_FRAME}") for n, r, p in SCENES]
+
 REF_NAMES = {r: n for r, n, _ in REFS}
 
 # Анимации Veo 3.1 Lite: из готовой картинки кнопкой «Анимировать», 9:16, x1. Камера неподвижна (наезд портит героев).

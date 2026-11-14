@@ -4,7 +4,7 @@ import os
 import re
 
 from prompts import REFS, SCENES, REF_NAMES, full, ANIM, anim_full
-MISSING = []  # всё генерируется заново
+MISSING = [6, 24, 45, 11, 38]  # переделать: 06 нет; 24, 45, 11, 38 вышли коллажами
 from script import SCENES as TEXT
 
 esc = html.escape
@@ -108,6 +108,12 @@ section {{ display: grid; gap: 14px; }}
       <li>Сохраняй картинки с номером сцены (01, 02 … 46) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
     </ol>
     <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="todo">
+    <h2 id="todo">Переделать</h2>
+    <p class="note">Сцены <b>06</b> нет среди присланных. <b>24 и 45</b> вышли коллажами из 4 картинок, а их надо анимировать — переделай их до анимации. 11 и 38 тоже коллажи, их переделать по желанию. В промты добавлена просьба «один цельный кадр».</p>
+    {todo_html}
   </section>
 
   <section aria-labelledby="anim">
