@@ -251,7 +251,8 @@ def _dil(a):
     return o
 
 
-SMOOTH = {"dirt": os.path.join(HERE, "fonts", "RubikDirt-Regular.ttf")}   # обычные (не пиксельные) шрифты заставки
+SMOOTH = {"dirt": os.path.join(HERE, "fonts", "RubikDirt-Regular.ttf"),
+          "glitch": os.path.join(HERE, "fonts", "RubikGlitch-Regular.ttf")}   # обычные (не пиксельные) шрифты заставки
 SMOOTH_COLS = {"white": ((255, 255, 255), (178, 184, 200)), "red": ((255, 92, 72), (168, 16, 22)),
                "purple": ((206, 166, 255), (122, 64, 230))}
 
