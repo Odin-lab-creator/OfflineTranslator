@@ -554,7 +554,7 @@ def flick(t, seed=0):
 
 
 # ---------- кадр ----------
-def world(n, p, t):
+def world(n, p, t, off=(), knock=None):
     kind = "night" if n in NIGHT else "evening" if n in EVENING else "day"
     img = static_layer().copy()
     d = ImageDraw.Draw(img)
@@ -591,7 +591,7 @@ def world(n, p, t):
         if dig2 > 0.4:
             room(d, ROOM2, n >= 9, (dig2 - 0.4) / 0.6, side="right", seed=5)
         ladder(d, 337, 458, 524 if dig2 > 0.4 else 464 + 60 * dig2 * 2.5)
-    tun = 0 if n < 12 else (p if n == 12 else 1)
+    tun = 0 if n < 12 or "tunnel" in off else (p if n == 12 else 1)
     tun_tip = tunnel(d, tun) if tun else None
     ext = 0 if n < 13 else (min(1, p * 1.6) if n == 13 else 1)
     if ext:
@@ -620,7 +620,7 @@ def world(n, p, t):
         d.rounded_rectangle([458, 572, 504, 584], 3, fill=(96, 72, 120))     # её спальник
         d.rectangle([506, 560, 520, 584], fill=(80, 84, 70))                 # ящик
     # мебель и вещи
-    lamp_on = n > 10 or (n == 10 and p > 0.55)
+    lamp_on = (n > 10 or (n == 10 and p > 0.55)) and "lamp" not in off
     if n >= 5:
         d.rounded_rectangle([130, 446, 186, 458], 3, fill=(160, 70, 60))     # матрас
         d.rectangle([130, 446, 186, 449], fill=(186, 92, 78))
@@ -682,7 +682,11 @@ def world(n, p, t):
         for i in range(8):
             yy = 548 + ((t * 50 + i * 5) % 34)
             d.point((162 + i % 3, yy), fill=(180, 220, 255))
-    if n >= 10:                               # велогенератор и лампы
+    if n >= 9 and not lamp_on:                # фонарь в нижней комнате, пока нет электричества
+        d.line([(300, 524), (300, 532)], fill=(40, 40, 40))
+        d.rectangle([296, 532, 304, 544], fill=(60, 60, 64)); d.rectangle([298, 535, 302, 541], fill=(255, 210, 110))
+        d.rectangle([295, 531, 305, 532], fill=(80, 80, 86))
+    if n >= 10 and "bike" not in off:         # велогенератор и лампы
         bx = 240
         for wx in (bx - 10, bx + 18):
             d.ellipse([wx - 10, 566, wx + 10, 586], outline=(34, 34, 34), width=2)
@@ -845,6 +849,8 @@ def world(n, p, t):
         glow(L, 256, 344, 28, 0.9 * flick(t), (1.0, 0.95, 0.8))
     if n >= 5 and (not lamp_on or n >= 18):
         glow(L, 199, 436, 40, 0.85 * flick(t), warm)
+    if n >= 9 and not lamp_on:
+        glow(L, 300, 540, 46, 0.75 * flick(t, 3), warm)
     if lamp_on:
         glow(L, 220, 420, 70, 0.85, lamp)
         glow(L, 300, 544, 70, 0.85, lamp)
@@ -879,14 +885,14 @@ def world(n, p, t):
         for i in range(16):
             yy = 364 + ((t * 60 + i * 13) % 96)
             d.rectangle([226 + (i * 7) % 20, yy, 227 + (i * 7) % 20, yy + 1], fill=(150, 108, 64, 255))
-    if n in (14, 19):                         # стук: расходящиеся круги
-        cx, cy = (436, 560) if n == 14 else (256, 640)
-        ph3 = (t * 1.3) % 1
-        if ph3 < 0.6:
-            for k in range(3):
-                rr = 6 + ((ph3 * 3 - k * 0.5) % 1.5) * 28
-                al = int(160 * (1 - rr / 48))
-                d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=(255, 255, 255, max(0, al)), width=2)
+    if knock is not None and knock < 0.6:     # стук: расходящиеся круги (время от удара — из сборки)
+        cx, cy = (432, 560) if n < 19 else (256, 640)
+        for k in range(2):
+            q = knock - k * 0.12
+            if q > 0:
+                rr = 5 + q * 70
+                al = int(200 * max(0, 1 - q / 0.5))
+                d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=(255, 255, 255, al), width=2)
     if n == 13 and ext >= 1:                  # искры от лопаты
         for i in range(8):
             if math.sin(t * 25 + i * 1.7) > 0.4:

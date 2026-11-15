@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""«100 ДНЕЙ В БУНКЕРЕ» — сборка ролика 1080×1920. Мир рисует scene.py (кодом, без картинок и Veo).
-python3 build.py            тест: тайминг без голоса (14.8 симв/с) → bunker_test.mp4
-python3 build.py --user     под озвучку владельца: voice_user/vo.mp3 + voice_user/stt.json → bunker.mp4
-python3 build.py --clean    без надписей (только мир)
---preview                   540×960 для быстрой проверки
+"""«100 ДНЕЙ В БУНКЕРЕ» — сборка серии 1080×1920. Мир рисует scene.py (кодом, без картинок и Veo).
+python3 build.py --ep 1 --user   под озвучку: ep1_voice/vo_tight.wav + stt_tight.json (voice_eleven.py → tighten.py)
+python3 build.py --ep 1          тест: тайминг без голоса (14.8 симв/с)
+--clean  без надписей · --preview 540×960 · --frames 3,40 отдельные кадры
 """
+import importlib
 import argparse
 import difflib
 import json
@@ -19,7 +19,6 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from scene import world, BW, BH, BAYER
-from script import SCENES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FPS, W, H = 30, 1080, 1920
@@ -33,7 +32,8 @@ TAIL = 3.2                     # концовка «ЧТО ТАМ ВНИЗУ?»
 FADE = 0.5                     # пиксельное растворение при смене сцен
 CAM_MOVE = 0.9                 # переезд камеры между сценами
 WORD_Y, KEY_Y = 1500, 1420      # слово по одному; ключевая фраза в две строки
-NAMES = {15: ("АНЯ", "Аня", 468, 524)}   # жёлтое имя: сцена → (надпись, слово, x, y в мире)
+EP = None                      # модуль серии ep<N>.py (SCENES, OFF, TITLE, END, NEXT, NAMES, VOICE)
+COLORS = {"white": WHITE, "red": RED, "purple": PURPLE, "yellow": YELLOW}
 
 
 def clean(w):
@@ -55,7 +55,7 @@ def words_of(marked):
 # ---------- тайминг ----------
 def timeline_test():
     t, scenes = LEAD, []
-    for n, label, marked in SCENES:
+    for n, label, marked, stage in EP.SCENES:
         ws = words_of(marked)
         s0 = t
         for w in ws:
@@ -66,18 +66,18 @@ def timeline_test():
             elif w["raw"][-1] == ",":
                 t += 0.08
             w["t1"] = t
-        scenes.append({"n": n, "label": label, "start": s0, "words": ws})
+        scenes.append({"n": n, "label": label, "stage": stage, "start": s0, "words": ws})
         t += SCENE_GAP
     return finish(scenes)
 
 
 def timeline_user():
-    stt = json.load(open(os.path.join(HERE, "voice_user", "stt.json")))
+    stt = json.load(open(os.path.join(HERE, EP.VOICE, "stt_tight.json")))
     heard = [w for w in stt["words"] if w.get("type", "word") == "word" and clean(w["text"])]
     allw, scenes = [], []
-    for n, label, marked in SCENES:
+    for n, label, marked, stage in EP.SCENES:
         ws = words_of(marked)
-        scenes.append({"n": n, "label": label, "words": ws})
+        scenes.append({"n": n, "label": label, "stage": stage, "words": ws})
         allw += ws
     sm = difflib.SequenceMatcher(None, [w["text"].replace("Ё", "Е") for w in allw],
                                  [clean(w["text"]).replace("Ё", "Е") for w in heard], autojunk=False)
@@ -254,7 +254,9 @@ def frame(fi):
     i = max(j for j, s in enumerate(scenes) if s["start"] <= T or j == 0)
     s = scenes[i]
     p = min(1.0, (T - s["start"]) / max(0.01, s["end"] - s["start"]))
-    img, focus = world(s["n"], p, T)
+    kn = [k for k in G["knocks"] if k <= T]
+    kage = T - kn[-1] if kn else None
+    img, focus = world(s["stage"], p, T, EP.OFF, kage)
     cx, cy = cam_target(focus)
     if i > 0:
         k = (T - s["start"]) / CAM_MOVE
@@ -263,15 +265,15 @@ def frame(fi):
             px, py = G["endcam"][i - 1]
             cx, cy = px + (cx - px) * e, py + (cy - py) * e
         if T - s["start"] < FADE:            # пиксельное «растворение» старой сцены
-            prev, _ = world(scenes[i - 1]["n"], 1.0, T)
+            prev, _ = world(scenes[i - 1]["stage"], 1.0, T, EP.OFF)
             k = (T - s["start"]) / FADE
             m = (BAYER < k)[..., None]
             img = Image.fromarray(np.where(m, np.asarray(img), np.asarray(prev)))
     # тряска на стуке и трещине
-    if s["n"] == 20 and p > 0.25:
+    if s["stage"] == 20 and p > 0.25:
         r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-2, 2)
-    elif s["n"] in (14, 19) and (T * 1.3) % 1 < 0.35:
-        r = random.Random(fi); cx += r.randint(-1, 1)
+    elif kage is not None and kage < 0.14:
+        r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-1, 1)
     x0, y0 = int(round(cx * S3 - W / 2)), int(round(cy * S3 - H / 2))
     x0, y0 = min(max(x0, 0), BW * S3 - W), min(max(y0, 0), BH * S3 - H)
     # вырезаем только нужный кусок и увеличиваем ×3 без сглаживания
@@ -296,15 +298,15 @@ def frame(fi):
     hud = pix(f"{word} {num}" if num is not None else word, 5, col)
     img.paste(hud, (50, 64), hud)
     if i == 0:
-        title(img, [("100 ДНЕЙ", WHITE, 9, 330), ("В БУНКЕРЕ", RED, 9, 430)], 0.15, T)
+        title(img, [(t, COLORS[c], k, y) for t, c, k, y in EP.TITLE], 0.15, T)
     last = scenes[-1]
     tend = last["words"][-1]["t1"] + 0.5
     if T > tend:
-        title(img, [("ЧТО ТАМ", WHITE, 10, 360), ("ВНИЗУ?", RED, 12, 480)], tend, T)
+        title(img, [(t, COLORS[c], k, y) for t, c, k, y in EP.END], tend, T)
         if T > tend + 1.0:
-            paste_c(img, pix("ЧАСТЬ 2 — СКОРО", 5, PURPLE), W / 2, 590)
-    if s["n"] in NAMES:                      # жёлтое имя над героиней
-        name, w0, wx, wy = NAMES[s["n"]]
+            paste_c(img, pix(EP.NEXT, 5, PURPLE), W / 2, 590)
+    if s["n"] in EP.NAMES:                   # жёлтое имя над героиней
+        name, w0, wx, wy = EP.NAMES[s["n"]]
         tw = next((w["t0"] for w in s["words"] if w["raw"].strip(".,") == w0), None)
         if tw is not None and T >= tw:
             sc, a = pop(T, tw, 0.15)
@@ -320,7 +322,57 @@ def init(scenes, clean, preview):
     v = 1 - 0.3 * (((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2) ** 1.5
     G["vig"] = np.clip(v, 0.6, 1)[..., None].astype(np.float32)
     G["dots"] = halftone()
-    G["endcam"] = [cam_target(world(s["n"], 1.0, s["end"])[1]) for s in scenes]
+    G["endcam"] = [cam_target(world(s["stage"], 1.0, s["end"], EP.OFF)[1]) for s in scenes]
+    G["knocks"] = knocks(scenes)
+
+
+def knocks(scenes):
+    """Удары в стену: «три удара… ещё три» — под слова; в конце серии — один громкий удар."""
+    out = []
+    for s in scenes:
+        ws = s["words"]
+        for j, w in enumerate(ws):
+            if w["text"] == "ТРИ" and j + 1 < len(ws) and ws[j + 1]["text"].startswith("УДАР"):
+                out += [w["t0"] - 0.05 + k * 0.32 for k in range(3)]
+            if w["text"] == "ЕЩЁ" and j + 1 < len(ws) and ws[j + 1]["text"] == "ТРИ" and out:
+                out += [ws[j + 1]["t1"] + 0.05 + k * 0.32 for k in range(3)]
+    last = scenes[-1]["words"][-1]["t1"]
+    if any(s["stage"] == 14 for s in scenes):
+        out.append(last + 0.25)
+    return sorted(out)
+
+
+def audio(scenes, total, voice_path, sr=44100):
+    n = int(total * sr)
+    mix = np.zeros(n, np.float32)
+    if voice_path:
+        v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", voice_path, "-ac", "1", "-ar", str(sr),
+                                          "-f", "f32le", "-"], capture_output=True).stdout, np.float32)
+        a = int(LEAD * sr)
+        mix[a:a + len(v)] += v[:n - a]
+    t = np.arange(n) / sr
+    rng = np.random.default_rng(3)
+    drone = sum(np.sin(2 * np.pi * f * t + ph) * g for f, ph, g in ((55, 0, 1), (82.4, 1, .5), (110, 2, .3)))
+    drone *= 0.6 + 0.4 * np.sin(2 * np.pi * t / 8)
+    noise = np.convolve(rng.normal(0, 1, n), np.ones(500) / 500, "same") * 6
+    bed = (drone * 0.02 + noise * 0.008) * np.clip(t / 2, 0, 1) * np.clip((total - t) / 1.5, 0, 1)
+    mix += bed.astype(np.float32)
+    for s in scenes:                                   # царапанье по люку
+        if s["stage"] == 6:
+            a, m = int(s["start"] * sr), int((s["end"] - s["start"]) * sr)
+            tt = np.arange(m) / sr
+            env = (np.sin(2 * np.pi * 1.6 * tt) > 0.2) * 0.5 + 0.1
+            sc = np.diff(np.concatenate([[0], rng.normal(0, 1, m)])) * env * 0.04
+            mix[a:a + m] += sc.astype(np.float32)[:n - a]
+    for k, kt in enumerate(knocks(scenes)):            # глухие удары в стену
+        a, m = int(kt * sr), int(0.35 * sr)
+        tt = np.arange(m) / sr
+        big = 1.6 if k == len(knocks(scenes)) - 1 else 1.0
+        th = np.sin(2 * np.pi * np.cumsum(90 * np.exp(-tt * 18) + 55) / sr) * np.exp(-tt * 16)
+        th += np.convolve(rng.normal(0, 1, m), np.ones(12) / 12, "same") * np.exp(-tt * 40) * 0.6
+        mix[a:a + m] += (th * 0.55 * big).astype(np.float32)[:max(0, n - a)]
+    mix /= max(1e-6, np.abs(mix).max()) / 0.9
+    return mix
 
 
 def main():
@@ -329,7 +381,10 @@ def main():
     ap.add_argument("--clean", action="store_true")
     ap.add_argument("--preview", action="store_true")
     ap.add_argument("--frames", type=str, default="", help="только кадры: секунды через запятую → png")
+    ap.add_argument("--ep", type=int, default=1)
     a = ap.parse_args()
+    global EP
+    EP = importlib.import_module(f"ep{a.ep}")
     scenes = timeline_user() if a.user else timeline_test()
     total = scenes[-1]["end"]
     init(scenes, a.clean, a.preview)
@@ -337,15 +392,15 @@ def main():
         for sec in a.frames.split(","):
             Image.frombytes("RGB", (W, H), frame(int(float(sec) * FPS))).save(os.path.join(HERE, f"frame_{sec}.png"))
         return
-    name = "bunker" if a.user else "bunker_test"
+    name = f"bunker_ep{a.ep}" if a.user else f"bunker_ep{a.ep}_test"
     name += "_clean" if a.clean else ""
     name += "_preview" if a.preview else ""
     out = os.path.join(HERE, name + ".mp4")
     nf = int(total * FPS)
-    cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-"]
-    if a.user:
-        cmd += ["-itsoffset", str(LEAD), "-i", os.path.join(HERE, "voice_user", "vo.mp3"), "-map", "0:v", "-map", "1:a",
-                "-c:a", "aac", "-b:a", "192k", "-shortest"]
+    wav = os.path.join(HERE, "_audio.f32")
+    audio(scenes, total, os.path.join(HERE, EP.VOICE, "vo_tight.wav") if a.user and not a.clean else None).tofile(wav)
+    cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+           "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav, "-c:a", "aac", "-b:a", "192k", "-shortest"]
     if a.preview:
         cmd += ["-vf", "scale=540:960:flags=neighbor"]
     cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]
@@ -357,6 +412,11 @@ def main():
                 print(f"{k}/{nf}", flush=True)
     ff.stdin.close()
     ff.wait()
+    os.remove(wav)
+    tmp = out.replace(".mp4", "_ln.mp4")              # громкость под TikTok (−14 LUFS)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+                    "-ar", "44100", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp], check=True)
+    os.replace(tmp, out)
     print(out, f"{total:.1f} с")
 
 
