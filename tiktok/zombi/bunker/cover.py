@@ -37,8 +37,8 @@ def make(ep):
     xx = np.linspace(-1, 1, W)[None, :, None]
     a *= np.clip(1 - 0.35 * (xx ** 2 + ((yy - 0.45) * 2) ** 2) ** 1.5, 0.55, 1)
     im = Image.fromarray(a.clip(0, 255).astype(np.uint8)).convert("RGBA")
-    for (text, color, _, font), y in zip(m.TITLE, (300, 420, 535)):
-        build.paste_c(im, build.logo(text, color, font if not text.startswith("СЕРИЯ") else "px8"), W / 2, y)
+    for (text, color, _, font), y in zip(m.TITLE, (300, 435, 560)):
+        build.paste_c(im, build.logo(text, color, font), W / 2, y)
     if hook:                                                            # «тук-тук» у стены
         sx, sy = (432 - x0) * 3, (548 - y0) * 3
         build.paste_c(im, build.pix(hook, 4, build.YELLOW), sx - 140, sy - 150)

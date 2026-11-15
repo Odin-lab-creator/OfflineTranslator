@@ -225,7 +225,7 @@ def title(img, lines, t0, t):
             break
 
 
-# ---------- заставка: пиксельный логотип (Press Start 2P ×12, градиент, блик, объём, контур) ----------
+# ---------- заставка: логотип (выбран Rubik Dirt — обычный шрифт; пиксельный вариант тоже поддерживается) ----------
 WET = os.path.join(HERE, "fonts", "RubikWetPaint-Regular.ttf")
 LOGO_COLS = {"white": ((255, 255, 255), (186, 190, 204), (70, 70, 84)),
              "red": ((255, 96, 76), (176, 20, 24), (84, 8, 10)),
@@ -251,10 +251,48 @@ def _dil(a):
     return o
 
 
+SMOOTH = {"dirt": os.path.join(HERE, "fonts", "RubikDirt-Regular.ttf")}   # обычные (не пиксельные) шрифты заставки
+SMOOTH_COLS = {"white": ((255, 255, 255), (178, 184, 200)), "red": ((255, 92, 72), (168, 16, 22)),
+               "purple": ((206, 166, 255), (122, 64, 230))}
+
+
+def smooth_logo(text, color, path, size, maxw=980):
+    """Обычный шрифт: плавный градиент сверху вниз, толстый тёмный контур, мягкая тень."""
+    f = ImageFont.truetype(path, size)
+    while f.getlength(text) > maxw and size > 20:
+        size -= 4
+        f = ImageFont.truetype(path, size)
+    st = max(5, size // 11)
+    x0, y0, x1, y1 = f.getbbox(text, stroke_width=st)
+    pad = 24
+    w, h = x1 - x0 + 2 * pad, y1 - y0 + 2 * pad
+    org = (pad - x0, pad - y0)
+    fill = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(fill).text(org, text, font=f, fill=255)
+    strk = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(strk).text(org, text, font=f, fill=255, stroke_width=st, stroke_fill=255)
+    ys = np.where(np.asarray(fill).max(1) > 0)[0]
+    top, bot = SMOOTH_COLS[color]
+    t = np.clip((np.arange(h) - ys.min()) / max(1, ys.max() - ys.min()), 0, 1)[:, None, None]
+    g = np.broadcast_to(np.array(top) * (1 - t) + np.array(bot) * t, (h, w, 3)).astype(np.uint8)
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sh = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sh.paste((0, 0, 0, 180), (5, 9), strk)
+    out = Image.alpha_composite(out, sh.filter(ImageFilter.GaussianBlur(6)))
+    out.paste(Image.new("RGBA", (w, h), (12, 8, 14, 255)), (0, 0), strk)
+    out.paste(Image.fromarray(np.ascontiguousarray(g)), (0, 0), fill)
+    return out
+
+
 def logo(text, color, font):
-    """Пиксельная надпись как логотип ретро-игры: градиент ступенями, блик сверху, объём вниз, контур, тень."""
+    """Надпись заставки. font: "px12" — пиксельный логотип (Press Start 2P ×12),
+    "dirt140" — обычный шрифт Rubik Dirt размером 140 (градиент, контур, тень)."""
     key = ("logo", text, color, font)
     if key in SPR:
+        return SPR[key]
+    name = font.rstrip("0123456789")
+    if name in SMOOTH:
+        SPR[key] = smooth_logo(text, color, SMOOTH[name], int(font[len(name):]))
         return SPR[key]
     a, k = (_mask(text, WET, 40), 4) if font == "wet" else (_mask(text, PIXEL, 8), int(font[2:]))   # "px12" — пиксель ×12
     top, bot, ext = LOGO_COLS[color]
@@ -370,7 +408,7 @@ def frame(fi):
     last = scenes[-1]
     tend = last["words"][-1]["t1"] + 0.5
     if T > tend:
-        logo_lines(img, EP.END + [(EP.NEXT, "purple", 575, "px5")], tend, T)
+        logo_lines(img, EP.END + [(EP.NEXT, "purple", 590, EP.NEXT_FONT)], tend, T)
     if s["n"] in EP.NAMES:                   # жёлтое имя над героиней
         name, w0, wx, wy = EP.NAMES[s["n"]]
         tw = next((w["t0"] for w in s["words"] if w["raw"].strip(".,") == w0), None)
