@@ -242,8 +242,7 @@ def _static():
         # волнистая граница слоя
         pts = [(0, BH)] + [(x, y + 4 * math.sin(x / 37 + i) + 2 * math.sin(x / 11 + i * 2)) for x in range(0, BW + 6, 6)] + [(BW, BH)]
         d.polygon(pts, fill=c)
-        noise_dots(d, (0, y, BW, y1 + 6), [lerp(c, (0, 0, 0), 0.16), lerp(c, (0, 0, 0), 0.08),
-                                            lerp(c, (255, 255, 255), 0.07)], 5200, i, size=3)
+        noise_dots(d, (0, y, BW, y1 + 6), [lerp(c, (0, 0, 0), 0.1)], 500, i, size=4)   # редкие комочки, без «шума»
         for _ in range(26):                   # горизонтальные прожилки
             sx, sy = r.randrange(BW), r.randrange(y + 4, y1)
             d.line([(sx, sy), (sx + r.randrange(10, 40), sy)], fill=lerp(c, (0, 0, 0), 0.12))
@@ -268,7 +267,7 @@ def sky(d, kind, t):
     a, b = tops[kind]
     steps = 7                                 # небо ступенями с точечным переходом, как в пиксель-арте
     k = (np.arange(GY, dtype=np.float32)[:, None] / GY) ** 1.2 * steps
-    k = np.floor(k + BAYER[:GY]) / steps
+    k = np.broadcast_to(np.floor(k + 0.5) / steps, (GY, BW))   # чистые полосы, без точечного узора
     k = np.clip(k, 0, 1)[..., None]
     arr = np.array(a, np.float32) + (np.array(b, np.float32) - np.array(a, np.float32)) * k
     d._image.paste(Image.fromarray(arr.astype(np.uint8)).im, (0, 0, BW, GY))
@@ -373,8 +372,8 @@ def room(d, box, finished, depth=1.0, side="right", seed=0):
     elif side == "down":
         y1 = y0 + int((y1 - y0) * min(1, depth))
     d.rounded_rectangle([x0, y0, x1, y1], 4, fill=(48, 33, 25))
-    noise_dots(d, (x0 + 2, y0 + 2, x1 - 1, y1 - 1), [(58, 41, 31), (40, 27, 21), (64, 46, 34)],
-               (x1 - x0) * (y1 - y0) // 12, seed, size=3)
+    noise_dots(d, (x0 + 2, y0 + 2, x1 - 1, y1 - 1), [(54, 38, 29)],
+               (x1 - x0) * (y1 - y0) // 90, seed, size=3)
     if finished:
         for i, x in enumerate(range(x0 + 2, x1 - 4, 10)):
             sh = (118, 84, 54) if i % 3 else (110, 78, 50)
@@ -701,7 +700,9 @@ def world(n, p, t):
     if n >= 18:
         glow(L, 228, 428, 34, 0.6 * flick(t, 5), warm)
     L = 1.3 * np.tanh(L / 1.3)              # мягкий потолок света — без пересвета
-    L = np.floor(L * 6 + BAYER[..., None]) / 6  # свет ступенями с точечным переходом
+    L = np.round(L * 10) / 10                # свет ступенями, без точечного узора
+    L[:GY - 2] = L[GY + 40, 0] * 0 + {"day": 1.0, "evening": 0.94, "night": 0.66}[kind] * (
+        np.array([0.85, 0.9, 1.25], np.float32) if kind == "night" else 1)   # лампы не светят в небо
     out = np.clip(a * L, 0, 1)
     img = Image.fromarray((out * 255).astype(np.uint8))
     d = ImageDraw.Draw(img, "RGBA")

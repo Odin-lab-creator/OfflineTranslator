@@ -279,8 +279,6 @@ def frame(fi):
     part = img.crop((wx0, wy0, wx0 + VW + 1, wy0 + VH + 1)).resize(((VW + 1) * S3, (VH + 1) * S3), Image.NEAREST)
     part = part.crop((x0 - wx0 * S3, y0 - wy0 * S3, x0 - wx0 * S3 + W, y0 - wy0 * S3 + H))
     fr = np.asarray(part).astype(np.float32)
-    lum = fr.mean(2, keepdims=True) / 255   # точечный растр на тёмных местах, как в фильмах
-    fr = fr * (1 - 0.2 * G["dots"][..., None] * np.clip(1 - lum * 1.6, 0, 1))
     fr *= G["vig"]
     if s["n"] == 1:
         fr *= 0.85
