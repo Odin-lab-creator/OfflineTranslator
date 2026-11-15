@@ -95,7 +95,25 @@ def timeline_user():
     return finish(scenes)
 
 
+def segments(s):
+    """Этап мира сцены: число — один этап на всю сцену; список [(этап, p или None, слово, признаки), …] —
+    картинка меняется на слове (проблема → решение). p=None — прогресс идёт по времени сцены."""
+    spec = s["stage"]
+    raw = [(spec, None, None, ())] if isinstance(spec, int) else [tuple(x) + ((),) * (4 - len(x)) for x in spec]
+    segs, after = [], s["start"]
+    for stage, p, word, flags in raw:
+        t = s["start"]
+        if word:
+            w = next((w for w in s["words"] if w["text"].startswith(word.upper()) and w["t0"] >= after), None)
+            t = w["t0"] if w else after
+        segs.append({"stage": stage, "p": p, "t": t, "flags": tuple(flags)})
+        after = t
+    return segs
+
+
 def finish(scenes):
+    for s in scenes:
+        s.setdefault("start", 0.0)
     for i, s in enumerate(scenes):
         s["start"] = 0.0 if i == 0 else s["start"]
         s["end"] = scenes[i + 1]["start"] if i + 1 < len(scenes) else s["words"][-1]["t1"] + TAIL
@@ -124,6 +142,9 @@ def finish(scenes):
             line = " ".join(x["raw"] for x in c).replace("**", "")
             for x in c:
                 x["line"] = line
+    for s in scenes:
+        s["segs"] = segments(s)
+        s["stage"] = s["segs"][0]["stage"] if isinstance(s["stage"], int) is False else s["stage"]
     return scenes
 
 
@@ -406,16 +427,31 @@ def frame(fi):
     p = min(1.0, (T - s["start"]) / max(0.01, s["end"] - s["start"]))
     kn = [k for k in G["knocks"] if k <= T]
     kage = T - kn[-1] if kn else None
-    img, focus = world(s["stage"], p, T, EP.OFF, kage)
+    j = max(q for q, g in enumerate(s["segs"]) if g["t"] <= T or q == 0)
+    img, focus = seg_world(s, j, T, p, kage)
     cx, cy = cam_target(focus)
-    if i > 0:
+    if j > 0:                                # смена картинки на слове: проблема → решение
+        t_seg = s["segs"][j]["t"]
+        if T - t_seg < CAM_MOVE or T - t_seg < FADE:
+            p_prev = min(1.0, (t_seg - s["start"]) / max(0.01, s["end"] - s["start"]))
+            prev, pf = seg_world(s, j - 1, T, p_prev, kage)
+            k = (T - t_seg) / CAM_MOVE
+            if k < 1:
+                e = k * k * (3 - 2 * k)
+                px, py = cam_target(pf)
+                cx, cy = px + (cx - px) * e, py + (cy - py) * e
+            if T - t_seg < FADE:
+                m = (BAYER < (T - t_seg) / FADE)[..., None]
+                img = Image.fromarray(np.where(m, np.asarray(img), np.asarray(prev)))
+    elif i > 0:
         k = (T - s["start"]) / CAM_MOVE
         if k < 1:                            # камера плавно переезжает к новой сцене
             e = k * k * (3 - 2 * k)
             px, py = G["endcam"][i - 1]
             cx, cy = px + (cx - px) * e, py + (cy - py) * e
         if T - s["start"] < FADE:            # пиксельное «растворение» старой сцены
-            prev, _ = world(scenes[i - 1]["stage"], 1.0, T, EP.OFF)
+            ps = scenes[i - 1]
+            prev, _ = seg_world(ps, len(ps["segs"]) - 1, T, 1.0, None)
             k = (T - s["start"]) / FADE
             m = (BAYER < k)[..., None]
             img = Image.fromarray(np.where(m, np.asarray(img), np.asarray(prev)))
@@ -464,13 +500,18 @@ def frame(fi):
     return img.convert("RGB").tobytes()
 
 
+def seg_world(s, j, T, p, kage):
+    g = s["segs"][j]
+    return world(g["stage"], p if g["p"] is None else g["p"], T, tuple(EP.OFF) + g["flags"], kage)
+
+
 def init(scenes, clean, preview):
     G["scenes"], G["clean"], G["preview"] = scenes, clean, preview
     yy, xx = np.mgrid[0:H, 0:W]
     v = 1 - 0.3 * (((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2) ** 1.5
     G["vig"] = np.clip(v, 0.6, 1)[..., None].astype(np.float32)
     G["dots"] = halftone()
-    G["endcam"] = [cam_target(world(s["stage"], 1.0, s["end"], EP.OFF)[1]) for s in scenes]
+    G["endcam"] = [cam_target(seg_world(s, len(s["segs"]) - 1, s["end"], 1.0, None)[1]) for s in scenes]
     G["knocks"] = knocks(scenes)
 
 

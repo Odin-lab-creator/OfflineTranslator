@@ -250,6 +250,10 @@ def pine(d, x, base, h, col=(40, 104, 62), dark=(28, 80, 48), light=(66, 136, 80
         for k in range(2):                                             # блики хвои
             px = x + 2 + (i * 7 + k * 5) % max(3, w - 3)
             d.point((px, ty - 3 - k * 3), fill=light)
+        if snow:                                                       # снег на ярусах
+            d.polygon([(x, ty - th), (x - w * 0.45, ty - th * 0.45), (x + w * 0.5, ty - th * 0.42)], fill=(236, 242, 248))
+            d.line([(x - w + 2, ty - 1), (x - w // 2, ty - 2)], fill=(226, 234, 244), width=2)
+            d.line([(x + w // 3, ty - 2), (x + w - 2, ty - 1)], fill=(236, 242, 248), width=2)
 
 
 def rock(d, x, y, s, base=(92, 88, 96)):
@@ -344,10 +348,12 @@ def _static():
 
 
 # ---------- небо и поверхность ----------
-def sky(d, kind, t):
+def sky(d, kind, t, snow=False):
     tops = {"day": ((88, 146, 208), (180, 214, 236)), "night": ((8, 12, 30), (32, 38, 68)),
             "evening": ((56, 46, 92), (240, 132, 74))}
     a, b = tops[kind]
+    if snow and kind == "day":
+        a, b = (120, 134, 156), (196, 204, 214)
     steps = 7                                 # небо ступенями с точечным переходом, как в пиксель-арте
     k = (np.arange(GY, dtype=np.float32)[:, None] / GY) ** 1.2 * steps
     k = np.broadcast_to(np.floor(k + 0.5) / steps, (GY, BW))   # чистые полосы, без точечного узора
@@ -598,12 +604,13 @@ def world(n, p, t, off=(), knock=None):
     kind = "night" if n in NIGHT else "evening" if n in EVENING else "day"
     img = static_layer().copy()
     d = ImageDraw.Draw(img)
-    sky(d, kind, t)
+    snow = "snow" in off
+    sky(d, kind, t, snow)
     city(d, kind, n <= 2, t)
     far = (54, 98, 84) if kind != "night" else (20, 36, 42)
     far2 = (44, 84, 72) if kind != "night" else (16, 28, 34)
     for x in range(200, 560, 17):
-        pine(d, x, GY + 1, 50 + (x * 7) % 22, col=far, dark=far2, light=lerp(far, (255, 255, 255), 0.08))
+        pine(d, x, GY + 1, 50 + (x * 7) % 22, col=far, dark=far2, light=lerp(far, (255, 255, 255), 0.08), snow=snow)
     house(d, kind)
     # ---- подземелье ----
     room(d, CELLAR, False, seed=1)
@@ -629,7 +636,7 @@ def world(n, p, t, off=(), knock=None):
     if dig2:
         room(d, SHAFT2, False, dig2 * 2.5, side="down", seed=4)
         if dig2 > 0.4:
-            room(d, ROOM2, n >= 9, (dig2 - 0.4) / 0.6, side="right", seed=5)
+            room(d, ROOM2, n >= 9 and "room2wood" not in off, (dig2 - 0.4) / 0.6, side="right", seed=5)
         ladder(d, 337, 458, 524 if dig2 > 0.4 else 464 + 60 * dig2 * 2.5)
     tun = 0 if n < 12 or "tunnel" in off else (p if n == 12 else 1)
     tun_tip = tunnel(d, tun) if tun else (380, 446)
@@ -685,12 +692,12 @@ def world(n, p, t, off=(), knock=None):
             d.rectangle([x, 449, x + 2, 451], fill=(96, 124, 170))
         d.line([(206, 410), (206, 438)], fill=(140, 96, 54), width=2)        # лопата на стене
         d.polygon([(203, 438), (209, 438), (210, 446), (202, 446)], fill=(170, 176, 186))
-    if n >= 9 and n < 17:
+    if n >= 9 and n < 17 and "tools" not in off:
         for bx, by in ((372, 570), (380, 560)):                              # ящики
             d.rectangle([bx, by, bx + 16, 586 if by == 570 else 570], fill=(132, 96, 58))
             d.line([(bx, by), (bx + 16, 586 if by == 570 else 570)], fill=(100, 70, 42))
             d.rectangle([bx, by, bx + 16, 586 if by == 570 else 570], outline=(90, 62, 38))
-    if n >= 9:
+    if n >= 9 and "tools" not in off:
         d.line([(272, 538), (292, 538)], fill=(70, 70, 76), width=2)         # кирка и пила на стене
         d.arc([270, 536, 294, 548], 180, 360, fill=(170, 176, 186), width=2)
         d.line([(282, 538), (282, 556)], fill=(140, 96, 54), width=2)
@@ -703,7 +710,7 @@ def world(n, p, t, off=(), knock=None):
         for x in range(198, 282, 6):
             d.point((x, 459), fill=(220, 180, 90))
     if n >= 9:                                # полка с консервами, печка, труба
-        for sy in (426, 444):
+        for sy in ((426, 444) if "shelf" not in off else ()):
             d.rectangle([250, sy, 304, sy + 2], fill=(90, 62, 38))
             for k in range(8):
                 if (k + sy) % 5 != 0:
@@ -722,7 +729,7 @@ def world(n, p, t, off=(), knock=None):
         for i in range(8):
             yy = 548 + ((t * 50 + i * 5) % 34)
             d.point((162 + i % 3, yy), fill=(180, 220, 255))
-    if n >= 9 and not lamp_on:                # фонарь в нижней комнате, пока нет электричества
+    if n >= 9 and not lamp_on and "lantern" not in off:   # фонарь в нижней комнате, пока нет электричества
         d.line([(300, 524), (300, 532)], fill=(40, 40, 40))
         d.rectangle([296, 532, 304, 544], fill=(60, 60, 64)); d.rectangle([298, 535, 302, 541], fill=(255, 210, 110))
         d.rectangle([295, 531, 305, 532], fill=(80, 80, 86))
@@ -810,7 +817,19 @@ def world(n, p, t, off=(), knock=None):
     if n >= 12:                               # овраг
         d.polygon([(472, GY - 1), (486, GY + 16), (510, GY + 16), (524, GY - 1)], fill=(48, 33, 25))
     for x, s in ((404, 108), (456, 124), (512, 100)):
-        pine(d, x, GY, s)
+        pine(d, x, GY, s, snow=snow)
+    if snow:                                  # снег на земле, крыше, заборе; снегопад
+        r = random.Random(13)
+        d.rectangle([0, GY - 3, BW, GY + 1], fill=(232, 238, 246))
+        for x in range(0, BW, 7):
+            d.ellipse([x - 4, GY - 5 - r.randrange(3), x + 5, GY + 1], fill=(240, 244, 250))
+        d.line([(2, 226), (66, 175), (130, 226)], fill=(240, 244, 250), width=4)
+        d.rectangle([91, 170, 107, 174], fill=(240, 244, 250))
+        d.rectangle([130, GY - 24, 200, GY - 21], fill=(236, 242, 248))
+        for i in range(90):
+            fx = (r.randrange(BW) + math.sin(t * 0.8 + i) * 6 + t * 6) % BW
+            fy = (r.randrange(GY) + t * (18 + i % 5 * 4)) % (GY + 10)
+            d.rectangle([fx, fy, fx + (i % 3 == 0), fy + (i % 3 == 0)], fill=(246, 248, 252))
     # ---- люди ----
     ph = (t * 1.3) % 1
     H = {}
@@ -889,8 +908,12 @@ def world(n, p, t, off=(), knock=None):
         glow(L, 256, 344, 28, 0.9 * flick(t), (1.0, 0.95, 0.8))
     if n >= 5 and (not lamp_on or n >= 18):
         glow(L, 199, 436, 40, 0.85 * flick(t), warm)
-    if n >= 9 and not lamp_on:
+    if n >= 9 and not lamp_on and "lantern" not in off:
         glow(L, 300, 540, 46, 0.75 * flick(t, 3), warm)
+    if "lantern" in off and not lamp_on:      # нет фонаря — светит фонарик героя из 1-й сцены
+        for who, (hx_, hy_, pose_, f_) in H.items():
+            if who == "hero" and hy_ > 480:
+                glow(L, hx_ + 14 * f_, hy_ - 22, 42, 0.8, (0.95, 0.95, 0.85))
     if lamp_on:
         glow(L, 220, 420, 70, 0.85, lamp)
         glow(L, 300, 544, 70, 0.85, lamp)
