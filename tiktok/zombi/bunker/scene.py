@@ -467,6 +467,9 @@ def room(d, box, finished, depth=1.0, side="right", seed=0):
         x1 = x0 + int((x1 - x0) * min(1, depth))
     elif side == "down":
         y1 = y0 + int((y1 - y0) * min(1, depth))
+    if x1 - x0 < 8 or y1 - y0 < 8:                                     # только начали копать
+        d.rectangle([x0, y0, max(x0, x1), max(y0, y1)], fill=(48, 33, 25))
+        return
     d.rounded_rectangle([x0 - 3, y0 - 3, x1 + 3, y1 + 3], 6, fill=(74, 50, 34))      # тень вокруг выемки
     d.rounded_rectangle([x0, y0, x1, y1], 4, fill=(48, 33, 25))
     r = random.Random(seed)
@@ -592,7 +595,7 @@ def world(n, p, t, off=(), knock=None):
             room(d, ROOM2, n >= 9, (dig2 - 0.4) / 0.6, side="right", seed=5)
         ladder(d, 337, 458, 524 if dig2 > 0.4 else 464 + 60 * dig2 * 2.5)
     tun = 0 if n < 12 or "tunnel" in off else (p if n == 12 else 1)
-    tun_tip = tunnel(d, tun) if tun else None
+    tun_tip = tunnel(d, tun) if tun else (380, 446)
     ext = 0 if n < 13 else (min(1, p * 1.6) if n == 13 else 1)
     if ext:
         room(d, EXT2, False, ext, side="right", seed=6)
