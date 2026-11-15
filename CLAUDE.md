@@ -63,7 +63,7 @@
 факты сверять через WebSearch). Пересказывать своими словами; людей, которых не обвинили, по именам не называть
 как подозреваемых; жестокость не показывать (охват в TikTok).
 Папки: `tiktok/true_crime_history/cases/<дело>/`. Сценарии: `nablyudatel` («Наблюдатель», выбран владельцем, 46 сцен ~3 мин),
-`alkatras` (в запасе). Промты «Наблюдателя»: `prompts.py` → `flow_page.html` (https://claude.ai/artifact/3qJUggCvojnPJzP1cu8QbB). Картинки как пришли — `frames_src/`, `fix_frames.py` → `frames/` (размывает читаемую «рыбу» Lorem ipsum на письмах). Статус: ждём озвучку «Олегом» (Fish Audio забракован). `nablyudatel_user.mp4` (2:56) — черновик с голосом Fish «Инциденты» (speech-1.5) по сценам с паузами — `voice_fish.py` → `align_fish.py` (тайминг слов без STT, по паузам и слогам) → `build.py --user`. Тестовая версия без голоса — `nablyudatel.mp4`. Образец дома с двумя видами рядом провоцирует коллажи — в промты добавлено «One single full-frame scene». Публикация: `true_crime_history/publish.py` → https://claude.ai/artifact/Y6ZkhoDaUasQNqHBLbwbpJ
+`alkatras` (в запасе). Промты «Наблюдателя»: `prompts.py` → `flow_page.html` (https://claude.ai/artifact/3qJUggCvojnPJzP1cu8QbB). Картинки как пришли — `frames_src/`, `fix_frames.py` → `frames/` (размывает читаемую «рыбу» Lorem ipsum на письмах). Статус: **готов ролик с «Олегом»** `nablyudatel_user.mp4` (3:31; для Shorts >3:00 — нужна короткая версия). Озвучка через API: `voice_eleven.py` (голос «Oleg — Calm, Natural and Clear» `MWyJiWDobXN8FX3CJTdE`, eleven_multilingual_v2, по сценам, with-timestamps → тайминг букв без STT) → `build.py --user`. Черновик с Fish — в `voice_fish/`. Тестовая версия без голоса — `nablyudatel.mp4`. Образец дома с двумя видами рядом провоцирует коллажи — в промты добавлено «One single full-frame scene». Публикация: `true_crime_history/publish.py` → https://claude.ai/artifact/Y6ZkhoDaUasQNqHBLbwbpJ
 
 **Обложка канала (утверждена на «Наблюдателе»)**: ночной атмосферный кадр (лучше из клипа, с туманом) + холодная
 цветокоррекция и виньетка (`cover3.grade`) + «запись камеры наблюдения»: белые уголки видоискателя, ● REC слева,
@@ -87,5 +87,5 @@
 ## Прочее в репозитории
 - `tiktok/story_world/zapertyy/` — сериал «ЗАПЕРТЫЙ» (план в `PLAN.md`), PixelLab-кадры, `comic_engine.py`.
 - `tiktok/story_world/banner/` — шапка YouTube 2560×1440. `tiktok/phonk_edit/` — VHS-эдит.
-- Остатки на момент переноса: PixelLab ~2588 генераций; ElevenLabs — бесплатный тариф, ~240 символов
-  (обновление около 1 декабря), поэтому озвучку делает владелец.
+- ElevenLabs: с 15.11.2026 тариф **Creator** (~121 тыс. кредитов/мес, обновление 15-го) — озвучиваю «Олегом» сам
+  через API (`voice_eleven.py`), владельцу больше не нужно озвучивать вручную. PixelLab ~2588 генераций.
