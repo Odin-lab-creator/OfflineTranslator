@@ -44,6 +44,11 @@
    Распознать ElevenLabs STT (`scribe_v1`, `language_code=rus`, `timestamps_granularity=word`, заголовок
    `xi-api-key: proxy-injected` — прокси подставит ключ) → `voice_user/stt.json` → `align_user.py` → `build.py --user`.
    Клонировать голос «Олега» в другие TTS нельзя (голос из библиотеки ElevenLabs). Silero владельцу не понравился.
+   **Fish Audio подключён** (ключ — сетевой секрет `api.fish.audio`, заголовок `Authorization: Bearer proxy-injected`):
+   `POST https://api.fish.audio/v1/tts` + заголовок `model: s1`, JSON `{text, reference_id, format: "mp3"}` → mp3;
+   голоса — `GET /model?language=ru&title=…`; баланс — `GET /wallet/self/api-credit`. Голоса-клоны знаменитостей
+   (Литвинова, Меллстрой, политики, Володарский и т.п.) не брать. Пробы — `nablyudatel/voice_fish/samples/`.
+   Таймингов слов Fish не отдаёт — дальше как с озвучкой владельца: STT ElevenLabs → `align_user.py` → `--user`.
 6. **Обложка TikTok**: сетка профиля показывает центр 3:4 (y 240–1680), а нижние ~15% плитки закрывает строка
    «просмотры · дата». Поэтому **весь текст сверху**: название y≈300, плашка «СЮЖЕТ ЗА МИНУТУ» сразу под ним,
    ниже y≈1420 ничего важного. Всегда показывать превью плитки с наложенной строкой просмотров.
