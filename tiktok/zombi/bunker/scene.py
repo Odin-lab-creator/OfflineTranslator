@@ -12,7 +12,7 @@ NIGHT = {2, 6, 11, 18, 19, 20}
 EVENING = {1}
 
 # --- комнаты (x0, y0, x1, y1) ---
-CELLAR = (184, 306, 280, 364)
+CELLAR = (184, 312, 280, 364)
 SHAFT1 = (218, 364, 246, 400)
 ROOM1 = (112, 400, 384, 464)
 SHAFT2 = (330, 464, 358, 524)
@@ -51,258 +51,136 @@ def ease(k):
 _PC = {}
 
 
-# материалы человечка: номер → роль; цвета берутся из таблицы персонажа, объём считается автоматически
-SKIN, SKIN2, HAIR, TOP, TOP2, MARK, LEGS, LEGS2, BOOT, CAP, CUFF, POM, PACK, STRAP, EYEW, PUPIL, MOUTH, BROW, \
-    WOOD, METAL, BLOOD, WOUND, FUR, BELT, PATCH, GLOW, RIB, STRAND, SOLE = range(1, 30)
-FLAT = {MARK, EYEW, PUPIL, MOUTH, BROW, BLOOD, WOUND, GLOW, RIB, STRAND, SOLE}
-COLS = {
-    "hero": {SKIN: (236, 190, 146), SKIN2: (206, 158, 120), HAIR: (120, 70, 40), TOP: (54, 112, 192), TOP2: (40, 84, 150),
-             MARK: (30, 60, 110), LEGS: (70, 84, 112), LEGS2: (54, 64, 88), BOOT: (88, 58, 38), CAP: (226, 112, 34),
-             CUFF: (196, 88, 26), POM: (242, 236, 222), PACK: (110, 92, 58), STRAP: (70, 58, 40), PATCH: (120, 100, 70),
-             STRAND: (150, 70, 20)},
-    "anya": {SKIN: (234, 186, 148), SKIN2: (204, 154, 120), HAIR: (48, 34, 30), TOP: (70, 120, 80), TOP2: (52, 92, 62),
-             MARK: (36, 66, 44), LEGS: (66, 66, 76), LEGS2: (50, 50, 60), BOOT: (60, 44, 34), FUR: (220, 206, 176),
-             BELT: (96, 66, 40), STRAND: (28, 20, 18), PATCH: (90, 90, 100)},
-    "zombie": {SKIN: (142, 170, 110), SKIN2: (112, 140, 88), HAIR: (64, 64, 48), TOP: (118, 104, 90), TOP2: (92, 80, 70),
-               MARK: (70, 60, 52), LEGS: (70, 76, 70), LEGS2: (54, 60, 54), BOOT: (60, 50, 44), BLOOD: (124, 30, 28),
-               WOUND: (80, 40, 40), GLOW: (255, 60, 40), RIB: (196, 190, 170), STRAND: (44, 44, 34)},
-}
-COMMON = {EYEW: (240, 236, 228), PUPIL: (24, 20, 20), MOUTH: (150, 80, 72), BROW: (60, 40, 30), WOOD: (140, 96, 54),
-          METAL: (176, 182, 192), SOLE: (40, 30, 26)}
-CW, CH, CF = 56, 74, 70          # холст и линия ступней
-
-
-def _limb(d, a, b, w, m):
-    d.line([a, b], fill=m, width=w)
-    d.ellipse([b[0] - w / 2 + 0.5, b[1] - w / 2 + 0.5, b[0] + w / 2 - 0.5, b[1] + w / 2 - 0.5], fill=m)
-
-
-def _leg(d, hip, foot, knee_dx, m, boot=BOOT):
-    knee = ((hip[0] + foot[0]) / 2 + knee_dx, (hip[1] + foot[1]) / 2)
-    _limb(d, hip, knee, 5, m)
-    _limb(d, knee, (foot[0], foot[1] - 2), 4, m)
-    fx, fy = foot
-    d.rounded_rectangle([fx - 3, fy - 4, fx + 5, fy], 1, fill=boot)
-    d.line([(fx - 3, fy), (fx + 5, fy)], fill=SOLE)
-    return knee
-
-
-def _arm(d, sh, el, hand, m, skin):
-    _limb(d, sh, el, 4, m)
-    _limb(d, el, hand, 4, m)
-    d.rectangle([hand[0] - 1, hand[1] - 1, hand[0] + 2, hand[1] + 2], fill=skin)
-
-
 def person(kind, pose, phase):
-    """Человечек ~52 px (холст 56×68, ступни на y=64), лицом вправо: объём светом сверху-слева,
-    цветной контур, мелкие детали. Кадры кешируются."""
+    """Человечек ~44 px на холсте 48×60 (ступни на y=56), лицом вправо, с обводкой. Кадры кешируются."""
     key = (kind, pose, round(phase * 24) % 24)
     if key in _PC:
         return _PC[key]
     ph = key[2] / 24
-    im = Image.new("L", (CW, CH), 0)
+    c = PEOPLE[kind]
+    im = Image.new("RGBA", (48, 60), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    x, F = 28, CF
+    x, feet = 24, 56
     zomb = kind == "zombie"
     s1 = math.sin(ph * 2 * math.pi)
-    lean = 3 if zomb else 2 if pose in ("dig", "ear", "knife") else 0
+    sit, crouch = pose in ("sit", "pedal"), pose == "crouch"
     bob = 0
-    # ---------- ноги ----------
-    if pose in ("sit", "pedal"):
-        hip = F - (26 if pose == "pedal" else 16)
+    # ---- ноги ----
+    if sit:
+        hip = feet - 12
         if pose == "pedal":
             a = ph * 2 * math.pi
-            for sgn, m in ((math.pi, LEGS2), (0, LEGS)):
-                foot = (x + 4 + 5 * math.cos(a + sgn), F - 10 + 5 * math.sin(a + sgn))
-                knee = (x + 9, hip - 3 + 3 * math.sin(a + sgn))
-                _limb(d, (x, hip), knee, 5, m); _limb(d, knee, foot, 4, m)
-                d.rounded_rectangle([foot[0] - 2, foot[1] - 2, foot[0] + 5, foot[1] + 1], 1, fill=BOOT)
+            for s, col in ((math.pi, c["top2"]), (0, c["legs"])):
+                fx, fy = x + 8 + 5 * math.cos(a + s), feet - 5 + 5 * math.sin(a + s)
+                kx, ky = x + 8, hip - 4 + 2 * math.sin(a + s)
+                d.line([(x, hip), (kx, ky), (fx, fy)], fill=c["legs"], width=4)
+                d.rectangle([fx - 1, fy - 1, fx + 4, fy + 1], fill=c["boot"])
         else:
-            for dx, m in ((-1, LEGS2), (1, LEGS)):
-                _limb(d, (x, hip), (x + 11 + dx, hip), 5, m)
-                _limb(d, (x + 11 + dx, hip), (x + 12 + dx, F - 3), 4, m)
-                d.rounded_rectangle([x + 10 + dx, F - 4, x + 18 + dx, F], 1, fill=BOOT)
-                d.line([(x + 10 + dx, F), (x + 18 + dx, F)], fill=SOLE)
-            if kind == "hero":
-                d.rectangle([x + 9, hip - 2, x + 12, hip + 1], fill=PATCH)
-    elif pose == "crouch":
-        hip = F - 12
-        _leg(d, (x - 1, hip), (x - 6, F), 0, LEGS2)
-        _limb(d, (x, hip), (x + 9, hip + 2), 5, LEGS); _limb(d, (x + 9, hip + 2), (x + 9, F - 2), 4, LEGS)
-        d.rounded_rectangle([x + 7, F - 4, x + 15, F], 1, fill=BOOT)
+            d.rectangle([x - 4, hip - 2, x + 9, hip + 2], fill=c["legs"])
+            d.rectangle([x + 6, hip, x + 9, feet - 2], fill=c["legs"])
+            d.rectangle([x + 6, feet - 3, x + 12, feet], fill=c["boot"])
+        top_y = hip - 15
     else:
-        walk = pose == "walk"
-        bob = int(round(abs(s1) * 1.4)) if walk else 0
-        hip = F - 21 + bob // 2 + (3 if pose == "dig" else 0)
-        amp = (7 if not zomb else 5) if walk else 0
-        for sgn, m in ((-1, LEGS2), (1, LEGS)):
-            sw = sgn * s1
-            fx = x + 1 + amp * sw + (sgn * 2 if not walk else 0) + (3 if pose == "dig" and sgn > 0 else 0)
-            lift = max(0, -sw) * 4 if walk else 0
-            _leg(d, (x + sgn, hip), (fx, F - lift), 2 + lift * 0.5, m)
-        if kind == "hero" and not walk:
-            d.rectangle([x + 2, hip + 9, x + 4, hip + 12], fill=PATCH)
-        if zomb:
-            d.line([(x - 2, hip + 14), (x, hip + 18)], fill=WOUND)
-    top = hip - 19 - bob
-    # ---------- задняя рука (рисуется до тела) ----------
-    sh_b, sh_f = (x - 1 + lean, top + 4), (x + 2 + lean, top + 4)
-    arms = {}
-    if zomb and pose != "crouch":
-        sw = 2 * math.sin(ph * 2 * math.pi + 1)
-        arms["b"] = ((x + 7, top + 6), (x + 16, top + 7 - sw))
-        arms["f"] = ((x + 10, top + 5), (x + 19, top + 5 + sw))
-    elif pose == "crouch":
-        y = top - 12 + 4 * math.sin(ph * 4 * math.pi)
-        arms["b"] = ((x + 4, top - 2), (x + 8, y + 3))
-        arms["f"] = ((x + 7, top - 3), (x + 12, y))
-    elif pose == "walk":
-        arms["b"] = ((x - 1 - 4 * s1, top + 11), (x - 1 - 7 * s1, top + 18))
-        arms["f"] = ((x + 2 + 4 * s1, top + 11), (x + 3 + 7 * s1, top + 18))
-    elif pose == "dig":
-        a = 0.3 + 1.0 * (0.5 + 0.5 * s1)
-        g1 = (x + 6 + 8 * math.cos(a), top + 6 + 8 * math.sin(a))
-        g2 = (g1[0] + 7 * math.cos(a + 0.5), g1[1] + 7 * math.sin(a + 0.5))
-        arms["b"] = (((sh_b[0] + g1[0]) / 2, (sh_b[1] + g1[1]) / 2 + 2), g1)
-        arms["f"] = (((sh_f[0] + g2[0]) / 2, (sh_f[1] + g2[1]) / 2 + 2), g2)
-        arms["tool"] = a
-    elif pose == "up":
-        arms["b"] = ((x - 2, top - 5), (x - 1, top - 14 - 2 * s1))
-        arms["f"] = ((x + 5, top - 5), (x + 5, top - 14 + 2 * s1))
-    elif pose == "ear":
-        arms["b"] = ((x, top + 11), (x + 2, top + 18))
-        arms["f"] = ((x + 9, top + 6), (x + 7 + lean, top - 9))
-    elif pose == "knife":
-        arms["b"] = ((x + 4, top + 10), (x + 9, top + 8))
-        arms["f"] = ((x + 9, top + 6), (x + 16, top + 4))
-    elif pose == "pedal":
-        arms["b"] = ((x + 6, top + 9), (x + 13, top + 9))
-        arms["f"] = ((x + 7, top + 10), (x + 14, top + 10))
-    elif pose == "sit":
-        arms["b"] = ((x + 3, top + 11), (x + 9, top + 16))
-        arms["f"] = ((x + 5, top + 11), (x + 11, top + 16))
-    else:
-        br = 0.6 * s1
-        arms["b"] = ((x - 2, top + 11), (x - 2 + br, top + 18))
-        arms["f"] = ((x + 2, top + 11), (x + 3 + br, top + 18))
-    el, hd = arms["b"]
-    if kind == "hero":                       # рюкзак за спиной
-        d.rounded_rectangle([x - 11 + lean, top + 2, x - 4 + lean, top + 16], 2, fill=PACK)
-        d.rectangle([x - 11 + lean, top + 9, x - 4 + lean, top + 10], fill=STRAP)
-    _arm(d, sh_b, el, hd, TOP2, SKIN2)
-    # ---------- тело ----------
-    tl = top
-    body = [(x - 6 + lean, tl), (x + 6 + lean, tl), (x + 7, hip + (4 if kind == "anya" else 2)), (x - 6, hip + (4 if kind == "anya" else 2))]
-    if zomb:                                  # рваный низ рубашки, из-под неё — штаны
-        d.rectangle([x - 5, hip - 4, x + 6, hip + 2], fill=LEGS)
-        d.line([(x - 5, hip - 3), (x + 6, hip - 3)], fill=MARK)
-        body = body[:2] + [(x + 7, hip - 3), (x + 4, hip), (x + 1, hip - 4), (x - 2, hip - 1), (x - 6, hip - 4)]
-    d.polygon(body, fill=TOP)
-    d.ellipse([x - 6 + lean, tl - 2, x + 6 + lean, tl + 6], fill=TOP)                 # плечи
+        hip = feet - 12 + (4 if crouch else 0)
+        amp = 5 if pose == "walk" else 0
+        bob = int(round(abs(s1) * 1.2)) if pose == "walk" else 0
+        for sgn, col in ((-1, c["legs"]), (1, lerp(c["legs"], (0, 0, 0), 0.25))):
+            fx = x + sgn * amp * s1
+            lift = max(0, -sgn * s1) * 3 if pose == "walk" else 0
+            d.line([(x + sgn, hip - bob), (fx, feet - 2 - lift)], fill=col, width=4)
+            d.rectangle([fx - 2, feet - 3 - lift, fx + 4, feet - lift], fill=c["boot"])
+        if crouch:
+            d.rectangle([x - 2, hip - 2, x + 6, hip + 2], fill=c["legs"])
+        top_y = hip - 15 - bob
+    hunch = 2 if zomb else 0
+    # ---- тело ----
+    d.rounded_rectangle([x - 7, top_y, x + 7, hip + 1 - bob], 3, fill=c["top"])
+    d.rectangle([x - 7, top_y + 2, x - 4, hip - bob], fill=c["top2"])
     if kind == "hero":
-        d.line([(x + 3 + lean, tl + 2), (x + 3, hip + 1)], fill=MARK)              # молния
-        d.rectangle([x + 4, tl + 11, x + 6, tl + 14], fill=MARK)                   # карман
-        d.line([(x - 3 + lean, tl), (x + 2 + lean, tl + 9)], fill=STRAP)           # лямка
-        d.ellipse([x - 7 + lean, tl - 4, x - 1 + lean, tl + 2], fill=TOP2)         # капюшон за шеей
+        d.line([(x + 2, top_y + 2), (x + 2, hip - 1 - bob)], fill=c["top3"])
+        d.rectangle([x + 3, top_y + 9, x + 6, top_y + 11], fill=c["top2"])
+        d.rectangle([x - 8, top_y + 2, x - 5, top_y + 12], fill=(92, 70, 52))     # рюкзак
     elif kind == "anya":
-        d.ellipse([x - 8 + lean, tl - 4, x + lean, tl + 3], fill=FUR)              # мех капюшона
-        d.rectangle([x - 6, hip - 1, x + 7, hip + 1], fill=BELT)
-        d.rectangle([x - 5, hip, x - 2, hip + 4], fill=BELT)                       # подсумок
-        d.line([(x + 2 + lean, tl + 3), (x + 2, hip - 2)], fill=MARK)
-        d.point([(x + 4, tl + 6), (x + 4, tl + 10)], fill=MARK)
+        d.rectangle([x - 7, top_y + 11, x + 7, top_y + 12], fill=(60, 50, 40))    # ремень
+        d.point([(x + 4, top_y + 4), (x + 4, top_y + 7)], fill=c["top3"])
     else:
-        for k in range(3):                                                         # рёбра в дыре рубашки
-            d.line([(x + 1 + lean, tl + 6 + k * 3), (x + 5 + lean, tl + 7 + k * 3)], fill=RIB)
-        d.rectangle([x + 1 + lean, tl + 5, x + 5 + lean, tl + 5], fill=WOUND)
-        for bx, by in ((x - 3, tl + 9), (x + 5, tl + 14), (x - 1, tl + 15), (x + 2, tl + 2)):
-            d.rectangle([bx, by, bx + 1, by + 1], fill=BLOOD)
-    # ---------- голова ----------
-    hx, hy = x + 1 + lean, tl - 15 + (2 if zomb else 0)
-    d.rectangle([hx - 1, hy + 11, hx + 2, tl + 1], fill=SKIN)                    # шея
-    d.rounded_rectangle([hx - 6, hy, hx + 6, hy + 13], 4, fill=SKIN)
-    d.rectangle([hx + 3, hy + 9, hx + 6, hy + 12], fill=SKIN)                     # подбородок
-    d.point([(hx + 7, hy + 7), (hx + 7, hy + 8)], fill=SKIN)                     # нос
-    d.rectangle([hx - 1, hy + 6, hx, hy + 8], fill=SKIN2)                         # ухо
+        d.polygon([(x - 7, hip - bob), (x - 4, hip - 4 - bob), (x - 1, hip - bob)], fill=(0, 0, 0, 0))
+        d.rectangle([x + 1, top_y + 5, x + 3, top_y + 8], fill=(150, 56, 48))
+        d.point([(x - 3, top_y + 10), (x + 5, top_y + 3)], fill=c["top3"])
+    # ---- голова ----
+    hx, hy = x + 1 + hunch, top_y - 13 + (hunch // 2)
+    d.rounded_rectangle([hx - 7, hy, hx + 7, hy + 13], 3, fill=c["skin"])
+    d.rectangle([hx - 7, hy + 4, hx - 5, hy + 12], fill=lerp(c["skin"], (0, 0, 0), 0.15))
+    ex = hx + 3
+    if kind == "hero":                       # шапка с отворотом и помпоном
+        d.rounded_rectangle([hx - 8, hy - 3, hx + 7, hy + 4], 3, fill=c["hair"])
+        d.rectangle([hx - 8, hy + 3, hx + 7, hy + 5], fill=c["hair2"])
+        d.ellipse([hx - 4, hy - 7, hx + 1, hy - 2], fill=(240, 236, 226))
+        d.rectangle([hx - 7, hy + 6, hx - 5, hy + 10], fill=(110, 72, 44))
+    elif kind == "anya":
+        d.rounded_rectangle([hx - 8, hy - 2, hx + 7, hy + 4], 3, fill=c["hair"])
+        d.rectangle([hx - 8, hy + 2, hx - 4, hy + 11], fill=c["hair"])
+        d.ellipse([hx - 13, hy + 1, hx - 7, hy + 7], fill=c["hair2"])            # пучок/хвост
+        d.rectangle([hx - 12, hy + 6, hx - 9, hy + 14], fill=c["hair2"])
+    else:
+        d.rectangle([hx - 7, hy - 1, hx + 3, hy + 2], fill=c["hair"])
+        d.point([(hx + 5, hy), (hx - 2, hy - 2)], fill=c["hair"])
     if zomb:
-        d.rectangle([hx + 2, hy + 5, hx + 5, hy + 8], fill=WOUND)                  # впалая глазница
-        d.rectangle([hx + 3, hy + 6, hx + 4, hy + 7], fill=GLOW)
-        d.rectangle([hx + 3, hy + 10, hx + 6, hy + 13], fill=MOUTH)                # отвисшая челюсть
-        d.point([(hx + 4, hy + 10), (hx + 6, hy + 10)], fill=EYEW)
-        d.rectangle([hx - 4, hy + 2, hx - 2, hy + 4], fill=SKIN2)
-        for k in range(4):
-            d.line([(hx - 5 + k * 3, hy - 1), (hx - 4 + k * 3, hy + 2)], fill=HAIR)
+        d.rectangle([ex - 1, hy + 5, ex + 2, hy + 7], fill=(60, 70, 50))
+        d.rectangle([ex, hy + 6, ex + 1, hy + 7], fill=(230, 40, 30))
+        d.rectangle([hx + 2, hy + 10, hx + 6, hy + 11], fill=(70, 30, 30))
     else:
         blink = (ph * 7) % 1 < 0.05
-        d.rectangle([hx + 3, hy + 6, hx + 4, hy + 7], fill=EYEW)
-        d.rectangle([hx + 4, hy + 6 + (1 if blink else 0), hx + 4, hy + 7], fill=PUPIL)
-        d.line([(hx + 2, hy + 4), (hx + 5, hy + 4)], fill=BROW)
-        d.line([(hx + 4, hy + 10), (hx + 6, hy + 10)], fill=MOUTH)
-    if kind == "hero":                       # шапка с отворотом и помпоном
-        d.rectangle([hx - 6, hy + 4, hx - 2, hy + 9], fill=HAIR)
-        d.rounded_rectangle([hx - 7, hy - 4, hx + 6, hy + 4], 4, fill=CAP)
-        d.rectangle([hx - 7, hy + 2, hx + 6, hy + 5], fill=CUFF)
-        for k in range(hx - 6, hx + 6, 2):
-            d.point((k, hy + 3), fill=STRAND)
-        d.ellipse([hx - 4, hy - 9, hx + 1, hy - 4], fill=POM)
-    elif kind == "anya":
-        swing = 2 * math.sin(ph * 2 * math.pi) if pose == "walk" else 0.5 * s1
-        d.polygon([(hx - 5, hy + 2), (hx - 12, hy + 8 + swing), (hx - 11, hy + 15 + swing), (hx - 7, hy + 7)], fill=HAIR)
-        d.rectangle([hx - 7, hy + 2, hx - 5, hy + 4], fill=BELT)                    # резинка
-        d.rounded_rectangle([hx - 7, hy - 2, hx + 6, hy + 5], 4, fill=HAIR)
-        d.rectangle([hx - 7, hy + 3, hx - 2, hy + 10], fill=HAIR)
-        d.polygon([(hx + 1, hy + 1), (hx + 7, hy + 3), (hx + 4, hy + 5)], fill=HAIR)  # чёлка
-        for k in range(3):
-            d.line([(hx - 5 + k * 3, hy - 1), (hx - 3 + k * 3, hy + 3)], fill=STRAND)
-    # ---------- передняя рука и инструмент ----------
-    el, hd = arms["f"]
-    if "tool" in arms:
-        a = arms["tool"]
+        d.rectangle([ex, hy + 6, ex + 1, hy + 7 if not blink else hy + 6], fill=(28, 22, 22))
+        d.line([(ex - 1, hy + 4), (ex + 2, hy + 4)], fill=lerp(c["hair2"], (0, 0, 0), 0.3))
+        d.line([(hx + 3, hy + 10), (hx + 5, hy + 10)], fill=(176, 110, 96))
+    # ---- руки ----
+    sh = (x + 2, top_y + 4)
+    hand = c["skin"]
+    def arm(pts, col=c["top"]):
+        d.line(pts, fill=col, width=4)
+        hx2, hy2 = pts[-1]
+        d.rectangle([hx2 - 2, hy2 - 2, hx2 + 2, hy2 + 2], fill=hand)
+    if zomb and not crouch:
+        sway = 2 * math.sin(ph * 2 * math.pi + 1)
+        arm([sh, (x + 16, top_y + 4 + sway)])
+        arm([(x - 1, top_y + 5), (x + 13, top_y + 7 - sway)], c["top2"])
+    elif crouch:
+        y = top_y - 10 + 4 * math.sin(ph * 4 * math.pi)
+        arm([sh, (x + 10, y)])
+        arm([(x - 1, top_y + 5), (x + 7, y + 3)], c["top2"])
+    elif pose == "dig":
+        a = 0.35 + 1.1 * (0.5 + 0.5 * s1)
+        ax, ay = sh[0] + 9 * math.cos(a), sh[1] + 9 * math.sin(a)
         b = a + 0.5
-        h0 = (hd[0] - 12 * math.cos(b), hd[1] - 12 * math.sin(b))
-        h1 = (hd[0] + 9 * math.cos(b), hd[1] + 9 * math.sin(b))
-        d.line([h0, h1], fill=WOOD, width=2)
-        d.polygon([(h1[0] - 3, h1[1] - 2), (h1[0] + 4, h1[1] + 1), (h1[0] + 1, h1[1] + 8), (h1[0] - 4, h1[1] + 5)], fill=METAL)
-    if pose == "knife":
-        d.line([(hd[0] + 1, hd[1] - 1), (hd[0] + 7, hd[1] - 4)], fill=METAL, width=2)
-    _arm(d, sh_f, el, hd, TOP, SKIN)
-    if zomb:
-        d.line([(hd[0] + 2, hd[1]), (hd[0] + 4, hd[1] + 1)], fill=SKIN)           # пальцы
-        d.line([(hd[0] + 2, hd[1] + 2), (hd[0] + 4, hd[1] + 3)], fill=SKIN)
-    # ---------- объём и контур ----------
-    idx = np.asarray(im)
-    pal = np.zeros((32, 3), np.float32)
-    for m, c in {**COMMON, **COLS[kind]}.items():
-        pal[m] = c
-    base = pal[idx]
-    flat = np.isin(idx, list(FLAT))
-    def nb(dy, dx):
-        out = np.zeros_like(idx)
-        ys, ye = max(0, dy), CH + min(0, dy)
-        xs, xe = max(0, dx), CW + min(0, dx)
-        out[ys:ye, xs:xe] = idx[ys - dy:ye - dy, xs - dx:xe - dx]
-        return out
-    up, left, down, right = nb(1, 0), nb(0, 1), nb(-1, 0), nb(0, -1)
-    lit = ((up != idx) | (left != idx)) & ~flat & (idx > 0)
-    dark = ((down != idx) | (right != idx)) & ~flat & (idx > 0)
-    rgb = base.copy()
-    rgb[lit & ~dark] = rgb[lit & ~dark] * 0.8 + 255 * 0.2
-    rgb[dark & ~lit] = rgb[dark & ~lit] * 0.72
-    yy = np.arange(CH)[:, None] / CH                                             # чуть темнее книзу
-    rgb *= (1.04 - 0.1 * yy)[..., None]
-    mask = idx > 0
-    ring = np.zeros_like(mask)
-    near = np.zeros(idx.shape + (3,), np.float32)
-    for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-        sh = np.roll(np.roll(mask, dy, 0), dx, 1)
-        col = np.roll(np.roll(base, dy, 0), dx, 1)
-        new = sh & ~mask & ~ring
-        near[new] = col[new]
-        ring |= new
-    out = np.zeros((CH, CW, 4), np.uint8)
-    out[ring, :3] = (near[ring] * 0.32 + np.array([12, 8, 14]) * 0.68).astype(np.uint8)   # цветной тёмный контур
-    out[ring, 3] = 255
-    out[mask, :3] = np.clip(rgb[mask], 0, 255).astype(np.uint8)
-    out[mask, 3] = 255
+        h0 = (ax - 9 * math.cos(b), ay - 9 * math.sin(b))
+        h1 = (ax + 12 * math.cos(b), ay + 12 * math.sin(b))
+        d.line([h0, h1], fill=(140, 96, 54), width=2)
+        d.polygon([(h1[0] - 3, h1[1] - 2), (h1[0] + 4, h1[1] + 1), (h1[0] + 1, h1[1] + 7), (h1[0] - 4, h1[1] + 4)],
+                  fill=(176, 182, 192), outline=(120, 124, 134))
+        arm([sh, (ax, ay)])
+    elif pose == "up":
+        arm([sh, (x + 5, top_y - 16 + 2 * s1)])
+        arm([(x - 1, top_y + 5), (x - 1, top_y - 15 - 2 * s1)], c["top2"])
+    elif pose == "knife":
+        arm([sh, (x + 12, top_y + 6)])
+        d.line([(x + 13, top_y + 5), (x + 19, top_y + 1)], fill=(214, 220, 228), width=2)
+    elif pose == "ear":
+        arm([sh, (x + 11, top_y - 2)])
+    elif sit or pose == "pedal":
+        arm([sh, (x + 10, top_y + 9)])
+    else:
+        sw = 3 * s1 if pose == "walk" else 0.6 * s1
+        arm([sh, (x + 2 + sw, top_y + 13)], c["top2"] if pose != "walk" else c["top"])
+    # ---- обводка ----
+    a = np.asarray(im)
+    m = a[..., 3] > 0
+    ring = m.copy()
+    for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)):
+        ring |= np.roll(np.roll(m, dy, 0), dx, 1)
+    out = np.zeros_like(a)
+    out[ring] = (*OUT, 255)
+    out[m] = a[m]
     _PC[key] = Image.fromarray(out, "RGBA")
     return _PC[key]
 
@@ -311,7 +189,7 @@ def put(img, kind, pose, phase, x, feet_y, facing=1):
     spr = person(kind, pose, phase)
     if facing < 0:
         spr = spr.transpose(Image.FLIP_LEFT_RIGHT)
-    img.paste(spr, (int(round(x)) - CW // 2, int(round(feet_y)) - CF), spr)
+    img.paste(spr, (int(round(x)) - 24, int(round(feet_y)) - 56), spr)
 
 
 # ---------- статичный мир ----------
@@ -905,7 +783,7 @@ def world(n, p, t):
         else:
             H["hero"] = (max(132, ROOM1[0] + (ROOM1[2] - ROOM1[0]) * (dig1 - 0.4) / 0.6 - 14), F_ROOM1, "dig", 1)
     elif n == 5:
-        H["hero"] = (150, F_ROOM1, "sit", 1)
+        H["hero"] = (162, F_ROOM1 - 6, "sit", 1)
     elif n == 6:
         H["hero"] = (244, F_ROOM1, "up", -1)
     elif n == 7:
@@ -918,9 +796,9 @@ def world(n, p, t):
     elif n == 9:
         H["hero"] = (326, F_ROOM1, "stand", 1)
     elif n == 10:
-        H["hero"] = (238, F_ROOM2, "pedal", 1)
+        H["hero"] = (244, F_ROOM2 - 8, "pedal", 1)
     elif n == 11:
-        H["hero"] = (150, F_ROOM1, "sit", 1)
+        H["hero"] = (162, F_ROOM1 - 6, "sit", 1)
     elif n == 12:
         H["hero"] = (tun_tip[0] - 12, tun_tip[1] + 10, "dig", 1)
     elif n == 13:
@@ -934,8 +812,8 @@ def world(n, p, t):
         H["hero"] = (340, F_ROOM2, "dig", 1)
         H["anya"] = (266, F_ROOM1, "stand", 1)
     elif n == 18:
-        H["hero"] = (206, F_ROOM1, "sit", 1)
-        H["anya"] = (276, F_ROOM1, "sit", -1)
+        H["hero"] = (206, F_ROOM1 - 6, "sit", 1)
+        H["anya"] = (276, F_ROOM1 - 6, "sit", -1)
     else:
         H["hero"] = (238, F_ROOM2, "stand", 1)
         H["anya"] = (270, F_ROOM2, "stand", -1)
