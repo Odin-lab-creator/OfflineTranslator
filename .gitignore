@@ -16,3 +16,4 @@ tiktok/story_world/films/ptichiy_korob/_clipcache/
 tiktok/true_crime_history/cases/*/_clipcache/
 tiktok/true_crime_history/cases/*/_audio.f32
 tiktok/true_crime_history/cases/*/_render_tmp*.mp4
+tiktok/true_crime_history/cases/*/voice_user/_*
