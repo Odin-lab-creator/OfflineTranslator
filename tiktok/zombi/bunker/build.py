@@ -458,6 +458,8 @@ def frame(fi):
     # тряска на стуке и трещине
     if s["stage"] == 20 and p > 0.25:
         r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-2, 2)
+    elif any(0 <= T - g < 0.5 for g in G.get("growls", [])):
+        r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-1, 1)
     elif kage is not None and kage < 0.14:
         r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-1, 1)
     x0, y0 = int(round(cx * S3 - W / 2)), int(round(cy * S3 - H / 2))
@@ -502,7 +504,9 @@ def frame(fi):
 
 def seg_world(s, j, T, p, kage):
     g = s["segs"][j]
-    return world(g["stage"], p if g["p"] is None else g["p"], T, tuple(EP.OFF) + g["flags"], kage)
+    drop = {f[1:] for f in g["flags"] if f.startswith("-")}          # "-bike": включить спрятанное в OFF
+    off = tuple(f for f in tuple(EP.OFF) + g["flags"] if f not in drop and not f.startswith("-"))
+    return world(g["stage"], p if g["p"] is None else g["p"], T, off, kage)
 
 
 def init(scenes, clean, preview):
@@ -513,6 +517,7 @@ def init(scenes, clean, preview):
     G["dots"] = halftone()
     G["endcam"] = [cam_target(seg_world(s, len(s["segs"]) - 1, s["end"], 1.0, None)[1]) for s in scenes]
     G["knocks"] = knocks(scenes)
+    G["growls"] = growls(scenes)
 
 
 def knocks(scenes):
@@ -525,10 +530,21 @@ def knocks(scenes):
                 out += [w["t0"] - 0.05 + k * 0.32 for k in range(3)]
             if w["text"] == "ЕЩЁ" and j + 1 < len(ws) and ws[j + 1]["text"] == "ТРИ" and out:
                 out += [ws[j + 1]["t1"] + 0.05 + k * 0.32 for k in range(3)]
+        for j, w in enumerate(ws):                    # «кто-то постучал» и т.п. — три удара после слова
+            if any(w["text"].startswith(k) for k in getattr(EP, "KNOCK_AT", [])):
+                out += [w["t1"] + 0.1 + k * 0.32 for k in range(3)]
     last = scenes[-1]["words"][-1]["t1"]
-    if any(s["stage"] == 14 for s in scenes):
+    if getattr(EP, "FINAL", "knock") == "knock" and any(s["stage"] == 14 for s in scenes):
         out.append(last + 0.25)
     return sorted(out)
+
+
+def growls(scenes):
+    """Рычание: на слове «рычит» и в самом конце серии."""
+    if getattr(EP, "FINAL", "knock") != "growl":
+        return []
+    out = [w["t0"] for s in scenes for w in s["words"] if w["text"].startswith("РЫЧ")]
+    return out + [scenes[-1]["words"][-1]["t1"] + 0.3]
 
 
 def decode(path, sr):
@@ -583,6 +599,15 @@ def audio(scenes, total, voice_path, sr=44100, music=None):
         th = np.sin(2 * np.pi * np.cumsum(90 * np.exp(-tt * 18) + 55) / sr) * np.exp(-tt * 16)
         th += np.convolve(rng.normal(0, 1, m), np.ones(12) / 12, "same") * np.exp(-tt * 40) * 0.6
         mix[a:a + m] += (th * 0.55 * big).astype(np.float32)[:max(0, n - a)]
+    for k, gt in enumerate(growls(scenes)):            # низкое рычание из темноты
+        a, m = int(gt * sr), int(1.4 * sr)
+        tt = np.arange(m) / sr
+        nz = np.convolve(rng.normal(0, 1, m), np.ones(60) / 60, "same")
+        am = 0.55 + 0.45 * np.sin(2 * np.pi * 23 * tt) * np.sin(2 * np.pi * 3.1 * tt)
+        tone = np.sin(2 * np.pi * np.cumsum(70 + 12 * np.sin(2 * np.pi * 2 * tt)) / sr)
+        env = np.clip(tt / 0.15, 0, 1) * np.exp(-np.clip(tt - 0.6, 0, None) * 3)
+        g = (nz * 6 * am + tone * 0.6) * env * (1.4 if k == len(growls(scenes)) - 1 else 1.0)
+        mix[a:a + m] += (g * 0.35).astype(np.float32)[:max(0, n - a)]
     mix /= max(1e-6, np.abs(mix).max()) / 0.9
     return mix
 

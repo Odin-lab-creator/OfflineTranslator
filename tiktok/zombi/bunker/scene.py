@@ -168,6 +168,15 @@ def person(kind, pose, phase):
         elif pose == "up":
             arm([sh, (x + 5, top_y - 16 + 2 * s1)])
             arm([(x - 1, top_y + 5), (x - 1, top_y - 15 - 2 * s1)], c["top2"])
+        elif pose == "give":                     # протягивает: банку огурцов / миску еды
+            arm([sh, (x + 11, top_y + 7)])
+            if kind == "hero":
+                d.rectangle([x + 11, top_y + 1, x + 16, top_y + 8], fill=(120, 150, 90))
+                d.rectangle([x + 11, top_y, x + 16, top_y + 1], fill=(200, 170, 60))
+                d.point([(x + 13, top_y + 4), (x + 14, top_y + 6)], fill=(80, 120, 60))
+            else:
+                d.chord([x + 9, top_y + 2, x + 19, top_y + 10], 0, 180, fill=(150, 150, 160))
+                d.line([(x + 10, top_y + 6), (x + 18, top_y + 6)], fill=(180, 140, 90))
         elif pose == "knife":
             arm([sh, (x + 12, top_y + 6)])
             d.line([(x + 13, top_y + 5), (x + 19, top_y + 1)], fill=(214, 220, 228), width=2)
@@ -609,7 +618,7 @@ def flick(t, seed=0):
 
 # ---------- кадр ----------
 def world(n, p, t, off=(), knock=None):
-    kind = "night" if n in NIGHT else "evening" if n in EVENING else "day"
+    kind = "night" if n in NIGHT or "night" in off else "evening" if n in EVENING else "day"
     img = static_layer().copy()
     d = ImageDraw.Draw(img)
     snow = "snow" in off
@@ -674,6 +683,21 @@ def world(n, p, t, off=(), knock=None):
                 d.ellipse([cx - 9, cy - 9, cx + 9, cy + 8], fill=(48, 33, 25))
         d.rounded_rectangle([458, 572, 504, 584], 3, fill=(96, 72, 120))     # её спальник
         d.rectangle([506, 560, 520, 584], fill=(80, 84, 70))                 # ящик
+        d.rectangle([521, 544, 539, 588], fill=(56, 58, 66))                 # запертая дверь: рама
+        if "dooropen" in off:
+            d.rectangle([524, 547, 537, 588], fill=(8, 6, 10))               # тёмный проём
+            d.polygon([(524, 547), (529, 550), (529, 585), (524, 588)], fill=(110, 114, 124))   # открытая створка
+            if "eyes" in off:
+                d.ellipse([527, 552, 537, 566], fill=(22, 20, 24))           # силуэт головы
+                d.rectangle([529, 557, 530, 558], fill=(255, 50, 36)); d.rectangle([533, 557, 534, 558], fill=(255, 50, 36))
+        else:
+            d.rectangle([524, 547, 536, 588], fill=(108, 112, 122))
+            for yy in (553, 567, 581):
+                d.line([(524, yy), (536, yy)], fill=(84, 88, 98))
+            for rx, ry in ((526, 549), (534, 549), (526, 585), (534, 585)):
+                d.point((rx, ry), fill=(150, 154, 164))
+            d.rectangle([524, 565, 527, 571], fill=(200, 168, 56))            # навесной замок
+            d.arc([524, 561, 527, 567], 180, 360, fill=(170, 170, 176))
     # мебель и вещи
     lamp_on = (n > 10 or (n == 10 and p > 0.55)) and "lamp" not in off
     if n >= 5:
@@ -889,9 +913,9 @@ def world(n, p, t, off=(), knock=None):
         H["hero"] = (238, F_ROOM2, "stand", 1)
         H["anya"] = (270, F_ROOM2, "stand", -1)
     for fl in off:
-        if fl.startswith("hero="):
+        if fl.startswith("hero=") or fl.startswith("anya="):
             hx_, hy_, hp_, hf_ = fl[5:].split(",")
-            H["hero"] = (float(hx_), float(hy_), hp_, int(hf_))
+            H[fl[:4]] = (float(hx_), float(hy_), hp_, int(hf_))
     xs = [v[0] for v in H.values()]
     ys = [v[1] for v in H.values()]
     focus = (sum(xs) / len(xs), sum(ys) / len(ys))
@@ -959,6 +983,9 @@ def world(n, p, t, off=(), knock=None):
         for k, dx in enumerate((-10, 0, 12)):
             al = int(60 + 25 * math.sin(t * 2 + k))
             d.polygon([(HATCH_X + dx, GY - 3), (HATCH_X + dx - 22, GY - 170), (HATCH_X + dx + 16, GY - 170)], fill=(255, 230, 150, al))
+    if "eyes" in off:                         # глаза в темноте за дверью светятся и после затемнения
+        d.ellipse([523, 551, 541, 564], fill=(255, 40, 30, 40))
+        d.rectangle([529, 557, 530, 558], fill=(255, 70, 50, 255)); d.rectangle([533, 557, 534, 558], fill=(255, 70, 50, 255))
     for who, (x, y, pose, f) in H.items():    # пар изо рта на морозе
         if pose in ("cold", "coldsit"):
             mx, my = x + 6 * f, y - (40 if pose == "cold" else 30)

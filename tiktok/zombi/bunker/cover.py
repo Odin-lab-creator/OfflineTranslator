@@ -18,19 +18,24 @@ W, H = 1080, 1920
 GRID_TOP, GRID_BOT, OVERLAY = 240, 1680, 0.15
 # серия → (этап мира, ночь?, верх-лево кадра в мире x0, y0, время от удара, текст-крючок, зомби [(x, поза, фаза, взгляд)])
 SHOTS = {1: (6, True, 52, 4, None, "", [(120, "walk", 0.25, 1), (172, "walk", 0.7, 1), (300, "walk", 0.6, -1),
-                                          (372, "walk", 0.1, -1), (238, "crouch", 0.3, -1)])}
+                                          (372, "walk", 0.1, -1), (238, "crouch", 0.3, -1)], ()),
+         2: (16, True, 270, 252, None, "", None,
+             ("-bike", "night", "dooropen", "eyes", "hero=440,586,stand,1", "anya=500,588,give,1"), 4)}
 
 
 def make(ep):
     m = importlib.import_module(f"ep{ep}")
     build.EP = m
-    stage, night, x0, y0, kage, hook, zombies = SHOTS[ep]
+    stage, night, x0, y0, kage, hook, zombies, flags = SHOTS[ep][:8]
+    k = SHOTS[ep][8] if len(SHOTS[ep]) > 8 else 3                       # крупность пикселя (3 — как в ролике)
     if night:
         scene.NIGHT.add(stage)
     if zombies:
         scene.zombie_list = lambda n, t: zombies
-    img, _ = scene.world(stage, 1.0, 3.3, m.OFF, kage)
-    view = img.crop((x0, y0, x0 + 360, y0 + 640)).resize((W, H), Image.NEAREST)
+    drop = {f[1:] for f in flags if f.startswith("-")}
+    off = tuple(f for f in tuple(m.OFF) + tuple(flags) if f not in drop and not f.startswith("-"))
+    img, _ = scene.world(stage, 1.0, 3.3, off, kage)
+    view = img.crop((x0, y0, x0 + W // k, y0 + H // k)).resize((W, H), Image.NEAREST)
     a = np.asarray(view).astype(np.float32)
     yy = np.linspace(0, 1, H)[:, None, None]
     a *= 1 - 0.55 * np.clip((0.34 - yy) / 0.2, 0, 1)                    # притемнить верх под название
@@ -65,7 +70,14 @@ def tile(im, w=300, views="▷ 1 024 · 15 нояб.", dur="1:26"):
 if __name__ == "__main__":
     ep = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     im = make(ep)
-    t = tile(im)
+    mp4 = os.path.join(HERE, f"bunker_ep{ep}.mp4")
+    dur = "1:26"
+    if os.path.exists(mp4):
+        import subprocess
+        sec = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4],
+                                   capture_output=True, text=True).stdout or 86)
+        dur = f"{int(sec // 60)}:{int(sec % 60):02d}"
+    t = tile(im, dur=dur)
     prev = Image.new("RGB", (3 * 310 + 10, t.height + 20), (0, 0, 0))
     for i in range(3):                                                  # три плитки в ряд, как в профиле
         prev.paste(t if i == 0 else Image.new("RGB", t.size, (40, 40, 44)), (10 + i * 310, 10))

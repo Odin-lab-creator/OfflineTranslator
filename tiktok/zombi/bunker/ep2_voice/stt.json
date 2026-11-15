@@ -1,0 +1,2410 @@
+{
+ "language_code": "rus",
+ "language_probability": 1.0,
+ "text": "30 дней ты копал бункер под своим домом. И вот из-за бетонной стены кто-то постучал. Ты пробиваешь дыру, и в лицо бьет луч фонарика. К горлу прижат нож. За стеной живая девушка. Она тебе не верит. Тогда ты медленно кладешь лопату и протягиваешь ей банку огурцов из погреба. Нож опускается. Ее зовут Аня. Месяц она сидела тихо, думала, что к ней копает мертвец. Ее лаз наверх почти засыпало. Выбраться она уже не могла. Вдвоем вы откапываете его и крепите досками. Теперь у вас два выхода. Вдвоем не так страшно, но свечи кончаются, а в темноте под землей начинаешь сходить с ума. Аня до всего была электриком. Из велосипеда в сарае вы собираете генератор, крутишь педали, и загорается лампочка. Теперь светло, но одну дверь в своем бункере Аня держит на замке. Говорит, там склад, а ключ носит на шее. Ты тянешься к ручке, и Аня снова достает нож. Ночью ты просыпаешься от скрипа. Аня с миской еды отпирает ту самую дверь. Она шепчет в темноту: \"Тише, это я\". И из темноты кто-то рычит",
+ "words": [
+  {
+   "text": "30",
+   "start": 0.24,
+   "end": 0.44,
+   "type": "word",
+   "logprob": -0.004211167804839988
+  },
+  {
+   "text": " ",
+   "start": 0.44,
+   "end": 0.5,
+   "type": "spacing",
+   "logprob": -1.5497195136049413e-06
+  },
+  {
+   "text": "дней",
+   "start": 0.5,
+   "end": 0.68,
+   "type": "word",
+   "logprob": -1.5497195136049413e-06
+  },
+  {
+   "text": " ",
+   "start": 0.68,
+   "end": 0.78,
+   "type": "spacing",
+   "logprob": -3.3378546504536644e-06
+  },
+  {
+   "text": "ты",
+   "start": 0.78,
+   "end": 0.88,
+   "type": "word",
+   "logprob": -3.3378546504536644e-06
+  },
+  {
+   "text": " ",
+   "start": 0.88,
+   "end": 0.92,
+   "type": "spacing",
+   "logprob": -0.0015389991458505392
+  },
+  {
+   "text": "копал",
+   "start": 0.92,
+   "end": 1.2,
+   "type": "word",
+   "logprob": -0.0006688588240649551
+  },
+  {
+   "text": " ",
+   "start": 1.2,
+   "end": 1.28,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "бункер",
+   "start": 1.28,
+   "end": 1.66,
+   "type": "word",
+   "logprob": -0.00013403742173068167
+  },
+  {
+   "text": " ",
+   "start": 1.66,
+   "end": 1.7,
+   "type": "spacing",
+   "logprob": -6.556489552167477e-06
+  },
+  {
+   "text": "под",
+   "start": 1.7,
+   "end": 1.8,
+   "type": "word",
+   "logprob": -6.556489552167477e-06
+  },
+  {
+   "text": " ",
+   "start": 1.8,
+   "end": 1.86,
+   "type": "spacing",
+   "logprob": -6.556489552167477e-06
+  },
+  {
+   "text": "своим",
+   "start": 1.86,
+   "end": 2.18,
+   "type": "word",
+   "logprob": -6.556489552167477e-06
+  },
+  {
+   "text": " ",
+   "start": 2.18,
+   "end": 2.22,
+   "type": "spacing",
+   "logprob": -0.006588640622794628
+  },
+  {
+   "text": "домом.",
+   "start": 2.22,
+   "end": 2.58,
+   "type": "word",
+   "logprob": -0.013861640970086834
+  },
+  {
+   "text": " ",
+   "start": 2.58,
+   "end": 3.06,
+   "type": "spacing",
+   "logprob": -9.894321920000948e-06
+  },
+  {
+   "text": "И",
+   "start": 3.06,
+   "end": 3.14,
+   "type": "word",
+   "logprob": -9.894321920000948e-06
+  },
+  {
+   "text": " ",
+   "start": 3.14,
+   "end": 3.18,
+   "type": "spacing",
+   "logprob": -1.7881377516459906e-06
+  },
+  {
+   "text": "вот",
+   "start": 3.18,
+   "end": 3.4,
+   "type": "word",
+   "logprob": -1.7881377516459906e-06
+  },
+  {
+   "text": " ",
+   "start": 3.4,
+   "end": 3.4,
+   "type": "spacing",
+   "logprob": -0.0011729273246601224
+  },
+  {
+   "text": "из-за",
+   "start": 4.14,
+   "end": 4.36,
+   "type": "word",
+   "logprob": -0.0004840717825572938
+  },
+  {
+   "text": " ",
+   "start": 4.36,
+   "end": 4.4,
+   "type": "spacing",
+   "logprob": -9.417489309271332e-06
+  },
+  {
+   "text": "бетонной",
+   "start": 4.4,
+   "end": 4.78,
+   "type": "word",
+   "logprob": -6.06474470998819e-06
+  },
+  {
+   "text": " ",
+   "start": 4.78,
+   "end": 4.82,
+   "type": "spacing",
+   "logprob": -6.437280717364047e-06
+  },
+  {
+   "text": "стены",
+   "start": 4.82,
+   "end": 5.1,
+   "type": "word",
+   "logprob": -6.437280717364047e-06
+  },
+  {
+   "text": " ",
+   "start": 5.1,
+   "end": 5.14,
+   "type": "spacing",
+   "logprob": -2.145764938177308e-06
+  },
+  {
+   "text": "кто-то",
+   "start": 5.14,
+   "end": 5.44,
+   "type": "word",
+   "logprob": -1.4106419700491795e-06
+  },
+  {
+   "text": " ",
+   "start": 5.44,
+   "end": 5.48,
+   "type": "spacing",
+   "logprob": -7.509902934543788e-05
+  },
+  {
+   "text": "постучал.",
+   "start": 5.48,
+   "end": 6.04,
+   "type": "word",
+   "logprob": -5.849004967078347e-05
+  },
+  {
+   "text": " ",
+   "start": 6.04,
+   "end": 6.04,
+   "type": "spacing",
+   "logprob": -9.179073458653875e-06
+  },
+  {
+   "text": "Ты",
+   "start": 6.8,
+   "end": 6.9,
+   "type": "word",
+   "logprob": -9.179073458653875e-06
+  },
+  {
+   "text": " ",
+   "start": 6.9,
+   "end": 6.94,
+   "type": "spacing",
+   "logprob": -2.6702524337451905e-05
+  },
+  {
+   "text": "пробиваешь",
+   "start": 6.94,
+   "end": 7.44,
+   "type": "word",
+   "logprob": -3.1804184436623474e-05
+  },
+  {
+   "text": " ",
+   "start": 7.44,
+   "end": 7.48,
+   "type": "spacing",
+   "logprob": -3.576272320060525e-06
+  },
+  {
+   "text": "дыру,",
+   "start": 7.48,
+   "end": 7.72,
+   "type": "word",
+   "logprob": -0.003637467285079765
+  },
+  {
+   "text": " ",
+   "start": 7.72,
+   "end": 7.72,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "и",
+   "start": 8.32,
+   "end": 8.38,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 8.38,
+   "end": 8.4,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "в",
+   "start": 8.4,
+   "end": 8.44,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 8.44,
+   "end": 8.48,
+   "type": "spacing",
+   "logprob": -1.168244216387393e-05
+  },
+  {
+   "text": "лицо",
+   "start": 8.48,
+   "end": 8.78,
+   "type": "word",
+   "logprob": -1.168244216387393e-05
+  },
+  {
+   "text": " ",
+   "start": 8.78,
+   "end": 8.82,
+   "type": "spacing",
+   "logprob": -0.000476246903417632
+  },
+  {
+   "text": "бьет",
+   "start": 8.82,
+   "end": 9.08,
+   "type": "word",
+   "logprob": -0.05022912989147699
+  },
+  {
+   "text": " ",
+   "start": 9.08,
+   "end": 9.18,
+   "type": "spacing",
+   "logprob": -0.0006840273272246122
+  },
+  {
+   "text": "луч",
+   "start": 9.18,
+   "end": 9.38,
+   "type": "word",
+   "logprob": -0.0006840273272246122
+  },
+  {
+   "text": " ",
+   "start": 9.38,
+   "end": 9.44,
+   "type": "spacing",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": "фонарика.",
+   "start": 9.44,
+   "end": 10.0,
+   "type": "word",
+   "logprob": -0.0007298240404149207
+  },
+  {
+   "text": " ",
+   "start": 10.0,
+   "end": 10.0,
+   "type": "spacing",
+   "logprob": -2.3483953555114567e-05
+  },
+  {
+   "text": "К",
+   "start": 10.78,
+   "end": 10.8,
+   "type": "word",
+   "logprob": -2.3483953555114567e-05
+  },
+  {
+   "text": " ",
+   "start": 10.8,
+   "end": 10.92,
+   "type": "spacing",
+   "logprob": -6.6756979322235566e-06
+  },
+  {
+   "text": "горлу",
+   "start": 10.92,
+   "end": 11.24,
+   "type": "word",
+   "logprob": -1.0061204829980851e-05
+  },
+  {
+   "text": " ",
+   "start": 11.24,
+   "end": 11.28,
+   "type": "spacing",
+   "logprob": -0.00030989613151177764
+  },
+  {
+   "text": "прижат",
+   "start": 11.28,
+   "end": 11.62,
+   "type": "word",
+   "logprob": -0.0002548950651544146
+  },
+  {
+   "text": " ",
+   "start": 11.62,
+   "end": 11.66,
+   "type": "spacing",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": "нож.",
+   "start": 11.66,
+   "end": 11.88,
+   "type": "word",
+   "logprob": -0.0031282247507249394
+  },
+  {
+   "text": " ",
+   "start": 11.88,
+   "end": 11.88,
+   "type": "spacing",
+   "logprob": -4.410734163684538e-06
+  },
+  {
+   "text": "За",
+   "start": 12.48,
+   "end": 12.56,
+   "type": "word",
+   "logprob": -4.410734163684538e-06
+  },
+  {
+   "text": " ",
+   "start": 12.56,
+   "end": 12.62,
+   "type": "spacing",
+   "logprob": -6.770858453819528e-05
+  },
+  {
+   "text": "стеной",
+   "start": 12.62,
+   "end": 13.0,
+   "type": "word",
+   "logprob": -3.5880846098734764e-05
+  },
+  {
+   "text": " ",
+   "start": 13.0,
+   "end": 13.32,
+   "type": "spacing",
+   "logprob": -0.00017569905321579427
+  },
+  {
+   "text": "живая",
+   "start": 13.32,
+   "end": 13.66,
+   "type": "word",
+   "logprob": -7.428504004565184e-05
+  },
+  {
+   "text": " ",
+   "start": 13.66,
+   "end": 13.7,
+   "type": "spacing",
+   "logprob": -1.5258672647178173e-05
+  },
+  {
+   "text": "девушка.",
+   "start": 13.7,
+   "end": 14.16,
+   "type": "word",
+   "logprob": -1.3381140885115883e-05
+  },
+  {
+   "text": " ",
+   "start": 14.16,
+   "end": 14.16,
+   "type": "spacing",
+   "logprob": -2.396077979938127e-05
+  },
+  {
+   "text": "Она",
+   "start": 14.86,
+   "end": 15.0,
+   "type": "word",
+   "logprob": -2.396077979938127e-05
+  },
+  {
+   "text": " ",
+   "start": 15.0,
+   "end": 15.04,
+   "type": "spacing",
+   "logprob": -7.152531907195225e-06
+  },
+  {
+   "text": "тебе",
+   "start": 15.04,
+   "end": 15.22,
+   "type": "word",
+   "logprob": -7.152531907195225e-06
+  },
+  {
+   "text": " ",
+   "start": 15.22,
+   "end": 15.26,
+   "type": "spacing",
+   "logprob": -2.3841855067985307e-07
+  },
+  {
+   "text": "не",
+   "start": 15.26,
+   "end": 15.36,
+   "type": "word",
+   "logprob": -2.3841855067985307e-07
+  },
+  {
+   "text": " ",
+   "start": 15.36,
+   "end": 15.38,
+   "type": "spacing",
+   "logprob": -4.434487345861271e-05
+  },
+  {
+   "text": "верит.",
+   "start": 15.4,
+   "end": 15.68,
+   "type": "word",
+   "logprob": -1.6629365063636214e-05
+  },
+  {
+   "text": " ",
+   "start": 15.68,
+   "end": 15.68,
+   "type": "spacing",
+   "logprob": -1.1205610462639015e-05
+  },
+  {
+   "text": "Тогда",
+   "start": 16.56,
+   "end": 16.9,
+   "type": "word",
+   "logprob": -1.1205610462639015e-05
+  },
+  {
+   "text": " ",
+   "start": 16.9,
+   "end": 17.06,
+   "type": "spacing",
+   "logprob": -1.6689286894688848e-06
+  },
+  {
+   "text": "ты",
+   "start": 17.06,
+   "end": 17.26,
+   "type": "word",
+   "logprob": -1.6689286894688848e-06
+  },
+  {
+   "text": " ",
+   "start": 17.26,
+   "end": 17.52,
+   "type": "spacing",
+   "logprob": -2.7418097943154862e-06
+  },
+  {
+   "text": "медленно",
+   "start": 17.52,
+   "end": 17.88,
+   "type": "word",
+   "logprob": -1.2278454192937716e-05
+  },
+  {
+   "text": " ",
+   "start": 17.88,
+   "end": 17.9,
+   "type": "spacing",
+   "logprob": -0.004727852065116167
+  },
+  {
+   "text": "кладешь",
+   "start": 17.9,
+   "end": 18.24,
+   "type": "word",
+   "logprob": -0.002035690795440002
+  },
+  {
+   "text": " ",
+   "start": 18.24,
+   "end": 18.3,
+   "type": "spacing",
+   "logprob": -2.0265558760002023e-06
+  },
+  {
+   "text": "лопату",
+   "start": 18.3,
+   "end": 18.76,
+   "type": "word",
+   "logprob": -7.947279030418031e-07
+  },
+  {
+   "text": " ",
+   "start": 18.76,
+   "end": 19.32,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "и",
+   "start": 19.34,
+   "end": 19.42,
+   "type": "word",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": " ",
+   "start": 19.42,
+   "end": 19.46,
+   "type": "spacing",
+   "logprob": -2.753696753643453e-05
+  },
+  {
+   "text": "протягиваешь",
+   "start": 19.46,
+   "end": 20.16,
+   "type": "word",
+   "logprob": -6.432662598854222e-05
+  },
+  {
+   "text": " ",
+   "start": 20.16,
+   "end": 20.22,
+   "type": "spacing",
+   "logprob": -3.576278118089249e-07
+  },
+  {
+   "text": "ей",
+   "start": 20.22,
+   "end": 20.38,
+   "type": "word",
+   "logprob": -3.576278118089249e-07
+  },
+  {
+   "text": " ",
+   "start": 20.38,
+   "end": 20.48,
+   "type": "spacing",
+   "logprob": -9.179073458653875e-06
+  },
+  {
+   "text": "банку",
+   "start": 20.48,
+   "end": 20.8,
+   "type": "word",
+   "logprob": -1.0895668674493209e-05
+  },
+  {
+   "text": " ",
+   "start": 20.8,
+   "end": 20.86,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "огурцов",
+   "start": 20.86,
+   "end": 21.3,
+   "type": "word",
+   "logprob": -1.682522921393164e-05
+  },
+  {
+   "text": " ",
+   "start": 21.3,
+   "end": 21.34,
+   "type": "spacing",
+   "logprob": -4.768370445162873e-07
+  },
+  {
+   "text": "из",
+   "start": 21.34,
+   "end": 21.48,
+   "type": "word",
+   "logprob": -4.768370445162873e-07
+  },
+  {
+   "text": " ",
+   "start": 21.48,
+   "end": 21.52,
+   "type": "spacing",
+   "logprob": -3.671578815556131e-05
+  },
+  {
+   "text": "погреба.",
+   "start": 21.52,
+   "end": 21.98,
+   "type": "word",
+   "logprob": -2.580837417553994e-05
+  },
+  {
+   "text": " ",
+   "start": 21.98,
+   "end": 21.98,
+   "type": "spacing",
+   "logprob": -1.4185804502631072e-05
+  },
+  {
+   "text": "Нож",
+   "start": 22.86,
+   "end": 23.16,
+   "type": "word",
+   "logprob": -1.0728766331643177e-05
+  },
+  {
+   "text": " ",
+   "start": 23.16,
+   "end": 23.24,
+   "type": "spacing",
+   "logprob": -9.536738616588991e-07
+  },
+  {
+   "text": "опускается.",
+   "start": 23.24,
+   "end": 23.94,
+   "type": "word",
+   "logprob": -3.001897516180014e-06
+  },
+  {
+   "text": " ",
+   "start": 23.94,
+   "end": 23.94,
+   "type": "spacing",
+   "logprob": -0.0007213136414065957
+  },
+  {
+   "text": "Ее",
+   "start": 25.08,
+   "end": 25.24,
+   "type": "word",
+   "logprob": -0.0007213136414065957
+  },
+  {
+   "text": " ",
+   "start": 25.24,
+   "end": 25.28,
+   "type": "spacing",
+   "logprob": -1.966933996300213e-05
+  },
+  {
+   "text": "зовут",
+   "start": 25.28,
+   "end": 25.56,
+   "type": "word",
+   "logprob": -1.966933996300213e-05
+  },
+  {
+   "text": " ",
+   "start": 25.56,
+   "end": 25.7,
+   "type": "spacing",
+   "logprob": -2.3841830625315197e-06
+  },
+  {
+   "text": "Аня.",
+   "start": 25.7,
+   "end": 25.92,
+   "type": "word",
+   "logprob": -5.453801120935964e-06
+  },
+  {
+   "text": " ",
+   "start": 25.92,
+   "end": 25.92,
+   "type": "spacing",
+   "logprob": -1.537788011773955e-05
+  },
+  {
+   "text": "Месяц",
+   "start": 26.52,
+   "end": 26.8,
+   "type": "word",
+   "logprob": -8.869117164067574e-06
+  },
+  {
+   "text": " ",
+   "start": 26.8,
+   "end": 26.86,
+   "type": "spacing",
+   "logprob": -3.4570634852570947e-06
+  },
+  {
+   "text": "она",
+   "start": 26.86,
+   "end": 27.02,
+   "type": "word",
+   "logprob": -3.4570634852570947e-06
+  },
+  {
+   "text": " ",
+   "start": 27.02,
+   "end": 27.06,
+   "type": "spacing",
+   "logprob": -1.2159273865108844e-05
+  },
+  {
+   "text": "сидела",
+   "start": 27.06,
+   "end": 27.42,
+   "type": "word",
+   "logprob": -2.2649480949136585e-05
+  },
+  {
+   "text": " ",
+   "start": 27.42,
+   "end": 27.48,
+   "type": "spacing",
+   "logprob": -0.0008821171941235662
+  },
+  {
+   "text": "тихо,",
+   "start": 27.48,
+   "end": 27.8,
+   "type": "word",
+   "logprob": -0.0007071004200042807
+  },
+  {
+   "text": " ",
+   "start": 27.8,
+   "end": 28.04,
+   "type": "spacing",
+   "logprob": -5.4834770708112046e-05
+  },
+  {
+   "text": "думала,",
+   "start": 28.04,
+   "end": 28.32,
+   "type": "word",
+   "logprob": -3.198128977796192e-05
+  },
+  {
+   "text": " ",
+   "start": 28.32,
+   "end": 28.42,
+   "type": "spacing",
+   "logprob": -9.059865078597795e-06
+  },
+  {
+   "text": "что",
+   "start": 28.42,
+   "end": 28.66,
+   "type": "word",
+   "logprob": -9.059865078597795e-06
+  },
+  {
+   "text": " ",
+   "start": 28.66,
+   "end": 28.76,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "к",
+   "start": 28.76,
+   "end": 28.82,
+   "type": "word",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": " ",
+   "start": 28.82,
+   "end": 28.86,
+   "type": "spacing",
+   "logprob": -3.099436753473128e-06
+  },
+  {
+   "text": "ней",
+   "start": 28.86,
+   "end": 29.02,
+   "type": "word",
+   "logprob": -3.099436753473128e-06
+  },
+  {
+   "text": " ",
+   "start": 29.02,
+   "end": 29.06,
+   "type": "spacing",
+   "logprob": -0.014656024985015392
+  },
+  {
+   "text": "копает",
+   "start": 29.06,
+   "end": 29.48,
+   "type": "word",
+   "logprob": -0.004895553800603618
+  },
+  {
+   "text": " ",
+   "start": 29.48,
+   "end": 29.52,
+   "type": "spacing",
+   "logprob": -0.00015841660206206143
+  },
+  {
+   "text": "мертвец.",
+   "start": 29.52,
+   "end": 30.06,
+   "type": "word",
+   "logprob": -0.0005047195281804306
+  },
+  {
+   "text": " ",
+   "start": 30.06,
+   "end": 30.06,
+   "type": "spacing",
+   "logprob": -0.00023719835735391825
+  },
+  {
+   "text": "Ее",
+   "start": 30.98,
+   "end": 31.16,
+   "type": "word",
+   "logprob": -0.00023719835735391825
+  },
+  {
+   "text": " ",
+   "start": 31.16,
+   "end": 31.2,
+   "type": "spacing",
+   "logprob": -0.0007683662115596235
+  },
+  {
+   "text": "лаз",
+   "start": 31.2,
+   "end": 31.4,
+   "type": "word",
+   "logprob": -0.0005145091098105089
+  },
+  {
+   "text": " ",
+   "start": 31.4,
+   "end": 31.46,
+   "type": "spacing",
+   "logprob": -1.6093124941107817e-05
+  },
+  {
+   "text": "наверх",
+   "start": 31.46,
+   "end": 31.82,
+   "type": "word",
+   "logprob": -4.517908928391989e-05
+  },
+  {
+   "text": " ",
+   "start": 31.82,
+   "end": 31.86,
+   "type": "spacing",
+   "logprob": -9.65590606938349e-06
+  },
+  {
+   "text": "почти",
+   "start": 31.86,
+   "end": 32.18,
+   "type": "word",
+   "logprob": -9.65590606938349e-06
+  },
+  {
+   "text": " ",
+   "start": 32.18,
+   "end": 32.22,
+   "type": "spacing",
+   "logprob": -3.2186455882765586e-06
+  },
+  {
+   "text": "засыпало.",
+   "start": 32.22,
+   "end": 32.759,
+   "type": "word",
+   "logprob": -0.005198940197816328
+  },
+  {
+   "text": " ",
+   "start": 32.759,
+   "end": 33.32,
+   "type": "spacing",
+   "logprob": -1.823885577323381e-05
+  },
+  {
+   "text": "Выбраться",
+   "start": 33.32,
+   "end": 33.68,
+   "type": "word",
+   "logprob": -8.975358607838441e-05
+  },
+  {
+   "text": " ",
+   "start": 33.68,
+   "end": 33.74,
+   "type": "spacing",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": "она",
+   "start": 33.74,
+   "end": 33.92,
+   "type": "word",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": " ",
+   "start": 33.92,
+   "end": 33.98,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "уже",
+   "start": 33.98,
+   "end": 34.16,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 34.16,
+   "end": 34.2,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "не",
+   "start": 34.2,
+   "end": 34.28,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 34.28,
+   "end": 34.32,
+   "type": "spacing",
+   "logprob": -0.0001387499796692282
+  },
+  {
+   "text": "могла.",
+   "start": 34.32,
+   "end": 34.7,
+   "type": "word",
+   "logprob": -0.00011562498305769016
+  },
+  {
+   "text": " ",
+   "start": 34.7,
+   "end": 35.6,
+   "type": "spacing",
+   "logprob": -4.529942543740617e-06
+  },
+  {
+   "text": "Вдвоем",
+   "start": 35.6,
+   "end": 36.04,
+   "type": "word",
+   "logprob": -6.708890221792292e-05
+  },
+  {
+   "text": " ",
+   "start": 36.04,
+   "end": 36.1,
+   "type": "spacing",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": "вы",
+   "start": 36.1,
+   "end": 36.28,
+   "type": "word",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": " ",
+   "start": 36.28,
+   "end": 36.36,
+   "type": "spacing",
+   "logprob": -0.0005986090400256217
+  },
+  {
+   "text": "откапываете",
+   "start": 36.36,
+   "end": 37.08,
+   "type": "word",
+   "logprob": -0.0005924578882431061
+  },
+  {
+   "text": " ",
+   "start": 37.08,
+   "end": 37.18,
+   "type": "spacing",
+   "logprob": -2.3841830625315197e-06
+  },
+  {
+   "text": "его",
+   "start": 37.18,
+   "end": 37.4,
+   "type": "word",
+   "logprob": -2.3841830625315197e-06
+  },
+  {
+   "text": " ",
+   "start": 37.4,
+   "end": 37.8,
+   "type": "spacing",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": "и",
+   "start": 37.8,
+   "end": 37.92,
+   "type": "word",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": " ",
+   "start": 37.92,
+   "end": 37.98,
+   "type": "spacing",
+   "logprob": -0.001821288955397904
+  },
+  {
+   "text": "крепите",
+   "start": 37.98,
+   "end": 38.38,
+   "type": "word",
+   "logprob": -0.0009231254056365808
+  },
+  {
+   "text": " ",
+   "start": 38.38,
+   "end": 38.44,
+   "type": "spacing",
+   "logprob": -2.50339189733495e-06
+  },
+  {
+   "text": "досками.",
+   "start": 38.44,
+   "end": 38.92,
+   "type": "word",
+   "logprob": -5.233074000443594e-05
+  },
+  {
+   "text": " ",
+   "start": 38.92,
+   "end": 39.72,
+   "type": "spacing",
+   "logprob": -6.9141146923357155e-06
+  },
+  {
+   "text": "Теперь",
+   "start": 39.72,
+   "end": 40.02,
+   "type": "word",
+   "logprob": -6.9141146923357155e-06
+  },
+  {
+   "text": " ",
+   "start": 40.02,
+   "end": 40.04,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "у",
+   "start": 40.04,
+   "end": 40.08,
+   "type": "word",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": " ",
+   "start": 40.08,
+   "end": 40.1,
+   "type": "spacing",
+   "logprob": -5.364403477869928e-06
+  },
+  {
+   "text": "вас",
+   "start": 40.1,
+   "end": 40.36,
+   "type": "word",
+   "logprob": -5.364403477869928e-06
+  },
+  {
+   "text": " ",
+   "start": 40.36,
+   "end": 40.44,
+   "type": "spacing",
+   "logprob": -6.198863957251888e-06
+  },
+  {
+   "text": "два",
+   "start": 40.44,
+   "end": 40.58,
+   "type": "word",
+   "logprob": -6.198863957251888e-06
+  },
+  {
+   "text": " ",
+   "start": 40.58,
+   "end": 40.66,
+   "type": "spacing",
+   "logprob": -0.00016509123088326305
+  },
+  {
+   "text": "выхода.",
+   "start": 40.66,
+   "end": 41.08,
+   "type": "word",
+   "logprob": -0.0001415067693285112
+  },
+  {
+   "text": " ",
+   "start": 41.08,
+   "end": 41.8,
+   "type": "spacing",
+   "logprob": -1.1920922133867862e-06
+  },
+  {
+   "text": "Вдвоем",
+   "start": 41.8,
+   "end": 42.22,
+   "type": "word",
+   "logprob": -2.626501194905965e-05
+  },
+  {
+   "text": " ",
+   "start": 42.22,
+   "end": 42.26,
+   "type": "spacing",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": "не",
+   "start": 42.26,
+   "end": 42.36,
+   "type": "word",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": " ",
+   "start": 42.36,
+   "end": 42.4,
+   "type": "spacing",
+   "logprob": -2.3841855067985307e-07
+  },
+  {
+   "text": "так",
+   "start": 42.4,
+   "end": 42.56,
+   "type": "word",
+   "logprob": -2.3841855067985307e-07
+  },
+  {
+   "text": " ",
+   "start": 42.56,
+   "end": 42.62,
+   "type": "spacing",
+   "logprob": -7.247662142617628e-05
+  },
+  {
+   "text": "страшно,",
+   "start": 42.62,
+   "end": 43.08,
+   "type": "word",
+   "logprob": -4.567064638649754e-05
+  },
+  {
+   "text": " ",
+   "start": 43.08,
+   "end": 43.78,
+   "type": "spacing",
+   "logprob": -4.5536911784438416e-05
+  },
+  {
+   "text": "но",
+   "start": 43.78,
+   "end": 44.02,
+   "type": "word",
+   "logprob": -4.5536911784438416e-05
+  },
+  {
+   "text": " ",
+   "start": 44.02,
+   "end": 44.08,
+   "type": "spacing",
+   "logprob": -2.5033637939486653e-05
+  },
+  {
+   "text": "свечи",
+   "start": 44.08,
+   "end": 44.42,
+   "type": "word",
+   "logprob": -1.7499728346592747e-05
+  },
+  {
+   "text": " ",
+   "start": 44.42,
+   "end": 44.48,
+   "type": "spacing",
+   "logprob": -4.2676016164477915e-05
+  },
+  {
+   "text": "кончаются,",
+   "start": 44.48,
+   "end": 45.14,
+   "type": "word",
+   "logprob": -3.7894942670391175e-05
+  },
+  {
+   "text": " ",
+   "start": 45.14,
+   "end": 45.68,
+   "type": "spacing",
+   "logprob": -9.738924563862383e-05
+  },
+  {
+   "text": "а",
+   "start": 45.68,
+   "end": 45.72,
+   "type": "word",
+   "logprob": -9.738924563862383e-05
+  },
+  {
+   "text": " ",
+   "start": 45.72,
+   "end": 45.76,
+   "type": "spacing",
+   "logprob": -1.1920928244535389e-07
+  },
+  {
+   "text": "в",
+   "start": 45.76,
+   "end": 45.8,
+   "type": "word",
+   "logprob": -1.1920928244535389e-07
+  },
+  {
+   "text": " ",
+   "start": 45.8,
+   "end": 45.84,
+   "type": "spacing",
+   "logprob": -8.940656698541716e-06
+  },
+  {
+   "text": "темноте",
+   "start": 45.84,
+   "end": 46.24,
+   "type": "word",
+   "logprob": -6.999259052723314e-06
+  },
+  {
+   "text": " ",
+   "start": 46.24,
+   "end": 46.28,
+   "type": "spacing",
+   "logprob": -1.6689286894688848e-06
+  },
+  {
+   "text": "под",
+   "start": 46.28,
+   "end": 46.4,
+   "type": "word",
+   "logprob": -1.6689286894688848e-06
+  },
+  {
+   "text": " ",
+   "start": 46.4,
+   "end": 46.42,
+   "type": "spacing",
+   "logprob": -7.855583680793643e-05
+  },
+  {
+   "text": "землей",
+   "start": 46.42,
+   "end": 46.76,
+   "type": "word",
+   "logprob": -6.0317915995256044e-05
+  },
+  {
+   "text": " ",
+   "start": 46.76,
+   "end": 46.78,
+   "type": "spacing",
+   "logprob": -2.8967437174287625e-05
+  },
+  {
+   "text": "начинаешь",
+   "start": 46.78,
+   "end": 47.44,
+   "type": "word",
+   "logprob": -2.237131593574304e-05
+  },
+  {
+   "text": " ",
+   "start": 47.44,
+   "end": 47.54,
+   "type": "spacing",
+   "logprob": -2.861018856492592e-06
+  },
+  {
+   "text": "сходить",
+   "start": 47.54,
+   "end": 47.92,
+   "type": "word",
+   "logprob": -0.00036409019068222345
+  },
+  {
+   "text": " ",
+   "start": 47.92,
+   "end": 47.96,
+   "type": "spacing",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": "с",
+   "start": 47.96,
+   "end": 47.98,
+   "type": "word",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": " ",
+   "start": 47.98,
+   "end": 48.04,
+   "type": "spacing",
+   "logprob": -3.2186455882765586e-06
+  },
+  {
+   "text": "ума.",
+   "start": 48.04,
+   "end": 48.26,
+   "type": "word",
+   "logprob": -1.2010209104573732e-05
+  },
+  {
+   "text": " ",
+   "start": 48.26,
+   "end": 48.26,
+   "type": "spacing",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": "Аня",
+   "start": 49.48,
+   "end": 49.62,
+   "type": "word",
+   "logprob": -1.0728830375228426e-06
+  },
+  {
+   "text": " ",
+   "start": 49.62,
+   "end": 49.66,
+   "type": "spacing",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": "до",
+   "start": 49.66,
+   "end": 49.72,
+   "type": "word",
+   "logprob": -1.9073468138230965e-06
+  },
+  {
+   "text": " ",
+   "start": 49.72,
+   "end": 49.76,
+   "type": "spacing",
+   "logprob": -2.098061486321967e-05
+  },
+  {
+   "text": "всего",
+   "start": 49.76,
+   "end": 50.02,
+   "type": "word",
+   "logprob": -2.098061486321967e-05
+  },
+  {
+   "text": " ",
+   "start": 50.02,
+   "end": 50.06,
+   "type": "spacing",
+   "logprob": -2.586808113846928e-05
+  },
+  {
+   "text": "была",
+   "start": 50.06,
+   "end": 50.3,
+   "type": "word",
+   "logprob": -2.586808113846928e-05
+  },
+  {
+   "text": " ",
+   "start": 50.3,
+   "end": 50.38,
+   "type": "spacing",
+   "logprob": -0.0007247682078741491
+  },
+  {
+   "text": "электриком.",
+   "start": 50.38,
+   "end": 50.98,
+   "type": "word",
+   "logprob": -0.000467913454899231
+  },
+  {
+   "text": " ",
+   "start": 50.98,
+   "end": 51.68,
+   "type": "spacing",
+   "logprob": -8.940656698541716e-06
+  },
+  {
+   "text": "Из",
+   "start": 51.68,
+   "end": 51.78,
+   "type": "word",
+   "logprob": -8.940656698541716e-06
+  },
+  {
+   "text": " ",
+   "start": 51.78,
+   "end": 51.8,
+   "type": "spacing",
+   "logprob": -2.777537883957848e-05
+  },
+  {
+   "text": "велосипеда",
+   "start": 51.8,
+   "end": 52.34,
+   "type": "word",
+   "logprob": -0.0006579770881216974
+  },
+  {
+   "text": " ",
+   "start": 52.34,
+   "end": 52.36,
+   "type": "spacing",
+   "logprob": -2.622600959512056e-06
+  },
+  {
+   "text": "в",
+   "start": 52.36,
+   "end": 52.4,
+   "type": "word",
+   "logprob": -2.622600959512056e-06
+  },
+  {
+   "text": " ",
+   "start": 52.4,
+   "end": 52.46,
+   "type": "spacing",
+   "logprob": -8.594620157964528e-05
+  },
+  {
+   "text": "сарае",
+   "start": 52.46,
+   "end": 52.82,
+   "type": "word",
+   "logprob": -0.0002572854165919125
+  },
+  {
+   "text": " ",
+   "start": 52.82,
+   "end": 53.4,
+   "type": "spacing",
+   "logprob": -5.006777428206988e-06
+  },
+  {
+   "text": "вы",
+   "start": 53.4,
+   "end": 53.52,
+   "type": "word",
+   "logprob": -5.006777428206988e-06
+  },
+  {
+   "text": " ",
+   "start": 53.52,
+   "end": 53.58,
+   "type": "spacing",
+   "logprob": -2.145764938177308e-06
+  },
+  {
+   "text": "собираете",
+   "start": 53.58,
+   "end": 54.1,
+   "type": "word",
+   "logprob": -1.1006851915832764e-05
+  },
+  {
+   "text": " ",
+   "start": 54.1,
+   "end": 54.14,
+   "type": "spacing",
+   "logprob": -3.349725011503324e-05
+  },
+  {
+   "text": "генератор,",
+   "start": 54.14,
+   "end": 54.64,
+   "type": "word",
+   "logprob": -0.0001529764513634291
+  },
+  {
+   "text": " ",
+   "start": 54.64,
+   "end": 54.64,
+   "type": "spacing",
+   "logprob": -8.702239938429557e-06
+  },
+  {
+   "text": "крутишь",
+   "start": 55.3,
+   "end": 55.68,
+   "type": "word",
+   "logprob": -2.0486562139662317e-05
+  },
+  {
+   "text": " ",
+   "start": 55.68,
+   "end": 55.72,
+   "type": "spacing",
+   "logprob": -0.0001289761275984347
+  },
+  {
+   "text": "педали,",
+   "start": 55.72,
+   "end": 56.1,
+   "type": "word",
+   "logprob": -0.007906206854386255
+  },
+  {
+   "text": " ",
+   "start": 56.1,
+   "end": 56.64,
+   "type": "spacing",
+   "logprob": -9.536738616588991e-07
+  },
+  {
+   "text": "и",
+   "start": 56.64,
+   "end": 56.7,
+   "type": "word",
+   "logprob": -9.536738616588991e-07
+  },
+  {
+   "text": " ",
+   "start": 56.7,
+   "end": 56.74,
+   "type": "spacing",
+   "logprob": -0.00011181206355104223
+  },
+  {
+   "text": "загорается",
+   "start": 56.74,
+   "end": 57.22,
+   "type": "word",
+   "logprob": -4.949314775331004e-05
+  },
+  {
+   "text": " ",
+   "start": 57.22,
+   "end": 57.28,
+   "type": "spacing",
+   "logprob": -2.9444261599564925e-05
+  },
+  {
+   "text": "лампочка.",
+   "start": 57.28,
+   "end": 57.78,
+   "type": "word",
+   "logprob": -1.2145951485662306e-05
+  },
+  {
+   "text": " ",
+   "start": 57.78,
+   "end": 58.42,
+   "type": "spacing",
+   "logprob": -1.0371154530730564e-05
+  },
+  {
+   "text": "Теперь",
+   "start": 58.42,
+   "end": 58.74,
+   "type": "word",
+   "logprob": -1.0371154530730564e-05
+  },
+  {
+   "text": " ",
+   "start": 58.74,
+   "end": 58.78,
+   "type": "spacing",
+   "logprob": -5.173549288883805e-05
+  },
+  {
+   "text": "светло,",
+   "start": 58.78,
+   "end": 59.16,
+   "type": "word",
+   "logprob": -0.02293493803257921
+  },
+  {
+   "text": " ",
+   "start": 59.16,
+   "end": 59.16,
+   "type": "spacing",
+   "logprob": -0.0001597276859683916
+  },
+  {
+   "text": "но",
+   "start": 60.02,
+   "end": 60.3,
+   "type": "word",
+   "logprob": -0.0001597276859683916
+  },
+  {
+   "text": " ",
+   "start": 60.3,
+   "end": 60.4,
+   "type": "spacing",
+   "logprob": -1.311301275563892e-06
+  },
+  {
+   "text": "одну",
+   "start": 60.4,
+   "end": 60.7,
+   "type": "word",
+   "logprob": -1.311301275563892e-06
+  },
+  {
+   "text": " ",
+   "start": 60.7,
+   "end": 60.74,
+   "type": "spacing",
+   "logprob": -1.311301275563892e-06
+  },
+  {
+   "text": "дверь",
+   "start": 60.74,
+   "end": 60.96,
+   "type": "word",
+   "logprob": -1.311301275563892e-06
+  },
+  {
+   "text": " ",
+   "start": 60.96,
+   "end": 60.98,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "в",
+   "start": 60.98,
+   "end": 61.02,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 61.02,
+   "end": 61.06,
+   "type": "spacing",
+   "logprob": -4.792098479811102e-05
+  },
+  {
+   "text": "своем",
+   "start": 61.08,
+   "end": 61.38,
+   "type": "word",
+   "logprob": -4.792098479811102e-05
+  },
+  {
+   "text": " ",
+   "start": 61.38,
+   "end": 61.42,
+   "type": "spacing",
+   "logprob": -3.4570634852570947e-06
+  },
+  {
+   "text": "бункере",
+   "start": 61.42,
+   "end": 61.82,
+   "type": "word",
+   "logprob": -0.00032002078770736783
+  },
+  {
+   "text": " ",
+   "start": 61.82,
+   "end": 62.48,
+   "type": "spacing",
+   "logprob": -2.622600959512056e-06
+  },
+  {
+   "text": "Аня",
+   "start": 62.48,
+   "end": 62.66,
+   "type": "word",
+   "logprob": -2.2252375705041536e-06
+  },
+  {
+   "text": " ",
+   "start": 62.66,
+   "end": 62.72,
+   "type": "spacing",
+   "logprob": -0.0005530973430722952
+  },
+  {
+   "text": "держит",
+   "start": 62.72,
+   "end": 63.06,
+   "type": "word",
+   "logprob": -0.0002784560165309813
+  },
+  {
+   "text": " ",
+   "start": 63.06,
+   "end": 63.1,
+   "type": "spacing",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": "на",
+   "start": 63.1,
+   "end": 63.18,
+   "type": "word",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": " ",
+   "start": 63.18,
+   "end": 63.22,
+   "type": "spacing",
+   "logprob": -5.125986263010418e-06
+  },
+  {
+   "text": "замке.",
+   "start": 63.22,
+   "end": 63.64,
+   "type": "word",
+   "logprob": -4.152446682799867e-06
+  },
+  {
+   "text": " ",
+   "start": 63.64,
+   "end": 64.28,
+   "type": "spacing",
+   "logprob": -1.3470558769768104e-05
+  },
+  {
+   "text": "Говорит,",
+   "start": 64.28,
+   "end": 64.66,
+   "type": "word",
+   "logprob": -0.06575725197853899
+  },
+  {
+   "text": " ",
+   "start": 64.66,
+   "end": 64.9,
+   "type": "spacing",
+   "logprob": -0.00010656742961145937
+  },
+  {
+   "text": "там",
+   "start": 64.9,
+   "end": 65.06,
+   "type": "word",
+   "logprob": -0.00010656742961145937
+  },
+  {
+   "text": " ",
+   "start": 65.06,
+   "end": 65.16,
+   "type": "spacing",
+   "logprob": -2.264974000354414e-06
+  },
+  {
+   "text": "склад,",
+   "start": 65.16,
+   "end": 65.5,
+   "type": "word",
+   "logprob": -2.364314809710777e-06
+  },
+  {
+   "text": " ",
+   "start": 65.5,
+   "end": 65.5,
+   "type": "spacing",
+   "logprob": -3.361645576660521e-05
+  },
+  {
+   "text": "а",
+   "start": 66.1,
+   "end": 66.2,
+   "type": "word",
+   "logprob": -3.361645576660521e-05
+  },
+  {
+   "text": " ",
+   "start": 66.2,
+   "end": 66.24,
+   "type": "spacing",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": "ключ",
+   "start": 66.24,
+   "end": 66.52,
+   "type": "word",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": " ",
+   "start": 66.52,
+   "end": 66.78,
+   "type": "spacing",
+   "logprob": -8.22540732769994e-06
+  },
+  {
+   "text": "носит",
+   "start": 66.78,
+   "end": 67.04,
+   "type": "word",
+   "logprob": -6.866430976515403e-06
+  },
+  {
+   "text": " ",
+   "start": 67.04,
+   "end": 67.06,
+   "type": "spacing",
+   "logprob": -4.768370445162873e-07
+  },
+  {
+   "text": "на",
+   "start": 67.06,
+   "end": 67.16,
+   "type": "word",
+   "logprob": -4.768370445162873e-07
+  },
+  {
+   "text": " ",
+   "start": 67.16,
+   "end": 67.22,
+   "type": "spacing",
+   "logprob": -3.3378546504536644e-06
+  },
+  {
+   "text": "шее.",
+   "start": 67.22,
+   "end": 67.46,
+   "type": "word",
+   "logprob": -1.6689273252268322e-06
+  },
+  {
+   "text": " ",
+   "start": 67.46,
+   "end": 67.46,
+   "type": "spacing",
+   "logprob": -5.483612312673358e-06
+  },
+  {
+   "text": "Ты",
+   "start": 68.36,
+   "end": 68.48,
+   "type": "word",
+   "logprob": -5.483612312673358e-06
+  },
+  {
+   "text": " ",
+   "start": 68.48,
+   "end": 68.5,
+   "type": "spacing",
+   "logprob": -8.749579137656838e-05
+  },
+  {
+   "text": "тянешься",
+   "start": 68.5,
+   "end": 68.94,
+   "type": "word",
+   "logprob": -0.000113976002438676
+  },
+  {
+   "text": " ",
+   "start": 68.94,
+   "end": 68.96,
+   "type": "spacing",
+   "logprob": -3.576278118089249e-07
+  },
+  {
+   "text": "к",
+   "start": 68.96,
+   "end": 69.0,
+   "type": "word",
+   "logprob": -3.576278118089249e-07
+  },
+  {
+   "text": " ",
+   "start": 69.0,
+   "end": 69.04,
+   "type": "spacing",
+   "logprob": -2.145764938177308e-06
+  },
+  {
+   "text": "ручке,",
+   "start": 69.04,
+   "end": 69.38,
+   "type": "word",
+   "logprob": -0.00012213507255864897
+  },
+  {
+   "text": " ",
+   "start": 69.38,
+   "end": 69.38,
+   "type": "spacing",
+   "logprob": -2.0265558760002023e-06
+  },
+  {
+   "text": "и",
+   "start": 70.14,
+   "end": 70.26,
+   "type": "word",
+   "logprob": -2.0265558760002023e-06
+  },
+  {
+   "text": " ",
+   "start": 70.26,
+   "end": 70.38,
+   "type": "spacing",
+   "logprob": -2.264974000354414e-06
+  },
+  {
+   "text": "Аня",
+   "start": 70.38,
+   "end": 70.56,
+   "type": "word",
+   "logprob": -2.5828645296617956e-06
+  },
+  {
+   "text": " ",
+   "start": 70.56,
+   "end": 70.62,
+   "type": "spacing",
+   "logprob": 0.0
+  },
+  {
+   "text": "снова",
+   "start": 70.62,
+   "end": 70.94,
+   "type": "word",
+   "logprob": 0.0
+  },
+  {
+   "text": " ",
+   "start": 70.94,
+   "end": 70.98,
+   "type": "spacing",
+   "logprob": -1.4662635294371285e-05
+  },
+  {
+   "text": "достает",
+   "start": 70.98,
+   "end": 71.46,
+   "type": "word",
+   "logprob": -3.5642392893870624e-05
+  },
+  {
+   "text": " ",
+   "start": 71.46,
+   "end": 71.52,
+   "type": "spacing",
+   "logprob": -4.768370445162873e-07
+  },
+  {
+   "text": "нож.",
+   "start": 71.52,
+   "end": 71.76,
+   "type": "word",
+   "logprob": -3.5762778338721546e-07
+  },
+  {
+   "text": " ",
+   "start": 71.76,
+   "end": 71.76,
+   "type": "spacing",
+   "logprob": -2.3841830625315197e-06
+  },
+  {
+   "text": "Ночью",
+   "start": 72.86,
+   "end": 73.14,
+   "type": "word",
+   "logprob": -3.607170183386188e-05
+  },
+  {
+   "text": " ",
+   "start": 73.14,
+   "end": 73.18,
+   "type": "spacing",
+   "logprob": -1.5497195136049413e-06
+  },
+  {
+   "text": "ты",
+   "start": 73.18,
+   "end": 73.28,
+   "type": "word",
+   "logprob": -1.5497195136049413e-06
+  },
+  {
+   "text": " ",
+   "start": 73.28,
+   "end": 73.32,
+   "type": "spacing",
+   "logprob": -5.006777428206988e-06
+  },
+  {
+   "text": "просыпаешься",
+   "start": 73.32,
+   "end": 74.04,
+   "type": "word",
+   "logprob": -2.795385679140357e-05
+  },
+  {
+   "text": " ",
+   "start": 74.04,
+   "end": 74.1,
+   "type": "spacing",
+   "logprob": -8.22540732769994e-06
+  },
+  {
+   "text": "от",
+   "start": 74.12,
+   "end": 74.2,
+   "type": "word",
+   "logprob": -8.22540732769994e-06
+  },
+  {
+   "text": " ",
+   "start": 74.2,
+   "end": 74.24,
+   "type": "spacing",
+   "logprob": -9.679325739853084e-05
+  },
+  {
+   "text": "скрипа.",
+   "start": 74.24,
+   "end": 74.7,
+   "type": "word",
+   "logprob": -6.055559320624785e-05
+  },
+  {
+   "text": " ",
+   "start": 74.7,
+   "end": 74.7,
+   "type": "spacing",
+   "logprob": -3.576278118089249e-07
+  },
+  {
+   "text": "Аня",
+   "start": 75.68,
+   "end": 75.84,
+   "type": "word",
+   "logprob": -6.755190611329454e-07
+  },
+  {
+   "text": " ",
+   "start": 75.84,
+   "end": 75.88,
+   "type": "spacing",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": "с",
+   "start": 75.88,
+   "end": 75.92,
+   "type": "word",
+   "logprob": -8.344646857949556e-07
+  },
+  {
+   "text": " ",
+   "start": 75.92,
+   "end": 75.98,
+   "type": "spacing",
+   "logprob": -3.361645576660521e-05
+  },
+  {
+   "text": "миской",
+   "start": 75.98,
+   "end": 76.28,
+   "type": "word",
+   "logprob": -7.478074136694583e-05
+  },
+  {
+   "text": " ",
+   "start": 76.28,
+   "end": 76.4,
+   "type": "spacing",
+   "logprob": -9.536738616588991e-07
+  },
+  {
+   "text": "еды",
+   "start": 76.4,
+   "end": 76.6,
+   "type": "word",
+   "logprob": -1.1126194294774905e-06
+  },
+  {
+   "text": " ",
+   "start": 76.6,
+   "end": 77.18,
+   "type": "spacing",
+   "logprob": -7.73638384998776e-05
+  },
+  {
+   "text": "отпирает",
+   "start": 77.18,
+   "end": 77.78,
+   "type": "word",
+   "logprob": -0.0064079835547090624
+  },
+  {
+   "text": " ",
+   "start": 77.78,
+   "end": 77.84,
+   "type": "spacing",
+   "logprob": -3.2305197237292305e-05
+  },
+  {
+   "text": "ту",
+   "start": 77.84,
+   "end": 77.98,
+   "type": "word",
+   "logprob": -3.2305197237292305e-05
+  },
+  {
+   "text": " ",
+   "start": 77.98,
+   "end": 78.04,
+   "type": "spacing",
+   "logprob": -4.2437604861333966e-05
+  },
+  {
+   "text": "самую",
+   "start": 78.04,
+   "end": 78.4,
+   "type": "word",
+   "logprob": -4.2437604861333966e-05
+  },
+  {
+   "text": " ",
+   "start": 78.4,
+   "end": 78.44,
+   "type": "spacing",
+   "logprob": -2.264974000354414e-06
+  },
+  {
+   "text": "дверь.",
+   "start": 78.44,
+   "end": 78.7,
+   "type": "word",
+   "logprob": -1.8874783336286782e-06
+  },
+  {
+   "text": " ",
+   "start": 78.7,
+   "end": 78.7,
+   "type": "spacing",
+   "logprob": -1.6569954823353328e-05
+  },
+  {
+   "text": "Она",
+   "start": 79.5,
+   "end": 79.68,
+   "type": "word",
+   "logprob": -1.6569954823353328e-05
+  },
+  {
+   "text": " ",
+   "start": 79.68,
+   "end": 79.74,
+   "type": "spacing",
+   "logprob": -5.709961988031864e-05
+  },
+  {
+   "text": "шепчет",
+   "start": 79.74,
+   "end": 80.08,
+   "type": "word",
+   "logprob": -0.0005078009101756228
+  },
+  {
+   "text": " ",
+   "start": 80.08,
+   "end": 80.1,
+   "type": "spacing",
+   "logprob": -1.1920928244535389e-07
+  },
+  {
+   "text": "в",
+   "start": 80.1,
+   "end": 80.14,
+   "type": "word",
+   "logprob": -1.1920928244535389e-07
+  },
+  {
+   "text": " ",
+   "start": 80.14,
+   "end": 80.18,
+   "type": "spacing",
+   "logprob": -1.0967194612021558e-05
+  },
+  {
+   "text": "темноту:",
+   "start": 80.18,
+   "end": 80.58,
+   "type": "word",
+   "logprob": -7.241926624601547e-06
+  },
+  {
+   "text": " ",
+   "start": 80.58,
+   "end": 80.72,
+   "type": "spacing",
+   "logprob": -5.8412379075889476e-06
+  },
+  {
+   "text": "\"Тише,",
+   "start": 80.72,
+   "end": 81.52,
+   "type": "word",
+   "logprob": -0.0010850373480100946
+  },
+  {
+   "text": " ",
+   "start": 81.52,
+   "end": 81.78,
+   "type": "spacing",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": "это",
+   "start": 81.78,
+   "end": 81.96,
+   "type": "word",
+   "logprob": -5.960462772236497e-07
+  },
+  {
+   "text": " ",
+   "start": 81.96,
+   "end": 82.14,
+   "type": "spacing",
+   "logprob": -2.3841855067985307e-07
+  },
+  {
+   "text": "я\".",
+   "start": 82.14,
+   "end": 82.16,
+   "type": "word",
+   "logprob": -8.900902069323516e-06
+  },
+  {
+   "text": " ",
+   "start": 82.16,
+   "end": 82.16,
+   "type": "spacing",
+   "logprob": -4.0531076592742465e-06
+  },
+  {
+   "text": "И",
+   "start": 83.36,
+   "end": 83.48,
+   "type": "word",
+   "logprob": -4.0531076592742465e-06
+  },
+  {
+   "text": " ",
+   "start": 83.48,
+   "end": 83.54,
+   "type": "spacing",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": "из",
+   "start": 83.56,
+   "end": 83.66,
+   "type": "word",
+   "logprob": -7.152555099310121e-07
+  },
+  {
+   "text": " ",
+   "start": 83.66,
+   "end": 83.7,
+   "type": "spacing",
+   "logprob": -8.940656698541716e-06
+  },
+  {
+   "text": "темноты",
+   "start": 83.7,
+   "end": 84.12,
+   "type": "word",
+   "logprob": -6.4202431510856125e-06
+  },
+  {
+   "text": " ",
+   "start": 84.12,
+   "end": 84.16,
+   "type": "spacing",
+   "logprob": -3.814689989667386e-06
+  },
+  {
+   "text": "кто-то",
+   "start": 84.16,
+   "end": 84.48,
+   "type": "word",
+   "logprob": -2.1258953116406096e-06
+  },
+  {
+   "text": " ",
+   "start": 84.48,
+   "end": 84.5,
+   "type": "spacing",
+   "logprob": -1.680836794548668e-05
+  },
+  {
+   "text": "рычит",
+   "start": 84.5,
+   "end": 84.86,
+   "type": "word",
+   "logprob": -6.608663534279913e-05
+  }
+ ],
+ "transcription_id": "miomG9iiySwaMrPvDDjm",
+ "audio_duration_secs": 84.9240625
+}
