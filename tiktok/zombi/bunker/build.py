@@ -157,6 +157,48 @@ def pix(text, k, color):
     return SPR[key]
 
 
+# ---------- субтитры: Montserrat Black в пикселях (18 точек без сглаживания, ×3; ключевые фразы ×4) ----------
+SUB_FONT = os.path.join(HERE, "fonts", "Montserrat[wght].ttf")
+SUB_SIZE, SUB_K, KEY_K = 18, 3, 4
+
+
+def sub(text, k, color):
+    """Пиксельное слово субтитров: высота строки постоянная (буквы не прыгают при печати), контур 1 точка, тень."""
+    key = ("sub", text, k, color)
+    if key in SPR:
+        return SPR[key]
+    f = ImageFont.truetype(SUB_FONT, SUB_SIZE)
+    f.set_variation_by_name(b"Black")
+    w = int(f.getlength(text)) + 8
+    m = Image.new("L", (w, SUB_SIZE * 2), 0)
+    d = ImageDraw.Draw(m)
+    d.fontmode = "1"
+    d.text((4, SUB_SIZE // 2), text, font=f, fill=255)
+    a = np.asarray(m) > 127
+    xs = np.where(a.any(0))[0]
+    a = a[:, xs.min():xs.max() + 1] if len(xs) else a[:, :1]
+    a = a[SUB_SIZE // 2 - 6: SUB_SIZE // 2 + SUB_SIZE + 6]           # постоянная высота: от «Й» до хвостов «Д, Щ»
+    a = np.pad(a, 2)
+    ring = a.copy()
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            ring |= np.roll(np.roll(a, dy, 0), dx, 1)
+    sh = np.roll(np.roll(ring, 1, 0), 1, 1) & ~ring
+    rgba = np.zeros(a.shape + (4,), np.uint8)
+    rgba[sh] = (0, 0, 0, 150)
+    rgba[ring] = (0, 0, 0, 255)
+    rgba[a] = (*color, 255)
+    im = Image.fromarray(rgba, "RGBA")
+    SPR[key] = im.resize((im.width * k, im.height * k), Image.NEAREST)
+    return SPR[key]
+
+
+def subfit(text, k, maxw=W - 90):
+    while k > 2 and sub(text, k, WHITE).width > maxw:
+        k -= 1
+    return k
+
+
 def kfit(text, k, maxw=W - 90):
     while k > 2 and (len(text) * 8 + 2) * k > maxw:
         k -= 1
@@ -191,13 +233,14 @@ def captions(img, s, t):
         half = math.ceil(len(key) / 2)
         lines = [key[:half], key[half:]] if len(key) > 1 else [key]
         cols = [WHITE, PURPLE] if len(lines) == 2 else [PURPLE]
-        k = min(kfit(" ".join(w["text"] for w in ln), 10) for ln in lines)
-        ys = [KEY_Y, KEY_Y + int(8 * k * 1.35)] if len(lines) == 2 else [KEY_Y + 50]
+        k = min(subfit(" ".join(w["text"] for w in ln), KEY_K) for ln in lines)
+        lh = sub("Й", k, WHITE).height
+        ys = [KEY_Y, KEY_Y + int(lh * 0.68)] if len(lines) == 2 else [KEY_Y + 40]
         for ln, col, y in zip(lines, cols, ys):
             shown = " ".join(x for x in (typed(w, t) for w in ln) if x)
             if shown:
-                full = pix(" ".join(w["text"] for w in ln), k, col)
-                im = pix(shown, k, col)
+                full = sub(" ".join(w["text"] for w in ln), k, col)
+                im = sub(shown, k, col)
                 img.paste(im, (int(W / 2 - full.width / 2) // 2 * 2, int(y - im.height / 2) // 2 * 2), im)
         return
     cur = None
@@ -207,7 +250,7 @@ def captions(img, s, t):
             cur = w
     if cur:
         sc, _ = pop(t, cur["t0"], 0.1)
-        paste_c(img, pix(cur["text"], kfit(cur["text"], 6), WHITE), W / 2, WORD_Y, sc)
+        paste_c(img, sub(cur["text"], subfit(cur["text"], SUB_K), WHITE), W / 2, WORD_Y, sc)
 
 
 def title(img, lines, t0, t):
