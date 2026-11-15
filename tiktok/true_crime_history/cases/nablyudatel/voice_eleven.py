@@ -24,7 +24,8 @@ from voice_fish import LONG, PAUSE
 HERE = os.path.dirname(os.path.abspath(__file__))
 SC = os.path.join(HERE, "voice_eleven", "scenes")
 OUT = os.path.join(HERE, "voice_user")
-VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_multilingual_v2"
+VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_v3"   # v3 + language_code=ru: правильные ударения (v2 ошибается)
+LANG = {"language_code": "ru"}
 SR = 44100
 LINES = [voice_line(t) for _, _, t in SCENES]
 
@@ -34,7 +35,7 @@ def tts_scene(k):
     mp3, js = os.path.join(SC, f"{n:02d}.mp3"), os.path.join(SC, f"{n:02d}.json")
     if os.path.exists(mp3) and os.path.exists(js):
         return n, "есть"
-    body = {"text": LINES[k], "model_id": MODEL,
+    body = {"text": LINES[k], "model_id": MODEL, **LANG,
             "previous_text": " ".join(LINES[max(0, k - 2):k]) or None,
             "next_text": " ".join(LINES[k + 1:k + 2]) or None}
     req = os.path.join(SC, f"_{n:02d}.req")
@@ -130,16 +131,25 @@ def tts_whole():
     mp3, js = os.path.join(d0, "whole.mp3"), os.path.join(d0, "whole.json")
     if not (os.path.exists(mp3) and os.path.exists(js)):
         req = os.path.join(d0, "_whole.req")
-        json.dump({"text": "\n".join(LINES), "model_id": MODEL}, open(req, "w"), ensure_ascii=False)
-        r = subprocess.run(["curl", "-sS", "-m", "900", "-X", "POST",
-                            f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}/with-timestamps?output_format=mp3_44100_192",
+        json.dump({"text": "\n".join(LINES), "model_id": MODEL, **LANG}, open(req, "w"), ensure_ascii=False)
+        # потоком: v3 думает над всем текстом дольше 30 с, а обычный запрос прокси обрывает через 30 с (502)
+        r = subprocess.run(["curl", "-sS", "-N", "-m", "900", "-X", "POST",
+                            f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}/stream/with-timestamps"
+                            "?output_format=mp3_44100_192",
                             "-H", "xi-api-key: proxy-injected", "-H", "Content-Type: application/json", "--data", f"@{req}"],
                            capture_output=True, text=True).stdout
         os.remove(req)
-        d = json.loads(r)
-        assert "audio_base64" in d, r[:300]
-        open(mp3, "wb").write(base64.b64decode(d["audio_base64"]))
-        json.dump(d["alignment"], open(js, "w"), ensure_ascii=False)
+        audio, al = b"", {"characters": [], "character_start_times_seconds": [], "character_end_times_seconds": []}
+        for line in r.splitlines():
+            if not line.strip():
+                continue
+            d = json.loads(line)
+            assert "audio_base64" in d, line[:300]
+            audio += base64.b64decode(d["audio_base64"] or "")
+            for key in al:                                # время в кусках уже от начала всей записи
+                al[key] += (d.get("alignment") or {}).get(key, [])
+        open(mp3, "wb").write(audio)
+        json.dump(al, open(js, "w"), ensure_ascii=False)
     al = json.load(open(js))
     said, st, en = "".join(al["characters"]), al["character_start_times_seconds"], al["character_end_times_seconds"]
     assert said == "\n".join(LINES), "разметка не совпала с текстом"
