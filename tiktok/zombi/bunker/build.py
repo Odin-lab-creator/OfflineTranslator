@@ -29,6 +29,7 @@ CPS = 14.8                     # символов в секунду для те�
 LEAD = 0.4                     # пауза до первого слова
 SCENE_GAP = 0.35
 TAIL = 3.2                     # концовка «ЧТО ТАМ ВНИЗУ?»
+MUSIC_LEVEL = 0.32             # громкость музыки относительно голоса (по среднему уровню)
 FADE = 0.5                     # пиксельное растворение при смене сцен
 CAM_MOVE = 0.9                 # переезд камеры между сценами
 WORD_Y, KEY_Y = 1500, 1420      # слово по одному; ключевая фраза в две строки
@@ -342,14 +343,37 @@ def knocks(scenes):
     return sorted(out)
 
 
-def audio(scenes, total, voice_path, sr=44100):
+def decode(path, sr):
+    return np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(sr),
+                                         "-f", "f32le", "-"], capture_output=True).stdout, np.float32)
+
+
+def rms(x):
+    return float(np.sqrt(np.mean(x.astype(np.float64) ** 2)) + 1e-9)
+
+
+def audio(scenes, total, voice_path, sr=44100, music=None):
     n = int(total * sr)
     mix = np.zeros(n, np.float32)
+    vtrack = np.zeros(n, np.float32)
     if voice_path:
-        v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", voice_path, "-ac", "1", "-ar", str(sr),
-                                          "-f", "f32le", "-"], capture_output=True).stdout, np.float32)
+        v = decode(voice_path, sr)
         a = int(LEAD * sr)
-        mix[a:a + len(v)] += v[:n - a]
+        vtrack[a:a + len(v)] = v[:n - a]
+        mix += vtrack
+    if music:                                          # фоновая музыка: тише под голосом, громче в паузах
+        m = decode(music, sr)
+        m = np.tile(m, n // len(m) + 1)[:n]
+        ref = rms(vtrack[vtrack != 0]) if voice_path else 0.1
+        m = m / rms(m) * ref * MUSIC_LEVEL
+        env = np.abs(vtrack)
+        k = int(0.25 * sr)
+        env = np.convolve(env, np.ones(k) / k, "same")
+        talk = np.clip(env / (env.max() * 0.15 + 1e-9), 0, 1)
+        duck = 1 - 0.45 * np.convolve(talk, np.ones(k) / k, "same")
+        t = np.arange(n) / sr
+        fade = np.clip(t / 1.5, 0, 1) * np.clip((total - t) / 2.5, 0, 1)
+        mix += (m * duck * fade).astype(np.float32)
     t = np.arange(n) / sr
     rng = np.random.default_rng(3)
     drone = sum(np.sin(2 * np.pi * f * t + ph) * g for f, ph, g in ((55, 0, 1), (82.4, 1, .5), (110, 2, .3)))
@@ -382,6 +406,7 @@ def main():
     ap.add_argument("--preview", action="store_true")
     ap.add_argument("--frames", type=str, default="", help="только кадры: секунды через запятую → png")
     ap.add_argument("--ep", type=int, default=1)
+    ap.add_argument("--music", type=str, default="", help="файл фоновой музыки (например ../music/ambient_2_temnyy.mp3)")
     a = ap.parse_args()
     global EP
     EP = importlib.import_module(f"ep{a.ep}")
@@ -398,7 +423,8 @@ def main():
     out = os.path.join(HERE, name + ".mp4")
     nf = int(total * FPS)
     wav = os.path.join(HERE, "_audio.f32")
-    audio(scenes, total, os.path.join(HERE, EP.VOICE, "vo_tight.wav") if a.user and not a.clean else None).tofile(wav)
+    audio(scenes, total, os.path.join(HERE, EP.VOICE, "vo_tight.wav") if a.user and not a.clean else None,
+          music=os.path.join(HERE, a.music) if a.music else None).tofile(wav)
     cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
            "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav, "-c:a", "aac", "-b:a", "192k", "-shortest"]
     if a.preview:
