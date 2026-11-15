@@ -64,11 +64,15 @@ VOICE_FIX = [("True Crime History", "Тру Крайм Хистори"), ("2014 
              ("В 2019-м", "В две тысячи девятнадцатом"), ("400 тысяч", "четыреста тысяч")]
 
 
-def voice_text():
-    text = "\n".join(plain(t) for _, _, t in SCENES)
+def voice_line(t):
+    t = plain(t)
     for a, b in VOICE_FIX:
-        text = text.replace(a, b)
-    return text
+        t = t.replace(a, b)
+    return t
+
+
+def voice_text():
+    return "\n".join(voice_line(t) for _, _, t in SCENES)
 
 
 if __name__ == "__main__":
