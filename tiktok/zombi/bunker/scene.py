@@ -204,23 +204,34 @@ def noise_dots(d, box, cols, n, seed, size=1):
 
 def pine(d, x, base, h, col=(40, 104, 62), dark=(28, 80, 48), light=(66, 136, 80), snow=False):
     d.rectangle([x - 3, base - h // 3, x + 2, base], fill=(84, 58, 40))
-    d.rectangle([x - 3, base - h // 3, x - 2, base], fill=(64, 44, 30))
-    tiers = 6
+    d.rectangle([x - 3, base - h // 3, x - 2, base], fill=(62, 42, 28))
+    for yy in range(base - h // 3 + 3, base, 5):                         # кора
+        d.point((x, yy), fill=(64, 44, 30)); d.point((x + 1, yy + 2), fill=(104, 74, 50))
+    tiers = 7
     for i in range(tiers):
-        ty = base - h // 5 - i * h // 8
-        w = (tiers - i) * h // 15 + 4
+        ty = base - h // 5 - i * h // 9
+        w = (tiers - i) * h // 17 + 4
         th = h // 4
         d.polygon([(x, ty - th), (x - w, ty), (x + w, ty)], fill=col)
         d.polygon([(x, ty - th), (x - w, ty), (x - w // 3, ty)], fill=dark)
         d.line([(x + 1, ty - th + 2), (x + w - 2, ty - 1)], fill=light)
-        d.line([(x - w + 1, ty), (x + w - 1, ty)], fill=dark)
+        for k in range(-w + 3, w - 2, 4):                              # зубчатый низ яруса
+            d.point((x + k, ty + 1), fill=dark if k < 0 else col)
+        for k in range(2):                                             # блики хвои
+            px = x + 2 + (i * 7 + k * 5) % max(3, w - 3)
+            d.point((px, ty - 3 - k * 3), fill=light)
 
 
 def rock(d, x, y, s, base=(92, 88, 96)):
     pts = [(x, y + s * 0.4), (x + s * 0.3, y), (x + s * 0.8, y + s * 0.05), (x + s, y + s * 0.5),
            (x + s * 0.7, y + s * 0.75), (x + s * 0.2, y + s * 0.72)]
-    d.polygon(pts, fill=base, outline=lerp(base, (0, 0, 0), 0.45))
-    d.line([(x + s * 0.3, y + 1), (x + s * 0.75, y + s * 0.08)], fill=lerp(base, (255, 255, 255), 0.25))
+    d.polygon(pts, fill=base, outline=lerp(base, (0, 0, 0), 0.5))
+    d.polygon([(x + s * 0.5, y + s * 0.4), (x + s, y + s * 0.5), (x + s * 0.7, y + s * 0.75),
+               (x + s * 0.25, y + s * 0.7)], fill=lerp(base, (0, 0, 0), 0.22))      # тень снизу-справа
+    d.line([(x + s * 0.3, y + 1), (x + s * 0.75, y + s * 0.08)], fill=lerp(base, (255, 255, 255), 0.3))
+    d.line([(x + 1, y + s * 0.4), (x + s * 0.3, y + 1)], fill=lerp(base, (255, 255, 255), 0.18))
+    if s > 12:
+        d.line([(x + s * 0.45, y + s * 0.15), (x + s * 0.55, y + s * 0.4)], fill=lerp(base, (0, 0, 0), 0.4))
 
 
 _ST = {}
@@ -235,28 +246,70 @@ def static_layer():
 def _static():
     im = Image.new("RGB", (BW, BH))
     d = ImageDraw.Draw(im)
-    layers = [(GY, (114, 76, 48)), (GY + 84, (100, 66, 42)), (GY + 200, (86, 58, 38)), (ROCK_Y, (62, 58, 64))]
+    layers = [(GY, (116, 78, 50)), (GY + 84, (102, 68, 44)), (GY + 200, (88, 60, 40)), (ROCK_Y, (62, 58, 64))]
     r = random.Random(7)
     for i, (y, c) in enumerate(layers):
         y1 = layers[i + 1][0] if i + 1 < len(layers) else BH
-        # волнистая граница слоя
-        pts = [(0, BH)] + [(x, y + 4 * math.sin(x / 37 + i) + 2 * math.sin(x / 11 + i * 2)) for x in range(0, BW + 6, 6)] + [(BW, BH)]
-        d.polygon(pts, fill=c)
-        noise_dots(d, (0, y, BW, y1 + 6), [lerp(c, (0, 0, 0), 0.1)], 500, i, size=4)   # редкие комочки, без «шума»
-        for _ in range(26):                   # горизонтальные прожилки
-            sx, sy = r.randrange(BW), r.randrange(y + 4, y1)
-            d.line([(sx, sy), (sx + r.randrange(10, 40), sy)], fill=lerp(c, (0, 0, 0), 0.12))
-    for _ in range(120):
-        rock(d, r.randrange(-8, BW), r.randrange(ROCK_Y + 6, BH), r.randrange(8, 22), (86 + r.randrange(14),) * 2 + (94,))
-    for _ in range(40):
-        rock(d, r.randrange(0, BW), r.randrange(GY + 40, ROCK_Y - 16), r.randrange(5, 10), (126, 114, 102))
-    for x in (400, 452, 504):                # корни под деревьями
-        for k in range(6):
+        line = [(x, y + 4 * math.sin(x / 37 + i) + 2 * math.sin(x / 11 + i * 2)) for x in range(0, BW + 6, 6)]
+        d.polygon([(0, BH)] + line + [(BW, BH)], fill=c)
+        if i:
+            d.line(line, fill=lerp(c, (0, 0, 0), 0.22), width=2)
+            d.line([(x, yy + 2) for x, yy in line], fill=lerp(layers[i - 1][1], c, 0.5))
+        if i < 3:
+            for _ in range(70):                       # комья земли чуть другого оттенка
+                x, yy = r.randrange(-20, BW), r.randrange(y + 6, y1)
+                w, h = r.randrange(12, 40), r.randrange(4, 10)
+                col = lerp(c, (0, 0, 0), 0.07) if r.random() < 0.6 else lerp(c, (255, 226, 190), 0.06)
+                d.ellipse([x, yy, x + w, yy + h], fill=col)
+            for _ in range(40):                       # тонкие пласты
+                sx, sy = r.randrange(BW), r.randrange(y + 6, y1)
+                ln = r.randrange(14, 54)
+                d.line([(sx, sy), (sx + ln, sy)], fill=lerp(c, (0, 0, 0), 0.13))
+                d.line([(sx + 3, sy + 1), (sx + ln - 6, sy + 1)], fill=lerp(c, (255, 255, 255), 0.07))
+            for _ in range(80):                       # камешки с бликом и тенью
+                x, yy = r.randrange(BW), r.randrange(y + 4, y1)
+                sz = r.choice((2, 2, 3, 3, 4, 5))
+                base = r.choice(((152, 138, 122), (128, 118, 108), (170, 150, 120), (110, 104, 100)))
+                d.ellipse([x, yy, x + sz, yy + sz * 0.8], fill=base)
+                d.point((x + 1, yy), fill=lerp(base, (255, 255, 255), 0.35))
+                d.point((x + sz - 1, yy + sz * 0.8 - 1), fill=lerp(base, (0, 0, 0), 0.4))
+    for _ in range(46):                               # крупные камни повыше
+        rock(d, r.randrange(0, BW), r.randrange(GY + 40, ROCK_Y - 16), r.randrange(6, 12), (128, 116, 104))
+    for _ in range(130):                              # валуны в скале
+        g = 84 + r.randrange(18)
+        rock(d, r.randrange(-8, BW), r.randrange(ROCK_Y + 6, BH), r.randrange(8, 24), (g, g - 2, g + 6))
+    for _ in range(14):                               # трещины в скале
+        x, yy = r.randrange(BW), r.randrange(ROCK_Y + 20, BH)
+        pts = [(x, yy)]
+        for _ in range(4):
+            x += r.randint(-6, 6); yy += r.randint(4, 9)
+            pts.append((x, yy))
+        d.line(pts, fill=(40, 38, 44))
+    for x in (400, 452, 504, 30, 90):                 # корни с мелкими отростками
+        for k in range(6 if x > 300 else 3):
             pts, px, py = [(x, GY)], x, GY
-            for _ in range(7):
+            for j in range(7):
                 px += r.randint(-7, 7); py += r.randint(5, 11)
                 pts.append((px, py))
+                if r.random() < 0.5:
+                    d.line([(px, py), (px + r.randint(-6, 6), py + r.randint(3, 7))], fill=(80, 54, 36))
             d.line(pts, fill=(74, 48, 32), width=2 if k < 2 else 1)
+    # закопанные мелочи: кость, бутылка, ржавая банка, червяк, окаменелость
+    d.line([(52, 540), (70, 534)], fill=(226, 218, 196), width=3)
+    for ex, ey in ((50, 539), (52, 543), (70, 532), (72, 536)):
+        d.ellipse([ex - 2, ey - 2, ex + 2, ey + 2], fill=(226, 218, 196))
+    d.rounded_rectangle([462, 404, 470, 420], 2, fill=(70, 120, 84)); d.rectangle([464, 398, 468, 404], fill=(70, 120, 84))
+    d.point((465, 408), fill=(150, 200, 160))
+    d.rectangle([30, 352, 40, 360], fill=(140, 82, 52)); d.line([(30, 352), (40, 352)], fill=(176, 120, 80))
+    d.line([(300, 372), (304, 370), (308, 373), (312, 371)], fill=(214, 140, 140), width=2)
+    for k in range(18):                               # аммонит
+        a = k * 0.55
+        rr = 1 + k * 0.45
+        d.point((440 + rr * math.cos(a), 720 + rr * math.sin(a)), fill=(150, 144, 136))
+    d.rectangle([0, GY, BW, GY + 2], fill=(80, 146, 60))
+    d.rectangle([0, GY + 3, BW, GY + 5], fill=(58, 110, 46))
+    for x in range(0, BW, 5):                         # дёрн свисает
+        d.line([(x, GY + 5), (x + 1, GY + 7 + (x * 13) % 4)], fill=(70, 92, 44))
     return im
 
 
@@ -287,17 +340,26 @@ def sky(d, kind, t):
         d.ellipse([414, 62, 438, 86], fill=(255, 250, 220))
         for i, (cx, cy, w) in enumerate(((80, 104, 70), (300, 66, 52), (220, 140, 44), (480, 150, 60))):
             x = (cx + t * (3 + i * 1.3)) % (BW + 120) - 60
-            col, sh = (242, 246, 250), (210, 222, 236)
+            col, sh, hl = (238, 243, 248), (196, 210, 228), (255, 255, 255)
             d.ellipse([x, cy, x + w, cy + 16], fill=sh)
             d.ellipse([x + w * 0.2, cy - 10, x + w * 0.65, cy + 12], fill=col)
             d.ellipse([x + w * 0.45, cy - 6, x + w * 0.85, cy + 10], fill=col)
-            d.rectangle([x + 4, cy + 8, x + w - 4, cy + 14], fill=sh)
+            d.rectangle([x + 4, cy + 9, x + w - 4, cy + 15], fill=sh)
+            d.arc([x + w * 0.2, cy - 10, x + w * 0.65, cy + 12], 200, 300, fill=hl)
+        for i in range(3):                                              # птицы
+            bx = (60 + i * 26 + t * 14) % (BW + 80) - 40
+            by = 120 + i * 9 + 3 * math.sin(t * 2 + i)
+            wing = 2 if (t * 4 + i) % 1 < 0.5 else -1
+            d.line([(bx - 3, by - wing), (bx, by), (bx + 3, by - wing)], fill=(50, 56, 70))
     else:
         d.ellipse([290, 196, 342, 248], fill=(255, 196, 120))
         d.ellipse([300, 206, 332, 238], fill=(255, 218, 150))
 
 
 def city(d, kind, burning, t):
+    hill = {"day": (150, 176, 196), "night": (20, 26, 46), "evening": (120, 80, 100)}[kind]
+    pts = [(0, GY)] + [(x, GY - 70 - 18 * math.sin(x / 70) - 8 * math.sin(x / 23)) for x in range(0, BW + 10, 10)] + [(BW, GY)]
+    d.polygon(pts, fill=hill)                                           # холмы вдали
     col = {"day": (138, 158, 182), "night": (24, 28, 48), "evening": (100, 64, 86)}[kind]
     r = random.Random(11)
     x = 0
@@ -330,37 +392,71 @@ def city(d, kind, burning, t):
 def house(d, kind):
     wall, roof = (132, 94, 62), (100, 54, 46)
     d.rectangle([8, 224, 124, GY], fill=wall)
-    for y in range(226, GY, 7):
-        d.line([(8, y), (124, y)], fill=(108, 76, 50))
-    d.rectangle([92, 176, 104, 210], fill=(110, 70, 56)); d.rectangle([90, 172, 106, 177], fill=(80, 50, 40))
+    for j, y in enumerate(range(226, GY, 7)):                           # доски обшивки
+        d.line([(8, y), (124, y)], fill=(104, 74, 50))
+        d.line([(8, y + 1), (124, y + 1)], fill=(150, 110, 74))
+        for x in range(14 + (j % 3) * 9, 124, 31):
+            d.point((x, y + 3), fill=(96, 68, 44))
+    d.rectangle([8, 224, 12, GY], fill=(112, 80, 54)); d.rectangle([120, 224, 124, GY], fill=(112, 80, 54))
+    d.rectangle([8, 224, 124, 229], fill=(70, 50, 36))                   # тень под крышей
+    d.rectangle([92, 176, 104, 212], fill=(120, 72, 58))                 # кирпичная труба
+    for y in range(178, 212, 4):
+        d.line([(92, y), (104, y)], fill=(90, 54, 44))
+        d.point((96 + (y // 4 % 2) * 4, y + 2), fill=(90, 54, 44))
+    d.rectangle([90, 172, 106, 177], fill=(80, 50, 40))
     d.polygon([(0, 228), (66, 176), (132, 228)], fill=roof)
-    for k in range(5):
-        y = 188 + k * 9
+    for k in range(7):                                                   # черепица рядами
+        y = 184 + k * 6
         hw = (y - 176) * 66 / 52
-        d.line([(66 - hw, y), (66 + hw, y)], fill=(80, 42, 36))
-    d.polygon([(80, 192), (102, 212), (88, 212)], fill=(30, 22, 26))         # дыра в крыше
+        d.line([(66 - hw, y), (66 + hw, y)], fill=(78, 40, 34))
+        for x in range(int(66 - hw) + (k % 2) * 4, int(66 + hw), 8):
+            d.line([(x, y - 5), (x, y)], fill=(86, 46, 38))
+            d.point((x + 2, y - 4), fill=(126, 72, 60))
+    d.line([(0, 228), (66, 176), (132, 228)], fill=(140, 84, 66), width=2)
+    for mx, my in ((24, 216), (30, 214), (100, 214), (44, 204)):         # мох
+        d.ellipse([mx, my, mx + 6, my + 3], fill=(84, 112, 58))
+    d.polygon([(80, 192), (102, 212), (88, 212)], fill=(30, 22, 26))      # дыра в крыше
+    d.line([(84, 196), (96, 214)], fill=(110, 74, 50), width=2)
     win = (255, 210, 120) if kind == "evening" else (44, 54, 66)
-    d.rectangle([22, 242, 48, 268], fill=(84, 60, 40)); d.rectangle([25, 245, 45, 265], fill=win)
-    d.line([(25, 245), (45, 265)], fill=(84, 60, 40), width=2); d.line([(45, 245), (25, 265)], fill=(84, 60, 40), width=2)
-    d.rectangle([74, 250, 100, GY], fill=(72, 48, 34)); d.rectangle([94, 274, 96, 276], fill=(200, 170, 80))
-    for i, x in enumerate(range(134, 200, 11)):                              # забор
+    d.rectangle([20, 240, 50, 270], fill=(84, 60, 40)); d.rectangle([24, 244, 46, 266], fill=win)
+    d.line([(35, 244), (35, 266)], fill=(84, 60, 40)); d.line([(24, 255), (46, 255)], fill=(84, 60, 40))
+    if kind != "evening":
+        d.line([(26, 246), (32, 252)], fill=(90, 110, 130))
+    d.rectangle([12, 240, 19, 270], fill=(70, 96, 70))                   # ставня
+    d.polygon([(51, 242), (58, 246), (58, 276), (51, 272)], fill=(70, 96, 70))   # покосившаяся ставня
+    for x0, y0, x1, y1 in ((22, 250, 48, 256), (22, 258, 48, 262)):      # заколочено
+        d.line([(x0, y0), (x1, y1)], fill=(150, 110, 70), width=2)
+    d.rectangle([72, 246, 102, GY], fill=(58, 40, 28))
+    d.rectangle([75, 250, 99, GY], fill=(78, 52, 36))
+    for x in range(75, 99, 6):
+        d.line([(x, 250), (x, GY)], fill=(64, 42, 30))
+    d.rectangle([94, 274, 96, 277], fill=(200, 170, 80))
+    d.rectangle([68, GY - 4, 106, GY], fill=(110, 80, 54)); d.line([(68, GY - 4), (106, GY - 4)], fill=(140, 104, 70))
+    d.rounded_rectangle([110, 278, 124, GY], 2, fill=(96, 70, 48))      # бочка
+    d.line([(110, 284), (124, 284)], fill=(60, 60, 64)); d.line([(110, 294), (124, 294)], fill=(60, 60, 64))
+    for i, x in enumerate(range(134, 200, 11)):                          # забор
         h = 30 if i != 3 else 18
-        d.rectangle([x, GY - h, x + 6, GY], fill=(152, 114, 76))
-        d.rectangle([x, GY - h, x + 1, GY], fill=(124, 92, 60))
-        d.polygon([(x, GY - h), (x + 3, GY - h - 4), (x + 6, GY - h)], fill=(152, 114, 76))
+        lean = 2 if i == 4 else 0
+        d.polygon([(x, GY), (x + lean, GY - h), (x + 6 + lean, GY - h), (x + 6, GY)], fill=(152, 114, 76))
+        d.line([(x, GY), (x + lean, GY - h)], fill=(118, 88, 58))
+        d.polygon([(x + lean, GY - h), (x + 3 + lean, GY - h - 4), (x + 6 + lean, GY - h)], fill=(152, 114, 76))
+        d.point((x + 3, GY - h + 8), fill=(80, 60, 40))
     d.rectangle([130, GY - 22, 200, GY - 20], fill=(124, 90, 60))
     d.rectangle([130, GY - 10, 200, GY - 8], fill=(124, 90, 60))
 
 
 def grass(d, kind, t, x0=0, x1=BW):
-    g1, g2 = (78, 146, 60), (56, 112, 46)
-    d.rectangle([x0, GY - 1, x1, GY + 3], fill=g1)
-    d.rectangle([x0, GY + 4, x1, GY + 6], fill=g2)
+    g1, g2 = (80, 148, 60), (58, 112, 46)
+    d.rectangle([x0, GY - 1, x1, GY + 2], fill=g1)
     r = random.Random(21)
-    for x in range(x0, x1, 3):
-        h = r.randrange(2, 7)
+    for x in range(x0, x1, 2):
+        h = r.randrange(2, 8)
         sw = math.sin(t * 1.5 + x * 0.07) * 1.2
-        d.line([(x, GY), (x + sw, GY - h)], fill=g1 if r.random() < 0.6 else (100, 170, 70))
+        col = g1 if r.random() < 0.5 else (104, 172, 72) if r.random() < 0.5 else g2
+        d.line([(x, GY), (x + sw, GY - h)], fill=col)
+        if r.random() < 0.025:                                          # цветы
+            fc = r.choice(((240, 220, 90), (236, 236, 236), (200, 120, 200)))
+            d.point([(x + sw, GY - h - 1), (x + sw - 1, GY - h), (x + sw + 1, GY - h)], fill=fc)
 
 
 def room(d, box, finished, depth=1.0, side="right", seed=0):
@@ -371,24 +467,38 @@ def room(d, box, finished, depth=1.0, side="right", seed=0):
         x1 = x0 + int((x1 - x0) * min(1, depth))
     elif side == "down":
         y1 = y0 + int((y1 - y0) * min(1, depth))
+    d.rounded_rectangle([x0 - 3, y0 - 3, x1 + 3, y1 + 3], 6, fill=(74, 50, 34))      # тень вокруг выемки
     d.rounded_rectangle([x0, y0, x1, y1], 4, fill=(48, 33, 25))
-    noise_dots(d, (x0 + 2, y0 + 2, x1 - 1, y1 - 1), [(54, 38, 29)],
-               (x1 - x0) * (y1 - y0) // 90, seed, size=3)
+    r = random.Random(seed)
+    for _ in range((x1 - x0) * (y1 - y0) // 160):                       # следы лопаты на стенах
+        x, y = r.randrange(x0 + 2, max(x0 + 3, x1 - 6)), r.randrange(y0 + 2, max(y0 + 3, y1 - 3))
+        d.line([(x, y), (x + 4, y + 1)], fill=(58, 41, 31))
+    d.rectangle([x0 + 2, y0 + 1, x1 - 2, y0 + 3], fill=(38, 26, 20))
     if finished:
         for i, x in enumerate(range(x0 + 2, x1 - 4, 10)):
-            sh = (118, 84, 54) if i % 3 else (110, 78, 50)
+            sh = ((118, 84, 54), (110, 78, 50), (124, 90, 58))[(i * 7 + seed) % 3]
             d.rectangle([x, y0 + 6, x + 9, y1 - 6], fill=sh)
-            d.line([(x, y0 + 6), (x, y1 - 6)], fill=(82, 56, 36))
-            for gy in range(y0 + 12, y1 - 8, 9):                             # волокна
-                d.point((x + 3 + (gy * 7 + i) % 5, gy), fill=(100, 70, 44))
-            d.point((x + 4, y0 + 9), fill=(60, 50, 44)); d.point((x + 4, y1 - 10), fill=(60, 50, 44))
-        d.rectangle([x0, y0, x1, y0 + 5], fill=(96, 66, 42))                   # балка
-        d.line([(x0, y0 + 5), (x1, y0 + 5)], fill=(66, 44, 28))
-        for px in (x0 + 2, x1 - 7):                                          # стойки
+            d.line([(x, y0 + 6), (x, y1 - 6)], fill=(80, 54, 34))
+            d.line([(x + 1, y0 + 6), (x + 1, y1 - 6)], fill=lerp(sh, (255, 255, 255), 0.12))
+            for gy in range(y0 + 12, y1 - 8, 7):                         # волокна
+                d.line([(x + 3 + (gy * 7 + i) % 4, gy), (x + 3 + (gy * 7 + i) % 4, gy + 3)], fill=lerp(sh, (0, 0, 0), 0.12))
+            if (i * 5 + seed) % 4 == 0:                                  # сучок
+                ky = y0 + 14 + (i * 11) % max(1, (y1 - y0 - 26))
+                d.ellipse([x + 3, ky, x + 7, ky + 3], fill=lerp(sh, (0, 0, 0), 0.3))
+            d.point((x + 4, y0 + 9), fill=(56, 48, 44)); d.point((x + 4, y1 - 10), fill=(56, 48, 44))
+        d.rectangle([x0, y0 + 6, x1, y0 + 9], fill=(70, 48, 32))           # тень под балкой
+        d.rectangle([x0, y0, x1, y0 + 5], fill=(98, 68, 44))               # балка
+        d.line([(x0, y0 + 1), (x1, y0 + 1)], fill=(126, 90, 58))
+        for px in (x0 + 2, x1 - 7):                                       # стойки с подкосами
             d.rectangle([px, y0, px + 5, y1], fill=(104, 72, 46))
             d.line([(px + 5, y0), (px + 5, y1)], fill=(70, 48, 30))
-        d.rectangle([x0, y1 - 5, x1, y1], fill=(94, 64, 40))                   # пол
-        d.line([(x0, y1 - 5), (x1, y1 - 5)], fill=(128, 92, 58))
+            d.line([(px + 1, y0), (px + 1, y1)], fill=(130, 94, 60))
+        d.line([(x0 + 8, y0 + 12), (x0 + 16, y0 + 5)], fill=(96, 66, 42), width=2)
+        d.line([(x1 - 8, y0 + 12), (x1 - 16, y0 + 5)], fill=(96, 66, 42), width=2)
+        d.rectangle([x0, y1 - 5, x1, y1], fill=(94, 64, 40))               # пол
+        d.line([(x0, y1 - 5), (x1, y1 - 5)], fill=(130, 94, 60))
+        for x in range(x0 + 6, x1, 23):
+            d.line([(x, y1 - 4), (x, y1)], fill=(70, 48, 30))
 
 
 def ladder(d, x, y0, y1):
@@ -462,6 +572,12 @@ def world(n, p, t):
         for k in range(4):
             d.rounded_rectangle([sx + k * 5, 324, sx + 3 + k * 5, 333], 1, fill=(196, 92, 60 + k * 10))
             d.point((sx + 1 + k * 5, 326), fill=(240, 180, 150))
+    d.rounded_rectangle([188, 346, 204, 364], 4, fill=(150, 120, 80))         # мешок картошки
+    d.line([(192, 348), (200, 348)], fill=(110, 86, 56))
+    for cx, cy, sgn in ((186, 314, 1), (278, 314, -1)):                     # паутина
+        for k in range(4):
+            d.line([(cx, cy + k * 3), (cx + sgn * (10 - k * 2), cy)], fill=(120, 110, 104))
+    d.rectangle([258, 346, 274, 364], fill=(110, 80, 50)); d.line([(258, 352), (274, 352)], fill=(80, 56, 36))   # ящик
     dig1 = 0 if n < 4 else (p if n == 4 else 1)
     if dig1:
         room(d, SHAFT1, False, dig1 * 2.5, side="down", seed=2)
@@ -514,6 +630,38 @@ def world(n, p, t):
             d.rectangle([197, 438, 200, 446], fill=(240, 236, 220))
             fl = int(2 + math.sin(t * 13) * 0.8)
             d.ellipse([197, 432 - fl, 200, 437], fill=(255, 200, 80))
+    if n >= 5:
+        d.rectangle([150, 410, 168, 430], fill=(232, 226, 210))              # календарь: зачёркнутые дни
+        d.rectangle([150, 410, 168, 414], fill=(190, 50, 50))
+        crosses = min(20, {5: 3, 6: 4, 7: 5}.get(n, 6 + n))
+        for c in range(crosses):
+            cx, cy = 151 + (c % 5) * 3.5, 416 + (c // 5) * 3.5
+            d.line([(cx, cy), (cx + 2, cy + 2)], fill=(200, 40, 40)); d.line([(cx + 2, cy), (cx, cy + 2)], fill=(200, 40, 40))
+        d.rectangle([174, 414, 186, 426], fill=(96, 70, 46)); d.rectangle([176, 416, 184, 424], fill=(150, 170, 190))   # фото
+        d.point([(178, 419), (181, 419)], fill=(220, 190, 160)); d.line([(176, 424), (184, 422)], fill=(90, 120, 80))
+        d.rounded_rectangle([120, 446, 129, 458], 2, fill=(92, 70, 52)); d.rectangle([121, 450, 128, 452], fill=(74, 54, 40))  # рюкзак
+        d.rectangle([134, 449, 186, 452], fill=(70, 96, 140))                # одеяло
+        for x in range(136, 186, 6):
+            d.rectangle([x, 449, x + 2, 451], fill=(96, 124, 170))
+        d.line([(206, 410), (206, 438)], fill=(140, 96, 54), width=2)        # лопата на стене
+        d.polygon([(203, 438), (209, 438), (210, 446), (202, 446)], fill=(170, 176, 186))
+    if n >= 9 and n < 17:
+        for bx, by in ((372, 570), (380, 560)):                              # ящики
+            d.rectangle([bx, by, bx + 16, 586 if by == 570 else 570], fill=(132, 96, 58))
+            d.line([(bx, by), (bx + 16, 586 if by == 570 else 570)], fill=(100, 70, 42))
+            d.rectangle([bx, by, bx + 16, 586 if by == 570 else 570], outline=(90, 62, 38))
+    if n >= 9:
+        d.line([(272, 538), (292, 538)], fill=(70, 70, 76), width=2)         # кирка и пила на стене
+        d.arc([270, 536, 294, 548], 180, 360, fill=(170, 176, 186), width=2)
+        d.line([(282, 538), (282, 556)], fill=(140, 96, 54), width=2)
+        d.polygon([(250, 540), (264, 540), (264, 546), (250, 550)], fill=(176, 182, 192))
+        d.rectangle([264, 539, 268, 547], fill=(150, 96, 54))
+        d.rectangle([278, 572, 288, 586], fill=(160, 40, 34)); d.rectangle([280, 569, 284, 572], fill=(60, 60, 60))   # канистра
+        d.line([(279, 574), (287, 584)], fill=(130, 30, 26))
+    if n >= 18:
+        d.rectangle([196, 458, 282, 461], fill=(150, 60, 50))                # коврик
+        for x in range(198, 282, 6):
+            d.point((x, 459), fill=(220, 180, 90))
     if n >= 9:                                # полка с консервами, печка, труба
         for sy in (426, 444):
             d.rectangle([250, sy, 304, sy + 2], fill=(90, 62, 38))
@@ -582,9 +730,18 @@ def world(n, p, t):
     for i, gx in enumerate(range(262, 350, 18)):       # грядки и кучки земли
         d.rectangle([gx, GY - 4, gx + 14, GY], fill=(94, 64, 42))
         h = 9 * ease(gd * 2 - i * 0.2) if gd else 0
+        if h <= 0.5:                                                         # капуста
+            d.ellipse([gx + 2, GY - 11, gx + 12, GY - 3], fill=(84, 150, 72))
+            d.ellipse([gx + 4, GY - 10, gx + 10, GY - 5], fill=(130, 190, 100))
+            d.point((gx + 6, GY - 8), fill=(170, 220, 140))
         if h > 0.5:
             d.polygon([(gx - 2, GY - 3), (gx + 7, GY - 3 - h), (gx + 16, GY - 3)], fill=(114, 78, 48))
             d.line([(gx + 2, GY - 4 - h * 0.5), (gx + 7, GY - 3 - h)], fill=(134, 96, 62))
+    d.polygon([(250, GY - 12), (262, GY - 12), (260, GY), (252, GY)], fill=(130, 136, 146))   # ведро
+    d.line([(250, GY - 12), (262, GY - 12)], fill=(170, 176, 186))
+    d.arc([250, GY - 20, 262, GY - 8], 180, 360, fill=(90, 92, 100))
+    for sx, sz in ((214, 6), (372, 8), (530, 7)):
+        rock(d, sx, GY - sz * 0.6, sz, (130, 126, 120))
     metal = n > 7 or (n == 7 and p > 0.45)
     hc = (124, 128, 136) if metal else (124, 86, 52)
     d.rectangle([HATCH_X - 14, GY - 4, HATCH_X + 16, GY + 1], fill=hc)
