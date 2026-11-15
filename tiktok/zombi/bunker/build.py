@@ -225,7 +225,7 @@ def title(img, lines, t0, t):
             break
 
 
-# ---------- заставка: пиксельный логотип (шрифт «стекающая краска» без сглаживания, ×4) ----------
+# ---------- заставка: пиксельный логотип (Press Start 2P ×12, градиент, блик, объём, контур) ----------
 WET = os.path.join(HERE, "fonts", "RubikWetPaint-Regular.ttf")
 LOGO_COLS = {"white": ((255, 255, 255), (186, 190, 204), (70, 70, 84)),
              "red": ((255, 96, 76), (176, 20, 24), (84, 8, 10)),
@@ -256,7 +256,7 @@ def logo(text, color, font):
     key = ("logo", text, color, font)
     if key in SPR:
         return SPR[key]
-    a, k = (_mask(text, WET, 40), 4) if font == "wet" else (_mask(text, PIXEL, 8), 5)
+    a, k = (_mask(text, WET, 40), 4) if font == "wet" else (_mask(text, PIXEL, 8), int(font[2:]))   # "px12" — пиксель ×12
     top, bot, ext = LOGO_COLS[color]
     a = np.pad(a, 4)
     h, w = a.shape
@@ -370,7 +370,7 @@ def frame(fi):
     last = scenes[-1]
     tend = last["words"][-1]["t1"] + 0.5
     if T > tend:
-        logo_lines(img, EP.END + [(EP.NEXT, "purple", 610, "pixel")], tend, T)
+        logo_lines(img, EP.END + [(EP.NEXT, "purple", 575, "px5")], tend, T)
     if s["n"] in EP.NAMES:                   # жёлтое имя над героиней
         name, w0, wx, wy = EP.NAMES[s["n"]]
         tw = next((w["t0"] for w in s["words"] if w["raw"].strip(".,") == w0), None)
