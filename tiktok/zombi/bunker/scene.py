@@ -34,6 +34,10 @@ PEOPLE = {
 }
 
 
+_B4 = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]], np.float32) / 16 + 1 / 32
+BAYER = np.tile(_B4, (BH // 4, BW // 4))      # для пиксельных переходов света и неба
+
+
 def lerp(a, b, k):
     return tuple(int(a[i] + (b[i] - a[i]) * k) for i in range(3))
 
@@ -262,8 +266,12 @@ def sky(d, kind, t):
     tops = {"day": ((88, 146, 208), (180, 214, 236)), "night": ((8, 12, 30), (32, 38, 68)),
             "evening": ((56, 46, 92), (240, 132, 74))}
     a, b = tops[kind]
-    for y in range(GY):
-        d.line([(0, y), (BW, y)], fill=lerp(a, b, (y / GY) ** 1.2))
+    steps = 7                                 # небо ступенями с точечным переходом, как в пиксель-арте
+    k = (np.arange(GY, dtype=np.float32)[:, None] / GY) ** 1.2 * steps
+    k = np.floor(k + BAYER[:GY]) / steps
+    k = np.clip(k, 0, 1)[..., None]
+    arr = np.array(a, np.float32) + (np.array(b, np.float32) - np.array(a, np.float32)) * k
+    d._image.paste(Image.fromarray(arr.astype(np.uint8)).im, (0, 0, BW, GY))
     if kind == "night":
         r = random.Random(3)
         for i in range(120):
@@ -653,6 +661,9 @@ def world(n, p, t):
     else:
         H["hero"] = (238, F_ROOM2, "stand", 1)
         H["anya"] = (270, F_ROOM2, "stand", -1)
+    xs = [v[0] for v in H.values()]
+    ys = [v[1] for v in H.values()]
+    focus = (sum(xs) / len(xs), sum(ys) / len(ys))
     for who, (x, y, pose, f) in H.items():
         put(img, who, pose, (t * 0.9) % 1 if pose == "pedal" else (t * 0.55) % 1 if pose in ("stand", "sit", "ear", "knife") else ph, x, y, f)
         if pose == "dig":                     # летящие комья земли
@@ -690,6 +701,7 @@ def world(n, p, t):
     if n >= 18:
         glow(L, 228, 428, 34, 0.6 * flick(t, 5), warm)
     L = 1.3 * np.tanh(L / 1.3)              # мягкий потолок света — без пересвета
+    L = np.floor(L * 6 + BAYER[..., None]) / 6  # свет ступенями с точечным переходом
     out = np.clip(a * L, 0, 1)
     img = Image.fromarray((out * 255).astype(np.uint8))
     d = ImageDraw.Draw(img, "RGBA")
@@ -738,11 +750,11 @@ def world(n, p, t):
             for ex in (244, 262):
                 d.rectangle([ex, 684, ex + 3, 686], fill=(255, 40, 30, al))
                 d.rectangle([ex - 2, 682, ex + 5, 688], fill=(255, 40, 30, al // 4))
-    return img
+    return img, focus
 
 
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "test"
     for n in range(1, 21):
-        world(n, 0.8, 1.0).resize((BW * K, BH * K), Image.NEAREST).save(f"{out}_{n:02d}.png")
+        world(n, 0.8, 1.0)[0].resize((BW * K, BH * K), Image.NEAREST).save(f"{out}_{n:02d}.png")
