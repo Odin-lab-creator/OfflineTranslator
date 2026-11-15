@@ -63,15 +63,18 @@ def person(kind, pose, phase):
     x, feet = 24, 56
     zomb = kind == "zombie"
     s1 = math.sin(ph * 2 * math.pi)
-    sit, crouch = pose in ("sit", "pedal"), pose == "crouch"
+    sit, crouch = pose in ("sit", "pedal", "coldsit"), pose == "crouch"
     bob = 0
     if crouch:                               # стоит на коленях над люком и скребёт его
         _crouch(d, c, ph, x, feet)
     else:
         # ---- ноги ----
         if sit:
-            hip = feet - 12
-            if pose == "pedal":
+            hip = feet - 12 if pose != "coldsit" else feet - 4
+            if pose == "coldsit":                # сидит на голой земле, колени к груди
+                d.line([(x, hip), (x + 7, hip - 9), (x + 9, feet - 2)], fill=c["legs"], width=4)
+                d.rectangle([x + 7, feet - 3, x + 13, feet], fill=c["boot"])
+            elif pose == "pedal":
                 a = ph * 2 * math.pi
                 for s, col in ((math.pi, c["top2"]), (0, c["legs"])):
                     fx, fy = x + 8 + 5 * math.cos(a + s), feet - 5 + 5 * math.sin(a + s)
@@ -170,6 +173,11 @@ def person(kind, pose, phase):
             d.line([(x + 13, top_y + 5), (x + 19, top_y + 1)], fill=(214, 220, 228), width=2)
         elif pose == "ear":
             arm([sh, (x + 11, top_y - 2)])
+        elif pose == "cold":                     # обхватил себя руками
+            d.line([(x - 2, top_y + 5), (x + 5, top_y + 8)], fill=c["top2"], width=4)
+            arm([sh, (x + 6, top_y + 6), (x - 1, top_y + 9)])
+        elif pose == "coldsit":                  # обхватил колени
+            arm([sh, (x + 9, top_y + 2)])
         elif sit or pose == "pedal":
             arm([sh, (x + 10, top_y + 9)])
         else:
@@ -865,7 +873,7 @@ def world(n, p, t, off=(), knock=None):
     elif n == 12:
         H["hero"] = (tun_tip[0] - 12, tun_tip[1] + 10, "dig", 1)
     elif n == 13:
-        H["hero"] = (EXT2[0] + (EXT2[2] - EXT2[0]) * ext - 12, F_ROOM2, "dig", 1)
+        H["hero"] = (EXT2[0] + (EXT2[2] - EXT2[0]) * ext - 12, F_ROOM2, "dig" if ext < 1 else "stand", 1)
     elif n == 14:
         H["hero"] = (412, F_ROOM2, "ear", 1)
     elif n in (15, 16):
@@ -880,11 +888,18 @@ def world(n, p, t, off=(), knock=None):
     else:
         H["hero"] = (238, F_ROOM2, "stand", 1)
         H["anya"] = (270, F_ROOM2, "stand", -1)
+    for fl in off:
+        if fl.startswith("hero="):
+            hx_, hy_, hp_, hf_ = fl[5:].split(",")
+            H["hero"] = (float(hx_), float(hy_), hp_, int(hf_))
     xs = [v[0] for v in H.values()]
     ys = [v[1] for v in H.values()]
     focus = (sum(xs) / len(xs), sum(ys) / len(ys))
     for who, (x, y, pose, f) in H.items():
-        put(img, who, pose, (t * 0.9) % 1 if pose == "pedal" else (t * 0.55) % 1 if pose in ("stand", "sit", "ear", "knife") else ph, x, y, f)
+        cold = pose in ("cold", "coldsit")
+        if cold:                              # дрожит
+            x += 1 if math.sin(t * 38) > 0 else 0
+        put(img, who, pose, (t * 0.9) % 1 if pose == "pedal" else (t * 0.55) % 1 if pose in ("stand", "sit", "ear", "knife", "cold", "coldsit") else ph, x, y, f)
         if pose == "dig":                     # летящие комья земли
             for i in range(4):
                 q = (ph * 2 + i * 0.25) % 1
@@ -944,6 +959,15 @@ def world(n, p, t, off=(), knock=None):
         for k, dx in enumerate((-10, 0, 12)):
             al = int(60 + 25 * math.sin(t * 2 + k))
             d.polygon([(HATCH_X + dx, GY - 3), (HATCH_X + dx - 22, GY - 170), (HATCH_X + dx + 16, GY - 170)], fill=(255, 230, 150, al))
+    for who, (x, y, pose, f) in H.items():    # пар изо рта на морозе
+        if pose in ("cold", "coldsit"):
+            mx, my = x + 6 * f, y - (40 if pose == "cold" else 30)
+            for i in range(3):
+                q = (t * 0.7 + i / 3) % 1
+                rr = 1 + q * 3
+                al = int(150 * (1 - q))
+                cx_, cy_ = mx + f * (4 + q * 12), my - q * 10
+                d.ellipse([cx_ - rr, cy_ - rr, cx_ + rr, cy_ + rr], fill=(235, 240, 248, al))
     if n == 6:                                # сыплется земля
         for i in range(16):
             yy = 364 + ((t * 60 + i * 13) % 96)
