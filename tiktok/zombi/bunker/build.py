@@ -16,7 +16,7 @@ import subprocess
 from multiprocessing import Pool
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from scene import world, BW, BH, K
 from script import SCENES
@@ -30,9 +30,9 @@ CPS = 14.8                     # символов в секунду для те�
 LEAD = 0.4                     # пауза до первого слова
 SCENE_GAP = 0.35
 TAIL = 3.2                     # концовка «ЧТО ТАМ ВНИЗУ?»
-FADE = 0.27                    # плавная смена сцен
+FADE = 0.45                    # плавная смена сцен
 WORD_Y, LINE_Y = 1470, 1600    # крупное слово и мелкая строка (над подписью TikTok)
-NAMES = {15: ("АНЯ", "Аня", 232, 268)}   # жёлтое имя: сцена → (надпись, слово, x, y в мире)
+NAMES = {15: ("АНЯ", "Аня", 468, 524)}   # жёлтое имя: сцена → (надпись, слово, x, y в мире)
 
 
 def clean(w):
@@ -129,38 +129,32 @@ def finish(scenes):
 SPR = {}
 
 
-def pix(text, k, color, shadow=True):
-    key = (text, k, color)
+def txt(text, size, color, stroke=None):
+    """Слово шрифтом Russo One: чёрная обводка и мягкая тень."""
+    key = ("txt", text, size, color)
     if key in SPR:
         return SPR[key]
-    f = ImageFont.truetype(PIXEL, 8)
-    w = int(f.getlength(text)) + 4
-    m = Image.new("L", (w, 12), 0)
-    ImageDraw.Draw(m).text((2, 2), text, font=f, fill=255, fontmode="1")
-    a = np.asarray(m) > 0
-    ring = np.zeros_like(a)
-    for dy in (-1, 0, 1):
-        for dx in (-1, 0, 1):
-            ring |= np.roll(np.roll(a, dy, 0), dx, 1)
-    sh = np.roll(np.roll(ring, 1, 0), 1, 1) & ~ring
-    rgba = np.zeros(a.shape + (4,), np.uint8)
-    if shadow:
-        rgba[sh] = (0, 0, 0, 150)
-    rgba[ring] = (0, 0, 0, 255)
-    rgba[a] = (*color, 255)
-    ys, xs = np.where(rgba[..., 3] > 0)
-    rgba = rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
-    im = Image.fromarray(rgba, "RGBA")
-    SPR[key] = im.resize((im.width * k, im.height * k), Image.NEAREST)
+    stroke = stroke or max(3, size // 12)
+    f = ImageFont.truetype(RUSSO, size)
+    x0, y0, x1, y1 = f.getbbox(text, stroke_width=stroke)
+    pad = 14
+    im = Image.new("RGBA", (x1 - x0 + 2 * pad, y1 - y0 + 2 * pad), (0, 0, 0, 0))
+    sh = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).text((pad - x0 + 3, pad - y0 + 6), text, font=f, fill=(0, 0, 0, 160), stroke_width=stroke,
+                            stroke_fill=(0, 0, 0, 160))
+    sh = sh.filter(ImageFilter.GaussianBlur(4))
+    ImageDraw.Draw(im).text((pad - x0, pad - y0), text, font=f, fill=color, stroke_width=stroke, stroke_fill=(10, 8, 10))
+    SPR[key] = Image.alpha_composite(sh, im)
     return SPR[key]
 
 
-def fit_k(text, kmax, maxw=1000):
-    base = len(text) * 8 + 2
-    return max(4, min(kmax, maxw // base))
+def fit(text, size, maxw=980):
+    f = ImageFont.truetype(RUSSO, size)
+    w = f.getlength(text)
+    return int(size * min(1.0, maxw / max(1, w)))
 
 
-def small(text, size=40):
+def small(text, size=38):
     key = ("small", text, size)
     if key not in SPR:
         f = ImageFont.truetype(RUSSO, size)
@@ -173,7 +167,7 @@ def small(text, size=40):
 
 def paste_c(img, spr, cx, cy, scale=1.0, alpha=1.0):
     if scale != 1.0:
-        spr = spr.resize((max(1, int(spr.width * scale)), max(1, int(spr.height * scale))), Image.NEAREST)
+        spr = spr.resize((max(1, int(spr.width * scale)), max(1, int(spr.height * scale))), Image.BICUBIC)
     if alpha < 1.0:
         spr = spr.copy()
         spr.putalpha(spr.getchannel("A").point(lambda v: int(v * alpha)))
@@ -198,7 +192,8 @@ def frame(fi):
     img = world(s["n"], p, T)
     if i > 0 and T - s["start"] < FADE:     # плавная смена
         prev = world(scenes[i - 1]["n"], 1.0, T)
-        img = Image.blend(prev, img, (T - s["start"]) / FADE)
+        k = (T - s["start"]) / FADE
+        img = Image.blend(prev, img, k * k * (3 - 2 * k))
     img = img.resize((BW * K, BH * K), Image.NEAREST).convert("RGB")
     # тряска на стуке и трещине
     shake = 0
@@ -222,40 +217,40 @@ def frame(fi):
         k = min(1.0, (T - s["start"]) / 0.6)
         if pn is not None and pn != num:
             num = int(round(pn + (num - pn) * (1 - (1 - k) ** 2)))
-    hud = pix(f"{word.strip()} {num}" if num is not None else word, 6, col)
-    img.paste(hud, (56, 70), hud)
+    hud = txt(f"{word.strip()} {num}" if num is not None else word, 52, col)
+    img.paste(hud, (44, 50), hud)
     # название в начале
     if i == 0:
         a = 1.0 if p < 0.85 else max(0.0, 1 - (p - 0.85) / 0.15)
-        full = pix("100 ДНЕЙ", 13, WHITE)
-        cw = int(full.width * min(1, T / 0.9))
-        if cw > 0:
-            paste_c(img, full.crop((0, 0, cw, full.height)), W / 2 - (full.width - cw) / 2, 330, alpha=a)
-        if T > 0.9:
-            sc = 1.0 + max(0, 0.25 - (T - 0.9)) * 1.6
-            paste_c(img, pix("В БУНКЕРЕ", 13, RED), W / 2, 470, scale=sc, alpha=a)
+        k1 = min(1.0, T / 0.5)
+        paste_c(img, txt("100 ДНЕЙ", 124, WHITE), W / 2, 330, scale=0.85 + 0.15 * (1 - (1 - k1) ** 3), alpha=a * k1)
+        if T > 0.5:
+            k2 = min(1.0, (T - 0.5) / 0.4)
+            paste_c(img, txt("В БУНКЕРЕ", 124, RED), W / 2, 470, scale=1.25 - 0.25 * (1 - (1 - k2) ** 3), alpha=a * k2)
     # концовка
     last = scenes[-1]
     tend = last["words"][-1]["t1"] + 0.5
     if T > tend:
         k = min(1.0, (T - tend) / 0.4)
-        paste_c(img, pix("ЧТО ТАМ", 12, WHITE), W / 2, 330, scale=0.6 + 0.4 * k)
-        paste_c(img, pix("ВНИЗУ?", 14, RED), W / 2, 470, scale=0.6 + 0.4 * k)
+        e = 1 - (1 - k) ** 3
+        paste_c(img, txt("ЧТО ТАМ", 116, WHITE), W / 2, 330, scale=0.8 + 0.2 * e, alpha=k)
+        paste_c(img, txt("ВНИЗУ?", 140, RED), W / 2, 470, scale=0.8 + 0.2 * e, alpha=k)
         if T > tend + 0.6:
             paste_c(img, small("часть 2 — скоро", 46), W / 2, 590)
     # имя героини
     if s["n"] in NAMES:
-        txt, w0, x, y = NAMES[s["n"]]
+        name, w0, x, y = NAMES[s["n"]]
         tw = next((w["t0"] for w in s["words"] if w["raw"].strip(".,") == w0), None)
         if tw is not None and T >= tw:
-            paste_c(img, pix(txt, 5, YELLOW), x * K, y * K - 30)
+            k = min(1.0, (T - tw) / 0.25)
+            paste_c(img, txt(name, 44, YELLOW), x * K, y * K - 40 + 20 * (1 - k), alpha=k)
     # субтитры
     cur = next((w for w in s["words"] if w["t0"] <= T < w["show"]), None)
     if cur is not None:
-        age = T - cur["t0"]
-        sc = 1.18 if age < 0.05 else 1.08 if age < 0.1 else 1.0
-        spr = pix(cur["text"], fit_k(cur["text"], 13), YELLOW if cur["key"] else WHITE)
-        paste_c(img, spr, W / 2, WORD_Y, scale=sc)
+        k = min(1.0, (T - cur["t0"]) / 0.12)
+        e = 1 - (1 - k) ** 3
+        spr = txt(cur["text"], fit(cur["text"], 92), YELLOW if cur["key"] else WHITE)
+        paste_c(img, spr, W / 2, WORD_Y + 10 * (1 - e), scale=0.88 + 0.12 * e, alpha=0.35 + 0.65 * e)
         paste_c(img, small(cur["line"]), W / 2, LINE_Y)
     return img.convert("RGB").tobytes()
 
