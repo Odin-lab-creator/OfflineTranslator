@@ -80,7 +80,7 @@ ElevenLabs Music (`POST /v1/music`, model `music_v1`, `music_length_ms`): 90 с 
 `FINAL = "growl"` — в конце рычание (звук + тряска) вместо удара. Обложка: `SHOTS` в cover.py, 9-й элемент — крупность
 пикселя (серия 2 — ×4, ближе).
 
-### Проба Blender (по просьбе владельца)
+### Проба Blender (по просьбе владельца) — **владелец решил НЕ переходить**, остаёмся на scene.py
 Blender 5.0 стоит как модуль Python: `python3.11 -m venv /home/user/bpyenv && /home/user/bpyenv/bin/pip install bpy`
 (в новом контейнере ставить заново, ~400 МБ). EEVEE без видеокарты не работает (нет libEGL), Cycles на процессоре —
 ~5 с на кадр 270×480 (20 сэмплов + шумодав, контуры Freestyle), 10 с ролика ≈ 25 мин.
