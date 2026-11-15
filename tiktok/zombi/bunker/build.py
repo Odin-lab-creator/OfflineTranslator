@@ -225,6 +225,73 @@ def title(img, lines, t0, t):
             break
 
 
+# ---------- заставка: пиксельный логотип (шрифт «стекающая краска» без сглаживания, ×4) ----------
+WET = os.path.join(HERE, "fonts", "RubikWetPaint-Regular.ttf")
+LOGO_COLS = {"white": ((255, 255, 255), (186, 190, 204), (70, 70, 84)),
+             "red": ((255, 96, 76), (176, 20, 24), (84, 8, 10)),
+             "purple": ((196, 150, 255), (122, 64, 230), (60, 30, 110))}
+
+
+def _mask(text, path, size):
+    f = ImageFont.truetype(path, size)
+    m = Image.new("L", (int(f.getlength(text)) + 8, size * 2), 0)
+    d = ImageDraw.Draw(m)
+    d.fontmode = "1"
+    d.text((4, size // 3), text, font=f, fill=255)
+    a = np.asarray(m) > 127
+    ys, xs = np.where(a)
+    return a[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+
+
+def _dil(a):
+    o = a.copy()
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            o |= np.roll(np.roll(a, dy, 0), dx, 1)
+    return o
+
+
+def logo(text, color, font):
+    """Пиксельная надпись как логотип ретро-игры: градиент ступенями, блик сверху, объём вниз, контур, тень."""
+    key = ("logo", text, color, font)
+    if key in SPR:
+        return SPR[key]
+    a, k = (_mask(text, WET, 40), 4) if font == "wet" else (_mask(text, PIXEL, 8), 5)
+    top, bot, ext = LOGO_COLS[color]
+    a = np.pad(a, 4)
+    h, w = a.shape
+    ex = np.roll(a, 1, 0) & ~a
+    full = a | ex
+    ring = _dil(full) & ~full
+    sh = np.roll(np.roll(_dil(full), 1, 0), 1, 1) & ~_dil(full)
+    rgba = np.zeros((h, w, 4), np.uint8)
+    rgba[sh] = (0, 0, 0, 140)
+    rgba[ring] = (10, 8, 14, 255)
+    rgba[ex] = (*ext, 255)
+    ys = np.where(a.any(1))[0]
+    for y in range(ys.min(), ys.max() + 1):
+        t = round((y - ys.min()) / max(1, ys.max() - ys.min()) * 3) / 3
+        rgba[y][a[y]] = (*(np.array(top) * (1 - t) + np.array(bot) * t).astype(np.uint8), 255)
+    hl = a & ~np.roll(a, 1, 0)
+    rgba[hl] = (*np.clip(np.array(top) * 0.4 + 255 * 0.6, 0, 255).astype(np.uint8), 255)
+    im = Image.fromarray(rgba, "RGBA").resize((w * k, h * k), Image.NEAREST)
+    if im.width > W - 60:
+        r = (W - 60) / im.width
+        im = im.resize((int(im.width * r), int(im.height * r)), Image.NEAREST)
+    SPR[key] = im
+    return im
+
+
+def logo_lines(img, lines, t0, T, fade_out=1.0):
+    """Строки опускаются сверху по очереди (через 0.35 с), пиксели не размываются."""
+    for j, (text, color, y, font) in enumerate(lines):
+        tj = t0 + j * 0.35
+        if T < tj:
+            continue
+        e = 1 - (1 - min(1.0, (T - tj) / 0.3)) ** 3
+        paste_c(img, logo(text, color, font), W / 2, y - 40 * (1 - e), alpha=e * fade_out)
+
+
 def label_num(label):
     m = re.match(r"(\D+)(\d+)", label)
     return (m.group(1).strip(), int(m.group(2))) if m else (label, None)
@@ -299,13 +366,11 @@ def frame(fi):
     hud = pix(f"{word} {num}" if num is not None else word, 5, col)
     img.paste(hud, (50, 64), hud)
     if i == 0:
-        title(img, [(t, COLORS[c], k, y) for t, c, k, y in EP.TITLE], 0.15, T)
+        logo_lines(img, EP.TITLE, 0.15, T, fade_out=min(1.0, max(0.0, (s["end"] - T) / 0.4)))
     last = scenes[-1]
     tend = last["words"][-1]["t1"] + 0.5
     if T > tend:
-        title(img, [(t, COLORS[c], k, y) for t, c, k, y in EP.END], tend, T)
-        if T > tend + 1.0:
-            paste_c(img, pix(EP.NEXT, 5, PURPLE), W / 2, 590)
+        logo_lines(img, EP.END + [(EP.NEXT, "purple", 610, "pixel")], tend, T)
     if s["n"] in EP.NAMES:                   # жёлтое имя над героиней
         name, w0, wx, wy = EP.NAMES[s["n"]]
         tw = next((w["t0"] for w in s["words"] if w["raw"].strip(".,") == w0), None)
