@@ -16,6 +16,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "voice_user")
 VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_v3"
 # как читать цифры и латиницу (субтитры остаются как в сценарии)
+# «Птичий короб» владелец собрал так: голос «Олега» ускорен вместе с тоном (как «скорость» в видеоредакторе),
+# примерно ×1.12 — он быстрее и чуть выше. Повторяем то же: ресемплинг всей записи.
+SPEED = 1.12
 VOICE_FIX = [("«Кловерфилд, 10»", "«Кловерфилд, десять»"), ("«HELP»", "«хелп»")]
 
 
@@ -97,11 +100,14 @@ def main():
     for k, (n, _, marked) in enumerate(SCENES):
         L = len(LINES[k])
         cs, ce = map_to_script(plain(marked), LINES[k], st[pos:pos + L], en[pos:pos + L])
+        cs, ce = [x / SPEED for x in cs], [x / SPEED for x in ce]
         json.dump({"characters": list(plain(marked)), "character_start_times_seconds": cs,
                    "character_end_times_seconds": ce}, open(os.path.join(OUT, f"{n:02d}.json"), "w"), ensure_ascii=False)
         pos += L + 1
-    subprocess.run(["cp", mp3, os.path.join(OUT, "vo.mp3")], check=True)
-    dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp3],
+    vo = os.path.join(OUT, "vo.mp3")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", mp3, "-af", f"asetrate={round(44100 * SPEED)},aresample=44100",
+                    "-c:a", "libmp3lame", "-b:a", "192k", vo], check=True)
+    dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", vo],
                          capture_output=True, text=True).stdout.strip()
     print("одна запись:", dur, "с")
 
