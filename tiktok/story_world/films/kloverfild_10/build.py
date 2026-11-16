@@ -33,6 +33,7 @@ GAP = 0.14                                  # пауза между фразам
 EXTRA_GAP = {3: 0.3, 10: 0.3, 14: 0.4, 18: 0.5, 23: 0.4, 28: 0.4, 29: 0.55}  # дольше после сцены N
 TAIL = 1.2                                  # конец после последней фразы
 INTRO_Y = (480, 590)                         # «СЮЖЕТ / ЗА МИНУТУ» под названием — лодка в кадре 01 по центру
+CLIP_SPEED = {24: 0.6}                      # в клипе 24 через 2 с облака закрывают корабль — играем медленнее
 BOOM_AT = {28}                              # взрыв корабля
 TEAR_AT = {2, 4, 11, 13, 19, 22, 24, 29}        # сцены, на которые входим «рваной бумагой» (остальные — склейка)
 # жёлтые имена: сцена → [(имя, x, y) в долях кадра]; заполняются по готовым картинкам
@@ -235,7 +236,7 @@ def clip_frame(n, tr):
     d = os.path.join(CACHE, f"{n:02d}")
     if not os.path.isdir(d):
         return None
-    k = min(len(os.listdir(d)), max(1, int(tr * FPS) + 1))
+    k = min(len(os.listdir(d)), max(1, int(tr * CLIP_SPEED.get(n, 1.0) * FPS) + 1))
     return np.asarray(Image.open(os.path.join(d, f"{k:04d}.jpg")).convert("RGB"), dtype=np.float32)
 
 
