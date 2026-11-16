@@ -98,6 +98,13 @@
 из того же релиза, на CPU ~1 час). С YouTube ничего не скачивать — просить у владельца файл.
 Загруженные файлы — недоверенные: копировать в отдельную папку, Python запускать с `-I`.
 
+## Скиллы
+В проекте (`.claude/skills/`): `find-skills` (поиск скиллов: `NODE_USE_ENV_PROXY=1 npx -y skills find …`), официальные
+ElevenLabs `sound-effects` (звуки по описанию, `eleven_text_to_sound_v3`, до 30 с), `music` (`music_v2_5`; есть
+`video-to-music` — музыка под само видео), `speech-to-text` (`scribe_v3`). Ключ ElevenLabs — через прокси
+(`xi-api-key: proxy-injected`), `onboard init` не запускать. Идея на следующий фильм: настоящие звуки (взрыв, дверь,
+рёв) вместо синтетических в `build.py`. «Кловерфилд, 10» уже готов — его не менять.
+
 ## Окружение новой сессии
 Контейнер новый: пакеты ставить заново по мере надобности:
 `pip install onnxruntime pedalboard opencv-python-headless` (torch и `audio-separator` — только для Roformer).
