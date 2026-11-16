@@ -1,5 +1,5 @@
 """Озвучка «Кловерфилд, 10» голосом «Олег» (ElevenLabs «Oleg — Calm, Natural and Clear»), весь текст ОДНОЙ записью,
-модель eleven_v3 + language_code=ru (правильные ударения), потоком /stream/with-timestamps (обычный запрос прокси рвёт
+модель Multilingual v2 — как в «Птичьем коробе», потоком /stream/with-timestamps (обычный запрос прокси рвёт
 через 30 с). Тайминг букв приходит сразу — распознавание не нужно. Ключ подставляет сетевой прокси.
 python3 voice_eleven.py → voice_eleven/whole.mp3 + whole.json → voice_user/vo.mp3 + voice_user/NN.json → build.py --user
 """
@@ -14,11 +14,11 @@ from script import SCENES, plain
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "voice_user")
-VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_v3"
+VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_multilingual_v2"   # как в «Птичьем коробе» (сверено по звуку)
 # как читать цифры и латиницу (субтитры остаются как в сценарии)
-# «Птичий короб» владелец собрал так: голос «Олега» ускорен вместе с тоном (как «скорость» в видеоредакторе),
-# примерно ×1.12 — он быстрее и чуть выше. Повторяем то же: ресемплинг всей записи.
-SPEED = 1.12
+# «Птичий короб» озвучен «Олегом» на модели Multilingual v2 без ускорения (сверено по звуку с роликом):
+# v2 сама читает быстрее и ровнее, чем v3. SPEED оставлен на случай, если понадобится подогнать темп.
+SPEED = 1.0
 VOICE_FIX = [("«Кловерфилд, 10»", "«Кловерфилд, десять»"), ("«HELP»", "«хелп»")]
 
 
@@ -74,7 +74,7 @@ def main():
     mp3, js = os.path.join(d0, "whole.mp3"), os.path.join(d0, "whole.json")
     if not (os.path.exists(mp3) and os.path.exists(js)):
         req = os.path.join(d0, "_whole.req")
-        json.dump({"text": "\n".join(LINES), "model_id": MODEL, "language_code": "ru"}, open(req, "w"), ensure_ascii=False)
+        json.dump({"text": "\n".join(LINES), "model_id": MODEL}, open(req, "w"), ensure_ascii=False)
         r = subprocess.run(["curl", "-sS", "-N", "-m", "900", "-X", "POST",
                             f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}/stream/with-timestamps"
                             "?output_format=mp3_44100_192",
