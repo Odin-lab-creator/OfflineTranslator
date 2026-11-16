@@ -35,6 +35,9 @@ TAIL = 1.2                                  # конец после послед
 INTRO_Y = (480, 590)                         # «СЮЖЕТ / ЗА МИНУТУ» под названием — лодка в кадре 01 по центру
 CLIP_SPEED = {24: 0.6}                      # в клипе 24 через 2 с облака закрывают корабль — играем медленнее
 BOOM_AT = {28}                              # взрыв корабля
+# фоновая музыка во всех «Сюжетах за минуту»: «тёплый» эмбиент, выбран владельцем в «Зомби»
+MUSIC = os.path.join(HERE, "..", "music", "ambient_1_teplyy.mp3")
+MUSIC_LEVEL = 0.32                          # громкость музыки относительно голоса (как в «Зомби»)
 TEAR_AT = {2, 4, 11, 13, 19, 22, 24, 29}        # сцены, на которые входим «рваной бумагой» (остальные — склейка)
 # жёлтые имена: сцена → [(имя, x, y) в долях кадра]; заполняются по готовым картинкам
 LABELS = {                                  # имя один раз — при первом появлении героя
@@ -394,29 +397,68 @@ def render(fi):
 
 
 # ---------- звук ----------
-def audio(scenes, total, sr=44100, voice=True):
+def decode(path, sr):
+    return np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(sr),
+                                         "-f", "f32le", "-"], capture_output=True).stdout, np.float32)
+
+
+def rms(x):
+    return float(np.sqrt(np.mean(x.astype(np.float64) ** 2))) if len(x) else 0.0
+
+
+def music_bed(path, n, sr, head=8.0, tail=12.0, xf=3.0):
+    """Музыка ровно на n сэмплов. Короче ролика — начало трека, середина по кругу и родная концовка трека
+    под конец ролика, стыки плавные (xf с). Длиннее — обрезка с затуханием."""
+    m = decode(path, sr)
+    k, f = int(xf * sr), np.linspace(0, 1, int(xf * sr), dtype=np.float32)
+    if len(m) >= n:
+        out = m[:n].copy()
+        out[-int(2.5 * sr):] *= np.linspace(1, 0, int(2.5 * sr), dtype=np.float32)
+        return out
+
+    def join(a, b):
+        return np.concatenate([a[:-k], a[-k:] * (1 - f) + b[:k] * f, b[k:]])
+    end = m[-int(tail * sr):]
+    out = m[:-int(tail * sr)]
+    body = m[int(head * sr):-int(tail * sr)]
+    while len(out) + len(end) - k < n:
+        need = n - (len(out) + len(end) - 2 * k)
+        out = join(out, body[:max(need, 2 * k)])
+    out = join(out, end)
+    return out[len(out) - n:] if len(out) > n else out
+
+
+def audio(scenes, total, sr=44100, voice=True, music=MUSIC):
     n = int(total * sr)
     mix = np.zeros(n, np.float32)
+    vtrack = np.zeros(n, np.float32)
     if voice and VOICE_DIR == "voice_user":           # своя озвучка — одна запись целиком
-        v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(HERE, "voice_user", "vo.mp3"),
-                                          "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True).stdout,
-                          np.float32)
+        v = decode(os.path.join(HERE, "voice_user", "vo.mp3"), sr)
         a = int(USER_LEAD * sr)
-        mix[a:a + len(v)] += v[:n - a]
+        vtrack[a:a + len(v)] += v[:n - a]
         voice = False
     for s in (scenes if voice else []):
-        v = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(HERE, "voice", f"{s['n']:02d}.mp3"),
-                                          "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"], capture_output=True).stdout,
-                          np.float32)
+        v = decode(os.path.join(HERE, "voice", f"{s['n']:02d}.mp3"), sr)
         a = int(s["voice"] * sr)
-        mix[a:a + len(v)] += v[:n - a]
+        vtrack[a:a + len(v)] += v[:n - a]
+    mix += vtrack
     t = np.arange(n) / sr
+    if music:                                         # музыка: тише под голосом, громче в паузах
+        m = music_bed(music, n, sr)
+        ref = rms(vtrack[vtrack != 0]) if vtrack.any() else 0.1
+        m = m / max(rms(m), 1e-6) * ref * MUSIC_LEVEL
+        q = int(0.25 * sr)
+        env = np.convolve(np.abs(vtrack), np.ones(q) / q, "same")
+        talk = np.clip(env / (env.max() * 0.15 + 1e-9), 0, 1)
+        duck = 1 - 0.45 * np.convolve(talk, np.ones(q) / q, "same")
+        fade = np.clip(t / 1.5, 0, 1) * np.clip((total - t) / 2.5, 0, 1)
+        mix += (m * duck * fade).astype(np.float32)
     rng = np.random.default_rng(3)
     # тёмный гул: ля минор, медленное дыхание
     drone = sum(np.sin(2 * np.pi * f * t + ph) * g for f, ph, g in ((55, 0, 1), (82.4, 1, .55), (110, 2, .35), (130.8, 3, .18)))
     drone *= 0.6 + 0.4 * np.sin(2 * np.pi * t / 7.5)
     noise = np.convolve(rng.normal(0, 1, n), np.ones(400) / 400, "same") * 6
-    bed = (drone * 0.022 + noise * 0.01).astype(np.float32)
+    bed = (drone * (0.0 if music else 0.022) + noise * 0.01).astype(np.float32)   # с музыкой гул не нужен
     bed *= np.clip(t / 2, 0, 1) * np.clip((total - t) / 1.5, 0, 1)
     mix += bed
     for s in scenes:                                  # шорох на «рваной бумаге»
@@ -439,6 +481,8 @@ def main():
     ap.add_argument("--preview", action="store_true", help="540×960, быстро")
     ap.add_argument("--clean", action="store_true", help="без голоса и без надписей → kloverfild_10_clean.mp4")
     ap.add_argument("--user", action="store_true", help="своя озвучка voice_user/ → kloverfild_10_user.mp4")
+    ap.add_argument("--no-music", action="store_true", help="без фоновой музыки")
+    ap.add_argument("--audio-only", action="store_true", help="только пересобрать звук в готовом ролике (видео не трогать)")
     a = ap.parse_args()
     global VOICE_DIR
     if a.user:
@@ -450,7 +494,17 @@ def main():
     out = os.path.join(HERE, "kloverfild_10_preview.mp4" if a.preview else
                        "kloverfild_10_clean.mp4" if a.clean else "kloverfild_10_user.mp4" if a.user else "kloverfild_10.mp4")
     wav = os.path.join(HERE, "_audio.f32")
-    audio(scenes, total, voice=not a.clean).tofile(wav)
+    audio(scenes, total, voice=not a.clean, music=None if a.no_music else MUSIC).tofile(wav)
+    if a.audio_only:                                  # видео из готового ролика, звук новый
+        tmp = out.replace(".mp4", "_ao.mp4")
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", out, "-f", "f32le", "-ar", "44100", "-ac", "1", "-i", wav,
+                        "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+                        "-ar", "44100", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", tmp],
+                       check=True)
+        os.remove(wav)
+        os.replace(tmp, out)
+        print("готово (только звук):", out)
+        return
     extract_clips()
     have = sorted(glob.glob(os.path.join(HERE, "frames", "*.*")))
     print(f"длина {total:.1f} с, кадров {nfr}, картинок в frames/: {len(have)} из {len(scenes)}", flush=True)
