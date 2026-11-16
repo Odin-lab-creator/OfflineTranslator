@@ -16,20 +16,54 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "voice_user")
 VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_multilingual_v2"   # как в «Птичьем коробе» (сверено по звуку)
 # как читать цифры и латиницу (субтитры остаются как в сценарии)
-# «Птичий короб» озвучен «Олегом» на модели Multilingual v2 без ускорения (сверено по звуку с роликом):
-# v2 сама читает быстрее и ровнее, чем v3. SPEED оставлен на случай, если понадобится подогнать темп.
-SPEED = 1.0
-VOICE_FIX = [("«Кловерфилд, 10»", "«Кловерфилд, десять»"), ("«HELP»", "«хелп»")]
+# «Птичий короб» озвучен «Олегом» на модели Multilingual v2 (сверено по звуку с роликом).
+# Владелец: «быстрее и выразительнее, как в Птичьем коробе» → ниже стабильность, выше «стиль», скорость 1.08.
+SPEED = 1.0                                   # ресемплинг после записи (1.0 — не трогать)
+SETTINGS = {"stability": 0.35, "similarity_boost": 0.8, "style": 0.45, "use_speaker_boost": True, "speed": 1.08}
+
+# Текст для озвучки с ударениями: «+» сразу после ударной гласной (превращается в знак ударения U+0301).
+# Цифры и латиница — словами. Субтитры берутся из script.py.
+STRESSED = [
+    "«Кловерфи+лд, де+сять». Сюже+т за мину+ту.",
+    "Мише+ль ссо+рится с женихо+м и но+чью уезжа+ет из го+рода.",
+    "На пусто+й тра+ссе в её маши+ну вреза+ется грузови+к.",
+    "Она+ прихо+дит в себя+ в бето+нной ко+мнате, прико+ванная к стене+.",
+    "Хозя+ин бу+нкера Го+вард говори+т, что спас ей жизнь.",
+    "Снару+жи была+ ата+ка, и во+здух отра+влен.",
+    "В бу+нкере пря+чется ещё сосе+д Э+ммет.",
+    "Мише+ль не ве+рит и пыта+ется сбежа+ть.",
+    "Но за две+рью же+нщина в я+звах умоля+ет её впусти+ть.",
+    "Зна+чит, Го+вард говори+л пра+вду.",
+    "Втроём они+ игра+ют в насто+лки и смо+трят ста+рые фи+льмы.",
+    "Го+вард пока+зывает фо+то свое+й до+чери Ме+ган.",
+    "Но в вентиля+ции Мише+ль нахо+дит нацара+панное сло+во «хелп»",
+    "и серьгу+ пропа+вшей де+вушки. Ме+ган ему+ не дочь.",
+    "Мише+ль и Э+ммет понима+ют: настоя+щий монстр — Го+вард.",
+    "Тайко+м они+ шьют защи+тный костю+м из што+рки для ду+ша.",
+    "Го+вард нахо+дит ма+ску. Э+ммет берёт вину+ на себя+,",
+    "и Го+вард стреля+ет в него+.",
+    "Мише+ль надева+ет костю+м и бежи+т.",
+    "Го+вард броса+ется сле+дом, и она+ опроки+дывает на него+ бо+чку с кислото+й.",
+    "Бу+нкер вспы+хивает, и Мише+ль выбира+ется нару+жу.",
+    "Она+ снима+ет ма+ску: во+здух чи+стый, пою+т пти+цы.",
+    "Неуже+ли Го+вард всё вы+думал?",
+    "Но в не+бе виси+т огро+мный инопла+нетный кора+бль.",
+    "Из него+ выполза+ет тварь и броса+ется за Мише+ль.",
+    "Кора+бль поднима+ет её маши+ну в во+здух,",
+    "но Мише+ль броса+ет в него+ буты+лку ви+ски с горя+щей тря+пкой.",
+    "Кора+бль взрыва+ется.",
+    "По ра+дио вы+живших зову+т в укры+тие, а Мише+ль е+дет туда+, где идёт бой.",
+    "А ты бы оста+лся в бу+нкере с Го+вардом и+ли вы+шел нару+жу? Пиши+ в коммента+риях!",
+]
 
 
-def voice_line(t):
-    t = plain(t)
-    for a, b in VOICE_FIX:
-        t = t.replace(a, b)
-    return t
+def stress(t):
+    """«+» стоит сразу после ударной гласной → знак ударения U+0301 на этой гласной."""
+    return t.replace("+", "\u0301")
 
 
-LINES = [voice_line(t) for _, _, t in SCENES]
+LINES = [stress(t) for t in STRESSED]
+assert len(LINES) == len(SCENES)
 
 
 def norm(w):
@@ -74,7 +108,7 @@ def main():
     mp3, js = os.path.join(d0, "whole.mp3"), os.path.join(d0, "whole.json")
     if not (os.path.exists(mp3) and os.path.exists(js)):
         req = os.path.join(d0, "_whole.req")
-        json.dump({"text": "\n".join(LINES), "model_id": MODEL}, open(req, "w"), ensure_ascii=False)
+        json.dump({"text": "\n".join(LINES), "model_id": MODEL, "voice_settings": SETTINGS}, open(req, "w"), ensure_ascii=False)
         r = subprocess.run(["curl", "-sS", "-N", "-m", "900", "-X", "POST",
                             f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}/stream/with-timestamps"
                             "?output_format=mp3_44100_192",
@@ -94,16 +128,16 @@ def main():
         json.dump(al, open(js, "w"), ensure_ascii=False)
     al = json.load(open(js))
     said, st, en = "".join(al["characters"]), al["character_start_times_seconds"], al["character_end_times_seconds"]
-    assert said == "\n".join(LINES), "разметка не совпала с текстом"
+    # строки сцен по переводам строк в произнесённом тексте (знаки ударения могут прийти отдельными символами)
+    cuts = [-1] + [i for i, c in enumerate(said) if c == "\n"] + [len(said)]
+    assert len(cuts) - 1 == len(SCENES), (len(cuts) - 1, "строк вместо", len(SCENES))
     os.makedirs(OUT, exist_ok=True)
-    pos = 0
     for k, (n, _, marked) in enumerate(SCENES):
-        L = len(LINES[k])
-        cs, ce = map_to_script(plain(marked), LINES[k], st[pos:pos + L], en[pos:pos + L])
+        a, b = cuts[k] + 1, cuts[k + 1]
+        cs, ce = map_to_script(plain(marked), said[a:b], st[a:b], en[a:b])
         cs, ce = [x / SPEED for x in cs], [x / SPEED for x in ce]
         json.dump({"characters": list(plain(marked)), "character_start_times_seconds": cs,
                    "character_end_times_seconds": ce}, open(os.path.join(OUT, f"{n:02d}.json"), "w"), ensure_ascii=False)
-        pos += L + 1
     vo = os.path.join(OUT, "vo.mp3")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", mp3, "-af", f"asetrate={round(44100 * SPEED)},aresample=44100",
                     "-c:a", "libmp3lame", "-b:a", "192k", vo], check=True)
