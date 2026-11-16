@@ -14,12 +14,12 @@ from script import SCENES, plain
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "voice_user")
-VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_multilingual_v2"   # как в «Птичьем коробе» (сверено по звуку)
+VOICE, MODEL = "MWyJiWDobXN8FX3CJTdE", "eleven_v4"   # как в «Птичьем коробе»: голос дообучен под v4 (сверено по звуку)
 # как читать цифры и латиницу (субтитры остаются как в сценарии)
 # «Птичий короб» озвучен «Олегом» на модели Multilingual v2 (сверено по звуку с роликом).
-# Сверено по звуку с роликом (7 вариантов): ближе всего v2 с настройками сайта по умолчанию.
+# Сверено по звуку с роликом (10 вариантов): ближе всего Eleven v4 с настройками голоса по умолчанию.
 SPEED = 1.0                                   # ресемплинг после записи (1.0 — не трогать)
-SETTINGS = {"stability": 0.5, "similarity_boost": 0.75, "style": 0.0, "use_speaker_boost": True, "speed": 1.0}  # как на сайте по умолчанию
+SETTINGS = {"stability": 0.5, "similarity_boost": 0.32, "style": 0.0, "use_speaker_boost": True, "speed": 1.0}  # настройки самого голоса
 
 # Текст для озвучки с ударениями: «+» сразу после ударной гласной (превращается в знак ударения U+0301).
 # Цифры и латиница — словами. Субтитры берутся из script.py.
