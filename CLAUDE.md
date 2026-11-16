@@ -7,6 +7,7 @@
 
 ## Главное направление: «Сюжет фильма за минуту»
 Папки: `tiktok/story_world/films/<фильм>/`. Готовы: `ya_legenda`, `tikhoe_mesto`, `ptichiy_korob`.
+В работе: `kloverfild_10` (сценарий и промты готовы, ждём кадры).
 Ролик 1080×1920, ~1:40: пиксельная заставка «НАЗВАНИЕ» + «СЮЖЕТ / ЗА МИНУТУ», субтитры по словам пиксельным шрифтом
 (Press Start 2P), ключевые фразы крупно в две строки (вторая фиолетовая), жёлтые имена героев **только при первом
 появлении**, наезд камеры, переход «рваная бумага», оживлённые сцены из Veo.
@@ -16,7 +17,8 @@
   (`films/publish.py` → `publish_page.html`; новый фильм — запись в `FILMS` сверху);
 - промты: «Я — легенда» https://claude.ai/artifact/KwdC3qpeUJqu34kTVMjtqv ,
   «Тихое место» https://claude.ai/artifact/5uU3pjhbAz85cVGCENyabB ,
-  «Птичий короб» https://claude.ai/artifact/GwqP2gpYZNS4fxmvPgqvcb .
+  «Птичий короб» https://claude.ai/artifact/GwqP2gpYZNS4fxmvPgqvcb ,
+  «Кловерфилд, 10» https://claude.ai/artifact/12pihANpuK1HK4RM4cVLjJ .
 
 ### Файлы фильма
 - `script.py` — 30 сцен `(№, [имена], текст)`, `**…**` = ключевая фраза; цель ~1450–1600 символов.

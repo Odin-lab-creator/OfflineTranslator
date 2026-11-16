@@ -1,0 +1,420 @@
+<title>Кловерфилд, 10: промты</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Плёночная лента: тёмный зал кинотеатра, фиолетовые ключевые фразы и жёлтые имена, как в формате «Сюжет за минуту». Тема одна, тёмная, намеренно. */
+:root {
+  --bg: #0f0d14; --panel: #1a1622; --line: #2e2739; --fg: #ece8f2; --muted: #a39cb3;
+  --violet: #9b63ff; --gold: #ffcf3f; --ok: #5fd38a;
+  --display: "Russo One", "Arial Black", system-ui, sans-serif;
+  --body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 16px/1.5 var(--body); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+.top { display: grid; gap: 6px; }
+.eyebrow { font: 700 13px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+h1 { font: 400 clamp(34px, 9vw, 54px)/1 var(--display); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 span { color: var(--violet); }
+.sub { color: var(--muted); margin: 0; }
+h2 { font: 400 22px/1.2 var(--display); margin: 0; text-wrap: balance; }
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; color: var(--fg); }
+.steps b { color: var(--gold); font-weight: 700; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+section { display: grid; gap: 14px; }
+.progress { font: 500 13px/1 var(--mono); color: var(--muted); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.card.is-done { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.done { display: flex; align-items: center; gap: 10px; font: 400 18px/1 var(--display); cursor: pointer; }
+.done input { width: 20px; height: 20px; accent-color: var(--ok); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 700 12px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; color: var(--bg); background: var(--gold); padding: 5px 8px; border-radius: 4px; }
+.voice { margin: 0; font-style: italic; color: var(--muted); }
+.voice .key { color: var(--violet); font-style: normal; font-weight: 700; }
+.prompt { margin: 0; font: 13px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; color: var(--fg); user-select: all; }
+.copy { justify-self: start; font: 700 15px/1 var(--body); color: #fff; background: var(--violet); border: 0; border-radius: 6px; padding: 12px 16px; cursor: pointer; }
+.copy:focus-visible, .done input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.copy.ok { background: var(--ok); color: var(--bg); }
+@media (prefers-reduced-motion: no-preference) { .copy { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">Сюжет фильма за минуту · выпуск 4</span>
+    <h1>Кловерфилд, <span>10</span></h1>
+    <p class="sub">Промты для Google Flow: внешность героев прописана в каждой сцене. 5 образцов и 30 сцен, формат 9:16.</p>
+  </div>
+
+  <section aria-labelledby="how">
+    <h2 id="how">Как генерировать</h2>
+    <ol class="steps">
+      <li>Во Flow выбери генерацию картинок (Nano Banana) и формат <b>9:16</b>.</li>
+      <li>Сначала сделай образцы <b>R1–R5</b>. Выбери лучший вариант каждого и сохрани.</li>
+      <li>Модель выбери <b>одну на все сцены</b> (лучше Nano Banana Pro) и не меняй до конца.</li>
+      <li><b>Сцену 01</b> делай только с образцами героев. Потом прикрепляй готовую 01 ко всем остальным сценам как <b>образец стиля</b> — фраза про стиль уже есть в начале каждого промта.</li>
+      <li>В сценах 19–22 Мишель в самодельном костюме — прикрепляй образец R4. Для сцен с пришельцами (жёлтая плашка R5) прикрепляй образец R5.</li>
+      <li>Для каждой сцены прикрепи образцы с жёлтых плашек и вставь промт.</li>
+      <li>Сохраняй картинки с номером сцены (01, 02 … 29) и присылай мне. Голос, субтитры и сборку сделаю я.</li>
+    </ol>
+    <p class="note">Галочки у сцен запоминаются на этом телефоне, так видно, что уже готово. Под сценой серым — что в этот момент говорит рассказчик.</p>
+  </section>
+
+  <section aria-labelledby="refs">
+    <h2 id="refs">Образцы героев</h2>
+    
+<article class="card" id="c-R1">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R1" data-id="R1"><span>R1 · Мишель</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R1">Character reference sheet. An original character: a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, sneakers, a black knee brace on her left leg. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real actress. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R1">Копировать промт</button>
+</article>
+<article class="card" id="c-R2">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R2" data-id="R2"><span>R2 · Говард</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R2">Character reference sheet. An original character: a big heavy-set man in his late 50s, bald head with short grey stubble, broad stern face, dark green work shirt, khaki trousers, work boots. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real actor. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R2">Копировать промт</button>
+</article>
+<article class="card" id="c-R3">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R3" data-id="R3"><span>R3 · Эммет</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R3">Character reference sheet. An original character: a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt, jeans. Full body, front view and three-quarter view side by side, plain neutral grey background. Original design, not resembling any real actor. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R3">Копировать промт</button>
+</article>
+<article class="card" id="c-R4">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R4" data-id="R4"><span>R4 · Мишель в костюме</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R4">Character reference sheet. The same young woman with shoulder-length dark brown hair wearing a homemade hazmat suit made of a transparent shower curtain wrapped with grey duct tape, a makeshift gas mask made from a plastic bottle and tape, rubber gloves. Full body, front view, plain neutral grey background. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R4">Копировать промт</button>
+</article>
+<article class="card" id="c-R5">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-R5" data-id="R5"><span>R5 · Пришельцы</span></label>
+    <div class="chips"></div>
+  </header>
+  
+  <pre class="prompt" id="p-R5">Reference sheet, two designs side by side: a gigantic dark biomechanical alien ship with glowing orange openings, seen from below; a tall dark biomechanical alien creature with long tentacle-like limbs and a glowing orange core. Plain neutral grey background. Scary but not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-R5">Копировать промт</button>
+</article>
+  </section>
+
+  <section aria-labelledby="scenes">
+    <h2 id="scenes">Сцены</h2>
+    <span class="progress" id="progress"></span>
+    
+<article class="card" id="c-s01">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s01" data-id="s01"><span>Сцена 01</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">«Кловерфилд, 10». Сюжет за минуту.</p>
+  <pre class="prompt" id="p-s01">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Wide shot at dusk: a lonely old farmhouse in an empty field, a heavy rusty metal storm cellar door in the ground in front of it, Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) stands alone looking at the door, storm clouds. Keep the top third of the image as open sky for a title. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s01">Копировать промт</button>
+</article>
+<article class="card" id="c-s02">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s02" data-id="s02"><span>Сцена 02</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Мишель ссорится с женихом и ночью уезжает из города.</p>
+  <pre class="prompt" id="p-s02">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) drives alone at night on an empty country highway, a tear on her cheek, her phone glowing on the passenger seat, dashboard light on her face. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s02">Копировать промт</button>
+</article>
+<article class="card" id="c-s03">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s03" data-id="s03"><span>Сцена 03</span></label>
+    <div class="chips"><span class="chip">без образцов</span></div>
+  </header>
+  <p class="voice">На пустой трассе в её машину <b class="key">врезается грузовик</b>.</p>
+  <pre class="prompt" id="p-s03">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. A dark empty country highway at night: a pickup truck with blinding headlights slams into the side of a small car, glass flying, the car spins off the road, dramatic, not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s03">Копировать промт</button>
+</article>
+<article class="card" id="c-s04">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s04" data-id="s04"><span>Сцена 04</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Она приходит в себя в бетонной комнате, <b class="key">прикованная к стене</b>.</p>
+  <pre class="prompt" id="p-s04">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) wakes up on a thin mattress in a bare concrete room, her leg chained to a metal pipe on the wall, an IV drip stand next to her, a single bare light bulb, fear in her eyes. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s04">Копировать промт</button>
+</article>
+<article class="card" id="c-s05">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s05" data-id="s05"><span>Сцена 05</span></label>
+    <div class="chips"><span class="chip">R2 · Говард</span><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Хозяин бункера Говард говорит, что спас ей жизнь.</p>
+  <pre class="prompt" id="p-s05">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) stands in the doorway of the concrete room holding a tray of food, Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) chained on the mattress pulls back in fear, harsh light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s05">Копировать промт</button>
+</article>
+<article class="card" id="c-s06">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s06" data-id="s06"><span>Сцена 06</span></label>
+    <div class="chips"><span class="chip">R2 · Говард</span></div>
+  </header>
+  <p class="voice">Снаружи была атака, и <b class="key">воздух отравлен</b>.</p>
+  <pre class="prompt" id="p-s06">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Inside a cramped underground survival bunker with concrete walls, metal pipes, shelves of canned food, Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) points at a wall map with red circles drawn on it, serious and grim face, dim warm light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s06">Копировать промт</button>
+</article>
+<article class="card" id="c-s07">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s07" data-id="s07"><span>Сцена 07</span></label>
+    <div class="chips"><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">В бункере прячется ещё сосед Эммет.</p>
+  <pre class="prompt" id="p-s07">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) sits at a small kitchen table inside a cramped underground survival bunker with concrete walls, metal pipes, shelves of canned food, smiling nervously and waving with his good hand. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s07">Копировать промт</button>
+</article>
+<article class="card" id="c-s08">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s08" data-id="s08"><span>Сцена 08</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R2 · Говард</span></div>
+  </header>
+  <p class="voice">Мишель не верит и пытается сбежать.</p>
+  <pre class="prompt" id="p-s08">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) runs with a stolen key ring toward a heavy steel airlock door at the end of a bunker corridor, Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) chases her in the background, tense. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s08">Копировать промт</button>
+</article>
+<article class="card" id="c-s09">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s09" data-id="s09"><span>Сцена 09</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Но за дверью женщина в язвах умоляет её впустить.</p>
+  <pre class="prompt" id="p-s09">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Through the small window of a heavy steel airlock door, Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) sees a desperate woman outside with a red blistered rash on her face banging on the glass, begging to be let in, Michelle horrified, not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s09">Копировать промт</button>
+</article>
+<article class="card" id="c-s10">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s10" data-id="s10"><span>Сцена 10</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R2 · Говард</span></div>
+  </header>
+  <p class="voice">Значит, Говард <b class="key">говорил правду</b>.</p>
+  <pre class="prompt" id="p-s10">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) backs away from the airlock door in shock, Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) stands calmly behind her with his arms crossed, cold red light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s10">Копировать промт</button>
+</article>
+<article class="card" id="c-s11">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s11" data-id="s11"><span>Сцена 11</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R2 · Говард</span><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">Втроём они играют в настолки и смотрят старые фильмы.</p>
+  <pre class="prompt" id="p-s11">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Cozy bunker living room: Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg), Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) and Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) play a board game at a table, a vintage jukebox glows in the corner, shelves full of old movies and puzzles, warm light, strange calm. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s11">Копировать промт</button>
+</article>
+<article class="card" id="c-s12">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s12" data-id="s12"><span>Сцена 12</span></label>
+    <div class="chips"><span class="chip">R2 · Говард</span></div>
+  </header>
+  <p class="voice">Говард показывает фото своей дочери Меган.</p>
+  <pre class="prompt" id="p-s12">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) sits in an armchair holding an old photo of a teenage girl, looking at it with a strange smile, a vintage jukebox glows behind him. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s12">Копировать промт</button>
+</article>
+<article class="card" id="c-s13">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s13" data-id="s13"><span>Сцена 13</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Но в вентиляции Мишель находит нацарапанное слово «HELP»</p>
+  <pre class="prompt" id="p-s13">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) crawls through a narrow metal ventilation shaft with a flashlight and finds the word HELP scratched into the glass of a small hatch, dusty, eerie. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no other text except the word HELP, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s13">Копировать промт</button>
+</article>
+<article class="card" id="c-s14">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s14" data-id="s14"><span>Сцена 14</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">и серьгу пропавшей девушки. <b class="key">Меган ему не дочь.</b></p>
+  <pre class="prompt" id="p-s14">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Close shot: Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) holds a small silver earring in her palm and stares at it in horror, cold flashlight light, the ventilation shaft around her. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s14">Копировать промт</button>
+</article>
+<article class="card" id="c-s15">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s15" data-id="s15"><span>Сцена 15</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">Мишель и Эммет понимают: <b class="key">настоящий монстр — Говард</b>.</p>
+  <pre class="prompt" id="p-s15">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) and Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) whisper together in a small bunker bathroom, scared faces, the door slightly open, tense. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s15">Копировать промт</button>
+</article>
+<article class="card" id="c-s16">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s16" data-id="s16"><span>Сцена 16</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">Тайком они шьют защитный костюм из шторки для душа.</p>
+  <pre class="prompt" id="p-s16">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) cuts and tapes a transparent shower curtain into a homemade hazmat suit on the floor, Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) holds a flashlight for her, a makeshift plastic bottle gas mask lies next to them. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s16">Копировать промт</button>
+</article>
+<article class="card" id="c-s17">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s17" data-id="s17"><span>Сцена 17</span></label>
+    <div class="chips"><span class="chip">R2 · Говард</span><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">Говард находит маску. Эммет берёт вину на себя,</p>
+  <pre class="prompt" id="p-s17">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) holds up a makeshift plastic bottle gas mask and glares furiously, Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) raises his good hand and confesses, dim bunker living room. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s17">Копировать промт</button>
+</article>
+<article class="card" id="c-s18">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s18" data-id="s18"><span>Сцена 18</span></label>
+    <div class="chips"><span class="chip">R2 · Говард</span><span class="chip">R3 · Эммет</span></div>
+  </header>
+  <p class="voice">и Говард <b class="key">стреляет в него</b>.</p>
+  <pre class="prompt" id="p-s18">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers) aims a revolver at Emmett (a friendly man around 30 with short brown hair and a scruffy beard, left arm in a white cast and sling, plaid flannel shirt) across the bunker dining table, the moment before the shot, cold light, tense, not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s18">Копировать промт</button>
+</article>
+<article class="card" id="c-s19">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s19" data-id="s19"><span>Сцена 19</span></label>
+    <div class="chips"><span class="chip">R4 · Мишель в костюме</span></div>
+  </header>
+  <p class="voice">Мишель надевает костюм и бежит.</p>
+  <pre class="prompt" id="p-s19">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle in a homemade hazmat suit made of a transparent shower curtain wrapped with grey duct tape, a makeshift gas mask made from a plastic bottle and tape runs through a smoky bunker corridor, red emergency light, panic. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s19">Копировать промт</button>
+</article>
+<article class="card" id="c-s20">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s20" data-id="s20"><span>Сцена 20</span></label>
+    <div class="chips"><span class="chip">R4 · Мишель в костюме</span><span class="chip">R2 · Говард</span></div>
+  </header>
+  <p class="voice">Говард бросается следом, и она опрокидывает на него бочку с кислотой.</p>
+  <pre class="prompt" id="p-s20">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle in a homemade hazmat suit made of a transparent shower curtain wrapped with grey duct tape, a makeshift gas mask made from a plastic bottle and tape tips over a large blue barrel of acid onto Howard (a big heavy-set man in his late 50s, bald head with short grey stubble, broad face, dark green work shirt, khaki trousers), green fumes rise, Howard screams, sparks and flames, not gory. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s20">Копировать промт</button>
+</article>
+<article class="card" id="c-s21">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s21" data-id="s21"><span>Сцена 21</span></label>
+    <div class="chips"><span class="chip">R4 · Мишель в костюме</span></div>
+  </header>
+  <p class="voice">Бункер вспыхивает, и Мишель выбирается наружу.</p>
+  <pre class="prompt" id="p-s21">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle in a homemade hazmat suit made of a transparent shower curtain wrapped with grey duct tape, a makeshift gas mask made from a plastic bottle and tape climbs out of the burning storm cellar hatch into the night, flames and smoke behind her, the farmhouse silhouette. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s21">Копировать промт</button>
+</article>
+<article class="card" id="c-s22">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s22" data-id="s22"><span>Сцена 22</span></label>
+    <div class="chips"><span class="chip">R4 · Мишель в костюме</span></div>
+  </header>
+  <p class="voice">Она снимает маску: <b class="key">воздух чистый</b>, поют птицы.</p>
+  <pre class="prompt" id="p-s22">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle in a homemade hazmat suit made of a transparent shower curtain wrapped with grey duct tape, a makeshift gas mask made from a plastic bottle and tape pulls off the makeshift gas mask in a field at dawn and breathes clean air, birds flying over the field, relief. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s22">Копировать промт</button>
+</article>
+<article class="card" id="c-s23">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s23" data-id="s23"><span>Сцена 23</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">Неужели Говард всё выдумал?</p>
+  <pre class="prompt" id="p-s23">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) stands alone in an empty field near the farmhouse and looks back at the smoking storm cellar with a bitter smile, morning light. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s23">Копировать промт</button>
+</article>
+<article class="card" id="c-s24">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s24" data-id="s24"><span>Сцена 24</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R5 · Пришельцы</span></div>
+  </header>
+  <p class="voice">Но в небе висит <b class="key">огромный инопланетный корабль</b>.</p>
+  <pre class="prompt" id="p-s24">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Evening sky: a gigantic dark biomechanical alien ship with glowing orange openings hovers over the fields, Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) tiny below looking up in shock, red sunset. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s24">Копировать промт</button>
+</article>
+<article class="card" id="c-s25">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s25" data-id="s25"><span>Сцена 25</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R5 · Пришельцы</span></div>
+  </header>
+  <p class="voice">Из него выползает тварь и бросается за Мишель.</p>
+  <pre class="prompt" id="p-s25">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Night: a tall dark biomechanical alien creature with long tentacle-like limbs and a glowing orange core crawls across the farm toward the house, Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) hides behind an old pickup truck, terrified. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s25">Копировать промт</button>
+</article>
+<article class="card" id="c-s26">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s26" data-id="s26"><span>Сцена 26</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R5 · Пришельцы</span></div>
+  </header>
+  <p class="voice">Корабль поднимает её машину в воздух,</p>
+  <pre class="prompt" id="p-s26">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Night: an old pickup truck with Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) inside is lifted into the air toward the glowing opening of a gigantic dark biomechanical alien ship with glowing orange openings, she screams, dust swirls. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s26">Копировать промт</button>
+</article>
+<article class="card" id="c-s27">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s27" data-id="s27"><span>Сцена 27</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span><span class="chip">R5 · Пришельцы</span></div>
+  </header>
+  <p class="voice">но Мишель бросает в него бутылку виски с горящей тряпкой.</p>
+  <pre class="prompt" id="p-s27">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Night: Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) leans out of the rising pickup truck and throws a whiskey bottle with a burning rag into the glowing opening of a gigantic dark biomechanical alien ship with glowing orange openings above her, fire, determined face. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s27">Копировать промт</button>
+</article>
+<article class="card" id="c-s28">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s28" data-id="s28"><span>Сцена 28</span></label>
+    <div class="chips"><span class="chip">R5 · Пришельцы</span></div>
+  </header>
+  <p class="voice">Корабль <b class="key">взрывается</b>.</p>
+  <pre class="prompt" id="p-s28">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Night: a gigantic dark biomechanical alien ship with glowing orange openings explodes in a huge orange fireball over the farmland, debris falling, the pickup truck crashed on the ground. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s28">Копировать промт</button>
+</article>
+<article class="card" id="c-s29">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s29" data-id="s29"><span>Сцена 29</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">По радио выживших зовут в укрытие, а Мишель <b class="key">едет туда, где идёт бой</b>.</p>
+  <pre class="prompt" id="p-s29">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Night: Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) drives an old car to a fork in an empty road, one way dark and calm, the other way toward distant flashes of battle and helicopters on the horizon, she turns toward the fight, determined face. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s29">Копировать промт</button>
+</article>
+<article class="card" id="c-s30">
+  <header class="card-head">
+    <label class="done"><input type="checkbox" id="done-s30" data-id="s30"><span>Сцена 30</span></label>
+    <div class="chips"><span class="chip">R1 · Мишель</span></div>
+  </header>
+  <p class="voice">А ты бы остался в бункере с Говардом или вышел наружу? Пиши в комментариях!</p>
+  <pre class="prompt" id="p-s30">Match the art style, color palette and level of detail of the attached scene image exactly. Use the attached reference images for the characters. Michelle (a young woman in her mid 20s with shoulder-length dark brown hair, white tank top, jeans, a black knee brace on her left leg) stands in front of the heavy rusty storm cellar door at dusk and looks straight at the viewer, a faint orange glow in the sky behind her, mysterious mood. Detailed pixel art illustration in the style of a modern 16-bit retro game, crisp visible pixels, rich detail, cinematic lighting, muted desaturated colors, vertical 9:16 composition, no text, no letters, no logos, no watermark.</pre>
+  <button class="copy" type="button" data-target="p-s30">Копировать промт</button>
+</article>
+  </section>
+</div>
+
+<script>
+(function () {
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.done input'));
+  function paint() {
+    var scenes = boxes.filter(function (b) { return b.dataset.id.charAt(0) === 's'; });
+    var n = scenes.filter(function (b) { return b.checked; }).length;
+    document.getElementById('progress').textContent = 'Готово сцен: ' + n + ' из ' + scenes.length;
+    boxes.forEach(function (b) { document.getElementById('c-' + b.dataset.id).classList.toggle('is-done', b.checked); });
+  }
+  boxes.forEach(function (b) {
+    b.checked = store('clover-' + b.dataset.id) === '1';
+    b.addEventListener('change', function () { store('clover-' + b.dataset.id, b.checked ? '1' : '0'); paint(); });
+  });
+  paint();
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.dataset.target);
+      function done() { btn.textContent = 'Скопировано'; btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = 'Копировать промт'; btn.classList.remove('ok'); }, 1600); }
+      function fallback() { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'Текст выделен, скопируй вручную'; }
+      try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+    });
+  });
+})();
+</script>
