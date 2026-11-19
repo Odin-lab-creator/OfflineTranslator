@@ -597,7 +597,13 @@ def tunnel(d, p):
 def zombie_list(n, t, off=()):
     """(x, поза, фаза, направление) для зомби на поверхности."""
     zs = []
-    if "zdig" in off:                         # роют землю над комнатой
+    if "decoy" in off:                        # роют у будильника в дальнем углу огорода
+        for i, (cx, f) in enumerate(((452, 1), (486, -1), (508, -1))):
+            zs.append((cx, "crouch", (t * 0.9 + i * 0.3) % 1, f))
+        for i, (cx, amp) in enumerate(((410, 25), (528, 10))):
+            zs.append((cx + amp * math.sin(t * 0.5 + i), "walk", (t * 0.8 + i * 0.5) % 1, 1 if i == 0 else -1))
+        return zs
+    if "zdig" in off or ("ceilinghole" in off and "night" in off):  # роют землю над комнатой
         for i, (cx, f) in enumerate(((280, 1), (316, -1), (346, -1))):
             zs.append((cx, "crouch", (t * 0.9 + i * 0.3) % 1, f))
         for i, (cx, amp) in enumerate(((150, 30), (420, 35))):
@@ -677,7 +683,10 @@ def world(n, p, t, off=(), knock=None):
         if dig2 > 0.4:
             room(d, ROOM2, n >= 9 and "room2wood" not in off, (dig2 - 0.4) / 0.6, side="right", seed=5)
         ladder(d, 337, 458, 524 if dig2 > 0.4 else 464 + 60 * dig2 * 2.5)
-    tun = 0 if n < 12 or "tunnel" in off else (p if n == 12 else 1)
+    if "tunneldig" in off:                    # тоннель растёт по ходу сцены
+        tun = max(0.05, ease((p - 0.4) / 0.6))
+    else:
+        tun = 0 if n < 12 or "tunnel" in off else (p if n == 12 else 1)
     tun_tip = tunnel(d, tun) if tun else (380, 446)
     ext = 0 if n < 13 else (min(1, p * 1.6) if n == 13 else 1)
     if ext:
@@ -823,6 +832,12 @@ def world(n, p, t, off=(), knock=None):
         d.rounded_rectangle([272, 446, 292, 458], 2, fill=(74, 78, 62))
         d.ellipse([275, 449, 281, 455], fill=(40, 40, 40)); d.rectangle([284, 449, 289, 451], fill=(200, 180, 90))
         d.line([(289, 446), (296, 432)], fill=(40, 40, 40))
+    if "radio" in off:                        # старое радио на полу у матраса
+        d.rounded_rectangle([272, 446, 292, 458], 2, fill=(74, 78, 62))
+        d.ellipse([275, 449, 281, 455], fill=(40, 40, 40))
+        on = 0.5 + 0.5 * math.sin(t * 7)
+        d.rectangle([284, 449, 289, 451], fill=(int(90 + 140 * on), 220, int(90 + 40 * on)))
+        d.line([(289, 446), (296, 432)], fill=(40, 40, 40))
     if n >= 18:                               # стол
         d.rectangle([214, 440, 268, 444], fill=(144, 102, 64)); d.line([(214, 444), (268, 444)], fill=(100, 70, 44))
         d.rectangle([218, 444, 221, 458], fill=(112, 78, 48)); d.rectangle([261, 444, 264, 458], fill=(112, 78, 48))
@@ -943,9 +958,17 @@ def world(n, p, t, off=(), knock=None):
         if who_ in ("hero", "anya", "mitya") and rest:
             hx_, hy_, hp_, hf_ = rest.split(",")
             H[who_] = (float(hx_), float(hy_), hp_, int(hf_))
+    if "tunneldig" in off:
+        H["hero"] = (tun_tip[0] - 12, tun_tip[1] + 10, "dig", 1)
+    lead_x = None
+    if "mityalead" in off:                    # Митя идёт по поверхности, толпа за ним
+        lead_x = 300 + 260 * ease((p - 0.35) / 0.65)
+        H["mitya"] = (lead_x, GY, "walk", 1)
     xs = [v[0] for v in H.values()]
     ys = [v[1] for v in H.values()]
     focus = (sum(xs) / len(xs), sum(ys) / len(ys))
+    if lead_x is not None:
+        focus = (lead_x - 40, GY + 60)
     for who, (x, y, pose, f) in H.items():
         cold = pose in ("cold", "coldsit")
         if cold:                              # дрожит
@@ -957,9 +980,12 @@ def world(n, p, t, off=(), knock=None):
                 dx = (16 + q * 22) * f
                 dy = -10 - 26 * q + 40 * q * q
                 d.rectangle([x + dx, y + dy, x + dx + 2, y + dy + 2], fill=(132, 92, 56))
-    for x, pose, phz, f in zombie_list(n, t, off):
+    zl = zombie_list(n, t, off)
+    if lead_x is not None:
+        zl = [(lead_x - 34 - i * 21 + 3 * math.sin(t * 2 + i), "walk", (t * 1.2 + i * 0.27) % 1, 1) for i in range(7)]
+    for x, pose, phz, f in zl:
         put(img, "zombie", pose, phz, x, GY, f)
-    if "mitya" in H:                          # цепь от стены к ноге
+    if "mitya" in H and H["mitya"][1] > 560:  # цепь от стены к ноге
         mx_, my_ = H["mitya"][0], H["mitya"][1]
         pts = [(539, 584), ((539 + mx_) / 2, my_ + 1), (mx_ + 2, my_ - 3)]
         d.line(pts, fill=(120, 122, 130), width=1)
@@ -971,8 +997,29 @@ def world(n, p, t, off=(), knock=None):
             d.line([(gx, 547), (gx, 588)], fill=(58, 58, 64), width=1)
         for gy in (556, 572):
             d.line([(524, gy), (537, gy)], fill=(58, 58, 64), width=1)
-    if "zdig" in off:                         # яма в земле над комнатой
+    if "zdig" in off or "ceilinghole" in off:  # яма в земле над комнатой
         d.ellipse([270, GY - 3, 360, GY + 10], fill=(48, 33, 25))
+    if "ceilinghole" in off:                  # пробитый потолок: лаз до комнаты и руки мертвецов
+        d.polygon([(286, GY + 6), (322, GY + 6), (318, 406), (290, 406)], fill=(40, 28, 22))
+        d.line([(290, 406), (284, 412)], fill=(98, 68, 44), width=3)                 # обломки балки
+        d.line([(318, 406), (326, 413)], fill=(98, 68, 44), width=3)
+        if "mityalead" not in off and "night" in off:   # днём после ухода толпы дыра пустая
+            for i, (ax, ln) in enumerate(((298, 16), (311, 12))):
+                sw = 3 * math.sin(t * 3 + i * 2)
+                d.line([(ax, 398), (ax + sw, 398 + ln)], fill=(136, 172, 104), width=4)
+                d.rectangle([ax + sw - 2, 396 + ln, ax + sw + 2, 401 + ln], fill=(150, 186, 116))
+    if "sacks" in off:                        # мешки с землёй под дырой
+        for sx, sy in ((300, 452), (316, 452), (308, 444)):
+            d.rounded_rectangle([sx - 7, sy, sx + 7, sy + 10], 3, fill=(178, 150, 104), outline=(110, 90, 60))
+            d.line([(sx - 2, sy + 1), (sx + 2, sy + 1)], fill=(120, 96, 64))
+    if "decoy" in off:                        # яма и звенящий будильник в дальнем углу огорода
+        d.ellipse([440, GY - 3, 522, GY + 9], fill=(48, 33, 25))
+        d.ellipse([466, GY - 15, 478, GY - 3], fill=(200, 40, 34), outline=(60, 20, 20))
+        d.ellipse([469, GY - 12, 475, GY - 6], fill=(240, 236, 220))
+        d.ellipse([464, GY - 18, 469, GY - 13], fill=(220, 190, 70)); d.ellipse([475, GY - 18, 480, GY - 13], fill=(220, 190, 70))
+        if (t * 6) % 1 < 0.5:                 # звон
+            for k in (1, 2):
+                d.arc([462 - 4 * k, GY - 22 - 4 * k, 482 + 4 * k, GY - 2 + 4 * k], 200, 340, fill=(255, 240, 160))
     # ---- свет ----
     a = np.asarray(img).astype(np.float32) / 255
     amb_sky = {"day": 1.0, "evening": 0.94, "night": 0.66}[kind]

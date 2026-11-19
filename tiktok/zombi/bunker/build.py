@@ -550,6 +550,14 @@ def growls(scenes):
     return out
 
 
+def statics(scenes):
+    """Треск радио: на словах «радио» и в конце серии (FINAL = "static")."""
+    out = [(w["t0"], 0.6) for s in scenes for w in s["words"] if w["text"].startswith("РАДИО")]
+    if getattr(EP, "FINAL", "knock") == "static":
+        out.append((scenes[-1]["words"][-1]["t1"] + 0.25, 1.6))
+    return out
+
+
 def digs(scenes):
     """Глухие удары лопат сверху: на словах «копают / роют» и в конце серии (FINAL = "dig") — по 4 удара."""
     if getattr(EP, "FINAL", "knock") != "dig":
@@ -620,6 +628,13 @@ def audio(scenes, total, voice_path, sr=44100, music=None):
         env = np.clip(tt / 0.15, 0, 1) * np.exp(-np.clip(tt - 0.6, 0, None) * 3)
         g = (nz * 6 * am + tone * 0.6) * env * (1.4 if k == len(growls(scenes)) - 1 else 1.0)
         mix[a:a + m] += (g * 0.35).astype(np.float32)[:max(0, n - a)]
+    for st, ln in statics(scenes):                     # треск и свист старого радио
+        a, m = int(st * sr), int(ln * sr)
+        tt = np.arange(m) / sr
+        nz = rng.normal(0, 1, m) * (0.6 + 0.4 * np.sin(2 * np.pi * 9 * tt))
+        whistle = np.sin(2 * np.pi * np.cumsum(900 + 500 * np.sin(2 * np.pi * 0.7 * tt)) / sr) * 0.25
+        env = np.clip(tt / 0.05, 0, 1) * np.clip((ln - tt) / 0.2, 0, 1)
+        mix[a:a + m] += ((nz * 0.08 + whistle * 0.12) * env).astype(np.float32)[:max(0, n - a)]
     for k, dt in enumerate(digs(scenes)):              # удары лопат сквозь землю
         a, m = int(dt * sr), int(0.4 * sr)
         tt = np.arange(m) / sr
