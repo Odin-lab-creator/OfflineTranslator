@@ -20,7 +20,9 @@ GRID_TOP, GRID_BOT, OVERLAY = 240, 1680, 0.15
 SHOTS = {1: (6, True, 52, 4, None, "", [(120, "walk", 0.25, 1), (172, "walk", 0.7, 1), (300, "walk", 0.6, -1),
                                           (372, "walk", 0.1, -1), (238, "crouch", 0.3, -1)], ()),
          2: (16, True, 270, 252, None, "", None,
-             ("-bike", "night", "dooropen", "eyes", "hero=440,586,stand,1", "anya=500,588,give,1"), 4)}
+             ("-bike", "night", "dooropen", "eyes", "hero=440,586,stand,1", "anya=500,588,give,1"), 4),
+         3: (16, False, 120, 47, None, "", None,
+             ("dooropen", "grate", "garden", "clay", "zdig", "dirtfall", "hero=296,462,up,1", "anya=326,462,stand,-1"), 3)}
 
 
 def make(ep):

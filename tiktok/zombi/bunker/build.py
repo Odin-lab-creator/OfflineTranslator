@@ -458,6 +458,8 @@ def frame(fi):
     # тряска на стуке и трещине
     if s["stage"] == 20 and p > 0.25:
         r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-2, 2)
+    elif any(0 <= T - g < 0.12 for g in G.get("digs", [])):
+        r = random.Random(fi); cy += r.randint(-2, 1)
     elif any(0 <= T - g < 0.5 for g in G.get("growls", [])):
         r = random.Random(fi); cx += r.randint(-2, 2); cy += r.randint(-1, 1)
     elif kage is not None and kage < 0.14:
@@ -518,6 +520,7 @@ def init(scenes, clean, preview):
     G["endcam"] = [cam_target(seg_world(s, len(s["segs"]) - 1, s["end"], 1.0, None)[1]) for s in scenes]
     G["knocks"] = knocks(scenes)
     G["growls"] = growls(scenes)
+    G["digs"] = digs(scenes)
 
 
 def knocks(scenes):
@@ -540,11 +543,20 @@ def knocks(scenes):
 
 
 def growls(scenes):
-    """Рычание: на слове «рычит» и в самом конце серии."""
-    if getattr(EP, "FINAL", "knock") != "growl":
+    """Рычание: на словах «рычит / зарычал» и, если так задано в серии, в самом конце."""
+    out = [w["t0"] for s in scenes for w in s["words"] if "РЫЧ" in w["text"]]
+    if getattr(EP, "FINAL", "knock") == "growl":
+        out.append(scenes[-1]["words"][-1]["t1"] + 0.3)
+    return out
+
+
+def digs(scenes):
+    """Глухие удары лопат сверху: на словах «копают / роют» и в конце серии (FINAL = "dig") — по 4 удара."""
+    if getattr(EP, "FINAL", "knock") != "dig":
         return []
-    out = [w["t0"] for s in scenes for w in s["words"] if w["text"].startswith("РЫЧ")]
-    return out + [scenes[-1]["words"][-1]["t1"] + 0.3]
+    starts = [w["t1"] + 0.1 for s in scenes for w in s["words"] if w["text"].startswith(("КОПАЮТ", "РОЮТ"))]
+    starts.append(scenes[-1]["words"][-1]["t1"] + 0.3)
+    return [t0 + k * 0.42 for t0 in starts for k in range(4)]
 
 
 def decode(path, sr):
@@ -608,6 +620,12 @@ def audio(scenes, total, voice_path, sr=44100, music=None):
         env = np.clip(tt / 0.15, 0, 1) * np.exp(-np.clip(tt - 0.6, 0, None) * 3)
         g = (nz * 6 * am + tone * 0.6) * env * (1.4 if k == len(growls(scenes)) - 1 else 1.0)
         mix[a:a + m] += (g * 0.35).astype(np.float32)[:max(0, n - a)]
+    for k, dt in enumerate(digs(scenes)):              # удары лопат сквозь землю
+        a, m = int(dt * sr), int(0.4 * sr)
+        tt = np.arange(m) / sr
+        th = np.sin(2 * np.pi * np.cumsum(60 * np.exp(-tt * 14) + 38) / sr) * np.exp(-tt * 12)
+        th += np.convolve(rng.normal(0, 1, m), np.ones(40) / 40, "same") * np.exp(-tt * 9) * 1.2   # шорох земли
+        mix[a:a + m] += (th * 0.5).astype(np.float32)[:max(0, n - a)]
     mix /= max(1e-6, np.abs(mix).max()) / 0.9
     return mix
 
