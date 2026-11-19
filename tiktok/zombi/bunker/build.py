@@ -249,8 +249,16 @@ def typed(w, t):
 
 def captions(img, s, t):
     ws = s["words"]
-    key = [w for w in ws if w["key"]]
-    if key and key[0]["t0"] - 0.05 <= t <= key[-1]["t1"] + 0.45:      # ключевая фраза: две строки, вторая фиолетовая
+    groups, cur_g = [], []                   # ключевые фразы сцены — каждая отдельно (подряд идущие ключевые слова)
+    for w in ws:
+        if w["key"]:
+            cur_g.append(w)
+        elif cur_g:
+            groups.append(cur_g); cur_g = []
+    if cur_g:
+        groups.append(cur_g)
+    key = next((g for g in groups if g[0]["t0"] - 0.05 <= t <= g[-1]["t1"] + 0.45), None)
+    if key:                                  # ключевая фраза: две строки, вторая фиолетовая
         half = math.ceil(len(key) / 2)
         lines = [key[:half], key[half:]] if len(key) > 1 else [key]
         cols = [WHITE, PURPLE] if len(lines) == 2 else [PURPLE]
