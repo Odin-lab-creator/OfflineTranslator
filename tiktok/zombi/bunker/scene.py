@@ -31,6 +31,10 @@ PEOPLE = {
                  legs=(70, 70, 80), boot=(48, 36, 30), hair=(40, 30, 28), hair2=(26, 20, 18)),
     "zombie": dict(skin=(136, 172, 104), top=(98, 86, 78), top2=(74, 64, 58), top3=(120, 108, 98),
                    legs=(64, 70, 62), boot=(50, 44, 40), hair=(58, 66, 44), hair2=(44, 50, 34)),
+    "father": dict(skin=(226, 182, 146), top=(226, 228, 232), top2=(186, 190, 198), top3=(244, 244, 246),
+                   legs=(60, 64, 74), boot=(40, 34, 30), hair=(160, 160, 164), hair2=(124, 124, 128)),
+    "fathermask": dict(skin=(226, 182, 146), top=(226, 228, 232), top2=(186, 190, 198), top3=(244, 244, 246),
+                       legs=(60, 64, 74), boot=(40, 34, 30), hair=(70, 76, 70), hair2=(50, 54, 50)),
     "mitya": dict(skin=(196, 204, 186), top=(112, 112, 122), top2=(86, 86, 96), top3=(142, 142, 152),
                   legs=(52, 56, 70), boot=(44, 36, 30), hair=(38, 32, 30), hair2=(24, 20, 18)),
 }
@@ -133,6 +137,15 @@ def person(kind, pose, phase):
             d.rectangle([hx - 8, hy + 2, hx - 4, hy + 11], fill=c["hair"])
             d.ellipse([hx - 13, hy + 1, hx - 7, hy + 7], fill=c["hair2"])            # пучок/хвост
             d.rectangle([hx - 12, hy + 6, hx - 9, hy + 14], fill=c["hair2"])
+        elif kind == "father":                   # седой, с бородой
+            d.rectangle([hx - 8, hy - 2, hx + 5, hy + 2], fill=c["hair"])
+            d.rectangle([hx - 8, hy + 2, hx - 5, hy + 8], fill=c["hair"])
+            d.rectangle([hx + 1, hy + 9, hx + 7, hy + 13], fill=c["hair2"])
+        elif kind == "fathermask":               # противогаз: резина, стёкла, фильтр
+            d.rounded_rectangle([hx - 8, hy - 2, hx + 7, hy + 13], 4, fill=c["hair"])
+            d.ellipse([hx + 1, hy + 4, hx + 5, hy + 8], fill=(170, 196, 180))
+            d.ellipse([hx + 5, hy + 9, hx + 11, hy + 15], fill=c["hair2"])
+            d.point((hx + 8, hy + 12), fill=(30, 30, 30))
         elif kind == "mitya":                    # растрёпанные тёмные волосы
             d.rectangle([hx - 8, hy - 2, hx + 6, hy + 3], fill=c["hair"])
             d.rectangle([hx - 8, hy + 2, hx - 5, hy + 9], fill=c["hair"])
@@ -144,6 +157,8 @@ def person(kind, pose, phase):
             d.rectangle([ex - 1, hy + 5, ex + 2, hy + 7], fill=(60, 70, 50))
             d.rectangle([ex, hy + 6, ex + 1, hy + 7], fill=(230, 40, 30))
             d.rectangle([hx + 2, hy + 10, hx + 6, hy + 11], fill=(70, 30, 30))
+        elif kind == "fathermask":
+            pass
         elif kind == "mitya":                    # красные глаза, синяки под глазами
             d.rectangle([ex - 1, hy + 7, ex + 2, hy + 8], fill=(150, 150, 160))
             d.rectangle([ex, hy + 5, ex + 1, hy + 6], fill=(220, 40, 34))
@@ -187,7 +202,7 @@ def person(kind, pose, phase):
                 d.rectangle([x + 11, top_y + 1, x + 16, top_y + 8], fill=(120, 150, 90))
                 d.rectangle([x + 11, top_y, x + 16, top_y + 1], fill=(200, 170, 60))
                 d.point([(x + 13, top_y + 4), (x + 14, top_y + 6)], fill=(80, 120, 60))
-            else:
+            elif kind == "anya":
                 d.chord([x + 9, top_y + 2, x + 19, top_y + 10], 0, 180, fill=(150, 150, 160))
                 d.line([(x + 10, top_y + 6), (x + 18, top_y + 6)], fill=(180, 140, 90))
         elif pose == "knife":
@@ -768,7 +783,7 @@ def world(n, p, t, off=(), knock=None):
         d.rectangle([264, 539, 268, 547], fill=(150, 96, 54))
         d.rectangle([278, 572, 288, 586], fill=(160, 40, 34)); d.rectangle([280, 569, 284, 572], fill=(60, 60, 60))   # канистра
         d.line([(279, 574), (287, 584)], fill=(130, 30, 26))
-    if n >= 18:
+    if n >= 18 or "table" in off:
         d.rectangle([196, 458, 282, 461], fill=(150, 60, 50))                # коврик
         for x in range(198, 282, 6):
             d.point((x, 459), fill=(220, 180, 90))
@@ -838,7 +853,7 @@ def world(n, p, t, off=(), knock=None):
         on = 0.5 + 0.5 * math.sin(t * 7)
         d.rectangle([284, 449, 289, 451], fill=(int(90 + 140 * on), 220, int(90 + 40 * on)))
         d.line([(289, 446), (296, 432)], fill=(40, 40, 40))
-    if n >= 18:                               # стол
+    if n >= 18 or "table" in off:             # стол
         d.rectangle([214, 440, 268, 444], fill=(144, 102, 64)); d.line([(214, 444), (268, 444)], fill=(100, 70, 44))
         d.rectangle([218, 444, 221, 458], fill=(112, 78, 48)); d.rectangle([261, 444, 264, 458], fill=(112, 78, 48))
         d.rounded_rectangle([238, 430, 248, 440], 2, fill=(232, 170, 60)); d.rectangle([238, 433, 248, 436], fill=(200, 80, 50))
@@ -903,6 +918,34 @@ def world(n, p, t, off=(), knock=None):
             fx = (r.randrange(BW) + math.sin(t * 0.8 + i) * 6 + t * 6) % BW
             fy = (r.randrange(GY) + t * (18 + i % 5 * 4)) % (GY + 10)
             d.rectangle([fx, fy, fx + (i % 3 == 0), fy + (i % 3 == 0)], fill=(246, 248, 252))
+    if "patched" in off:                      # дыра в потолке заложена мешками и засыпана
+        d.polygon([(286, GY + 6), (322, GY + 6), (318, 406), (290, 406)], fill=(132, 92, 60))
+        for row, yy in enumerate((396, 386, 376)):
+            for k in range(3):
+                sx = 290 + k * 10 + (row % 2) * 4
+                d.rounded_rectangle([sx, yy, sx + 9, yy + 9], 3, fill=(178, 150, 104), outline=(110, 90, 60))
+    if "breach" in off:                       # пролом в камне и бетонный коридор «Объекта»
+        d.polygon([(238, 586), (272, 586), (266, 702), (244, 702)], fill=(30, 22, 20))
+        d.rectangle([110, 700, 540, 768], fill=(108, 110, 116))
+        for x in range(110, 540, 24):
+            d.line([(x, 704), (x, 756)], fill=(94, 96, 102))
+        d.rectangle([110, 700, 540, 704], fill=(70, 72, 78))
+        d.rectangle([110, 758, 540, 768], fill=(80, 82, 88))
+        d.line([(110, 758), (540, 758)], fill=(126, 128, 134))
+        d.rectangle([244, 700, 266, 705], fill=(30, 22, 20))                   # дыра в потолке коридора
+        for lx in (180, 300):
+            d.rectangle([lx - 8, 704, lx + 8, 706], fill=(236, 244, 250))
+        d.rectangle([470, 704, 540, 758], fill=(22, 22, 26))                   # коридор уходит в темноту
+        d.rectangle([434, 711, 464, 758], fill=(64, 66, 74))                   # железная дверь
+        d.rectangle([437, 714, 461, 758], fill=(96, 100, 110))
+        for ry in (722, 740):
+            d.line([(437, ry), (461, ry)], fill=(80, 84, 94))
+        d.rectangle([457, 734, 459, 738], fill=(200, 200, 206))
+        d.rectangle([436, 705, 462, 710], fill=(210, 180, 60))                 # табличка «ОБЪЕКТ 9»
+        for k in range(0, 26, 4):
+            d.line([(436 + k, 710), (439 + k, 705)], fill=(30, 30, 30))
+    if "rope" in off:
+        d.line([(255, 586), (256, 640), (255, 700), (256, 758)], fill=(196, 170, 120), width=1)
     # ---- люди ----
     ph = (t * 1.3) % 1
     H = {}
@@ -955,7 +998,7 @@ def world(n, p, t, off=(), knock=None):
         H["anya"] = (270, F_ROOM2, "stand", -1)
     for fl in off:
         who_, _, rest = fl.partition("=")
-        if who_ in ("hero", "anya", "mitya") and rest:
+        if who_ in ("hero", "anya", "mitya", "father", "fathermask") and rest:
             hx_, hy_, hp_, hf_ = rest.split(",")
             H[who_] = (float(hx_), float(hy_), hp_, int(hf_))
     if "tunneldig" in off:
@@ -1050,8 +1093,12 @@ def world(n, p, t, off=(), knock=None):
         glow(L, 490, 548, 40, 0.6, (0.8, 0.9, 1.0))
     if n >= 17 or "garden" in off:
         glow(L, 346, 556, 40, 0.5, (0.9, 0.6, 1.0))
-    if n >= 18:
+    if n >= 18 or "table" in off:
         glow(L, 228, 428, 34, 0.6 * flick(t, 5), warm)
+    if "breach" in off:                       # холодные лампы в коридоре объекта
+        for lx in (180, 300):
+            glow(L, lx, 712, 46, 0.9, (0.85, 0.95, 1.05))
+        glow(L, 449, 734, 30, 0.4, (1.0, 0.85, 0.5))
     L = 1.3 * np.tanh(L / 1.3)              # мягкий потолок света — без пересвета
     L = np.round(L * 10) / 10                # свет ступенями, без точечного узора
     L[:GY - 2] = L[GY + 40, 0] * 0 + {"day": 1.0, "evening": 0.94, "night": 0.66}[kind] * (
@@ -1093,7 +1140,7 @@ def world(n, p, t, off=(), knock=None):
             xx = 278 + (i * 13) % 70
             d.rectangle([xx, yy, xx + 1, yy + 1], fill=(150, 108, 64, 255))
     if knock is not None and knock < 0.6:     # стук: расходящиеся круги (время от удара — из сборки)
-        cx, cy = (432, 560) if n < 19 else (256, 640)
+        cx, cy = (432, 560) if n < 19 and "knockbelow" not in off else (256, 640)
         for k in range(2):
             q = knock - k * 0.12
             if q > 0:
@@ -1104,7 +1151,7 @@ def world(n, p, t, off=(), knock=None):
         for i in range(8):
             if math.sin(t * 25 + i * 1.7) > 0.4:
                 d.rectangle([424 + i % 4 * 2, 548 + i * 3, 425 + i % 4 * 2, 549 + i * 3], fill=(255, 230, 120, 255))
-    if n == 20:                               # трещина и глаза
+    if n == 20 or "crack" in off:             # трещина (и глаза — только этап 20)
         crack = [(252, 588), (244, 604), (258, 624), (246, 648), (262, 672), (254, 700)]
         k = ease(p * 1.6) * (len(crack) - 1)
         m = int(k)
@@ -1116,11 +1163,18 @@ def world(n, p, t, off=(), knock=None):
         if len(pts) > 1:
             d.line(pts, fill=(8, 6, 8, 255), width=4)
             d.line([(x + 2, y) for x, y in pts], fill=(110, 104, 112, 255), width=1)
-        if p > 0.72:
+        if n == 20 and p > 0.72:
             al = int(255 * ease((p - 0.72) / 0.12))
             for ex in (244, 262):
                 d.rectangle([ex, 684, ex + 3, 686], fill=(255, 40, 30, al))
                 d.rectangle([ex - 2, 682, ex + 5, 688], fill=(255, 40, 30, al // 4))
+    if "manyeyes" in off:                     # сотни глаз в темноте коридора
+        r = random.Random(9)
+        for i in range(40):
+            ex, ey = r.randrange(472, 536), r.randrange(708, 752)
+            if (t * 0.8 + i * 0.13) % 1 < 0.92:   # иногда моргают
+                d.rectangle([ex, ey, ex + 1, ey], fill=(255, 50, 36, 255))
+                d.rectangle([ex + 4, ey, ex + 5, ey], fill=(255, 50, 36, 255))
     return img, focus
 
 

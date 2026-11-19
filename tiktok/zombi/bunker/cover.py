@@ -25,7 +25,10 @@ SHOTS = {1: (6, True, 52, 4, None, "", [(120, "walk", 0.25, 1), (172, "walk", 0.
              ("dooropen", "grate", "garden", "clay", "zdig", "dirtfall", "hero=296,462,up,1", "anya=326,462,stand,-1"), 3),
          4: (16, True, 130, 47, None, "", None,
              ("dooropen", "grate", "clay", "lamp", "-tunnel", "night", "radio", "ceilinghole", "dirtfall", "sacks",
-              "hero=330,462,dig,-1", "anya=262,462,stand,1"), 3)}
+              "hero=330,462,dig,-1", "anya=262,462,stand,1"), 3),
+         5: (16, False, 270, 425, None, "", None,
+             ("dooropen", "clay", "lamp", "-tunnel", "radio", "patched", "breach", "rope", "manyeyes",
+              "hero=330,758,stand,1", "anya=298,758,stand,1", "father=400,758,give,-1"), 4)}
 
 
 def make(ep):
